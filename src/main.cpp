@@ -8,6 +8,8 @@
 #include <boost/foreach.hpp>
 #include <boost/tuple/tuple.hpp>
 
+#include "parser.h"
+
 using namespace std;
 
 
@@ -28,7 +30,7 @@ struct Link {
     Link(double cost) : cost(cost) { };
 };
 
-typedef std::array<string, 3> graphDataType;
+//typedef std::array<string, 3> graphDataType; //declare in common.h
 typedef boost::adjacency_list<boost::listS, boost::listS, boost::undirectedS,
         Router, Link> Graph;
 typedef boost::graph_traits<Graph>::vertex_descriptor Vertex;
@@ -51,33 +53,9 @@ vector<vector<string>> readFile1(string filePath) {
     return contents;
 }
 
-vector<graphDataType> readFile2(string filePath) {
-    ifstream inFile(filePath);
 
-    // Reading to vector<graphDataType>
-    vector<graphDataType> contents;
-    vector<string> strs;
-    graphDataType graph_strs;
-    for (string line; getline(inFile, line); /**/) {
-        boost::split(strs, line, boost::is_any_of(" "));
-
-        // Cast vector<string> to array<string, 3>
-        // TODO: this is really crude way to do it.
-        // TODO: how to copy some element of vector to array
-        vector<string>::iterator i = strs.begin();
-        for (int i = 0; i < strs.size(); ++i) {
-            graph_strs[i] = strs[i];
-        }
-        contents.push_back(graph_strs);
-    }
-    inFile.close();
-
-    return contents;
-
-}
-
-template <typename NameVertexMap>
-void addLinkToGraph(string s1, string s2, double cost, Graph& g, NameVertexMap& routers) {
+template<typename NameVertexMap>
+void addLinkToGraph(string s1, string s2, double cost, Graph &g, NameVertexMap &routers) {
     // TODO: change routers --> routers_map
 
     Vertex v1, v2;
@@ -115,7 +93,7 @@ void addLinkToGraph(string s1, string s2, double cost, Graph& g, NameVertexMap& 
     }
 }
 
-void readJson(string filePath, Graph& g) {
+void readJson(string filePath, Graph &g) {
     vector<graphDataType> contents;
     boost::property_tree::ptree pt;
     boost::property_tree::read_json(filePath, pt);
@@ -127,17 +105,41 @@ void readJson(string filePath, Graph& g) {
     typedef std::map<std::string, Vertex> NameVertexMap;
     NameVertexMap routers;
 
-    BOOST_FOREACH(const boost::property_tree::ptree::value_type &v, pt.get_child("links"))
-    {
-        cout << "X" << endl;
-        cout << v.second.get_value<std::string>() << " ";
-        string source = v.second.get_child("source").get_value<std::string>();
-        string target = v.second.get_child("target").get_value<std::string>();
-        double cost = v.second.get_child("cost").get_value<double>();
+    BOOST_FOREACH(const boost::property_tree::ptree::value_type &v, pt.get_child("links")) {
+                    cout << "X" << endl;
+                    cout << v.second.get_value<std::string>() << " ";
+                    string source = v.second.get_child("source").get_value<std::string>();
+                    string target = v.second.get_child("target").get_value<std::string>();
+                    double cost = v.second.get_child("cost").get_value<double>();
 
 
-        addLinkToGraph(source, target, cost, g, routers);
-    }
+                    addLinkToGraph(source, target, cost, g, routers);
+                }
+}
+
+void readComplexJson(string filePath, Graph &g) {
+    vector<graphDataType> contents;
+    boost::property_tree::ptree pt;
+    boost::property_tree::read_json(filePath, pt);
+
+    Vertex v1, v2;
+    Edge e;
+
+    // NameVertexMap is to keep track of which router has already been added
+    typedef std::map<std::string, Vertex> NameVertexMap;
+    NameVertexMap routers;
+
+    BOOST_FOREACH(const boost::property_tree::ptree::value_type &v, pt.get_child("topology")) {
+                    cout << "X" << endl;
+                    cout << v.second.get_value<std::string>() << " ";
+                    string source = v.second.get_child("lastHopIP").get_value<std::string>();
+                    string target = v.second.get_child("destinationIP").get_value<std::string>();
+                    double cost = v.second.get_child("neighborLinkQuality").get_value<double>();
+
+
+                    addLinkToGraph(source, target, cost, g, routers);
+                }
+
 }
 
 void printVector1(vector<vector<string>> contents) {
@@ -272,19 +274,27 @@ void printGraph(Graph g) {
     }
 }
 
-void handleSimpleInput(string filePath) {
-    // Read the input.edges
-    vector<graphDataType> contents;
-    contents = readFile2(filePath);
-    printVector2(contents);
-    Graph g;
-    createUndirectedGraph(contents, g);
-    cout << "Finish creating graph" << endl;
-    printGraph(g);
+void writeBetweennessCentrality(Graph &g, std::vector<double> v_centrality_vec, string fileSuffix) {
+    cout << "XXX Writing to File";
+    string filePath = "../output/boost_" + fileSuffix + ".csv";
+    ofstream outFile(filePath);
+
+    // Reading to vector<graphDataType>
+    Viter vi, ve;
+    size_t i = 0;
+    if (outFile.is_open()) {
+        for (boost::tie(vi, ve) = boost::vertices(g); vi != ve; ++vi) {
+            outFile << g[*vi].id << ", " << v_centrality_vec.at(i) << endl;
+            ++i;
+        }
+    }
+    outFile.close();
+
+    cout << "XXX Writing to File 2";
 }
 
 
-void simpleBetweennessCentrality(Graph g) {
+void simpleBetweennessCentrality(Graph g, string fileSuffix) {
     // One way to create centrality_map
     //    boost::shared_array_property_map<double, boost::property_map<Graph, vertex_index_t>::const_type>
     //            centrality_map(num_vertices(g), get(boost::vertex_index, g));
@@ -319,24 +329,44 @@ void simpleBetweennessCentrality(Graph g) {
         ++i;
     }
 
-    std::vector<double> v_centrality_vec(boost::num_vertices(g), 0);
-    boost::iterator_property_map< std::vector< double >::iterator, VertexIndexMap >
-            v_centrality_map(v_centrality_vec.begin(), v_index);
+    typedef std::vector<double> CentralityVec;
+    CentralityVec v_centrality_vec(boost::num_vertices(g), 0);
+
+    typedef boost::iterator_property_map<CentralityVec::iterator, VertexIndexMap> CentralityMap;
+    CentralityMap v_centrality_map(v_centrality_vec.begin(), v_index);
+
+    // Nov 26, try out the normal call to centrality().This version is not working.
+//    brandes_betweenness_centrality( g, boost::centrality_map(v_centrality_map));
 
     // http://stackoverflow.com/questions/30263594/adding-a-vertex-index-to-lists-graph-on-the-fly-for-betweenness-centrality
     // Use named-parameter
-    brandes_betweenness_centrality( g,
-            boost::centrality_map(v_centrality_map).vertex_index_map(v_index));
+    brandes_betweenness_centrality(g, boost::centrality_map(v_centrality_map).vertex_index_map(v_index));
+    relative_betweenness_centrality(g, v_centrality_map);
 
-    // Print result of v_centrality_map
 
+    // Print result of v_centrality_map to console
     cout << "Vertex betweenness" << endl;
     i = 0;
-    for(boost::tie(v_iter,v_iter_end) = boost::vertices(g); v_iter != v_iter_end; ++v_iter){
+    for (boost::tie(v_iter, v_iter_end) = boost::vertices(g); v_iter != v_iter_end; ++v_iter) {
         cout << g[*v_iter].id << "\t" << v_centrality_vec.at(i) << endl;
         ++i;
     }
 
+    // Write result of v_centrality_map to file.
+    writeBetweennessCentrality(g, v_centrality_vec, fileSuffix);
+
+}
+
+void handleSimpleInput(string filePath) {
+    // Read the input.edges
+    vector<graphDataType> contents;
+    contents = readEdgeFile(filePath);
+    printVector2(contents);
+    Graph g;
+    createUndirectedGraph(contents, g);
+    cout << "Finish creating graph" << endl;
+
+    simpleBetweennessCentrality(g, "edge_list");
 }
 
 void handleJsonInput(string filePath) {
@@ -345,16 +375,32 @@ void handleJsonInput(string filePath) {
     printGraph(g);
 
     // Applying the betweenness centrality
-    simpleBetweennessCentrality(g);
+    simpleBetweennessCentrality(g, "json_olsr");
 
     cout << "Done with Betweenness Centrality" << endl;
 }
 
+void handleComplexJsonInput(string filePath) {
+    Graph g;
+    readComplexJson(filePath, g);
+    printGraph(g);
+
+    // Applying the betweenness centrality
+    simpleBetweennessCentrality(g, "json_topology");
+
+    cout << "Done with Betweenness Centrality" << endl;
+}
+
+
 int main(int, char *[]) {
     string edgeFilePath = "../input/ninux_30_1.edges";
-    //handleSimpleInput(edgeFilePath);
+    handleSimpleInput(edgeFilePath);
 
     string jsonFilePath = "../input/olsr-netjson.json";
     handleJsonInput(jsonFilePath);
+
+    string complexJsonFilePath = "../input/jsoninfo_topo.json";
+    handleComplexJsonInput(complexJsonFilePath);
+
     return 0;
 }
