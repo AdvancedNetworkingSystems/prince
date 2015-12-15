@@ -70,7 +70,6 @@ void readEdgeFile(string filePath, Graph &g) {
 }
 
 void readJson(string filePath, Graph &g) {
-    vector<graphDataType> contents;
     boost::property_tree::ptree pt;
     boost::property_tree::read_json(filePath, pt);
 
@@ -91,7 +90,6 @@ void readJson(string filePath, Graph &g) {
 }
 
 void readComplexJson(string filePath, Graph &g) {
-    vector<graphDataType> contents;
     boost::property_tree::ptree pt;
     boost::property_tree::read_json(filePath, pt);
 

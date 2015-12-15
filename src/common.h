@@ -5,8 +5,8 @@
 #ifndef GRAPH_PARSER_COMMON_H
 #define GRAPH_PARSER_COMMON_H
 
-#include <string>
-#include <array>
+#include <boost/graph/adjacency_list.hpp>
+
 using namespace std;
 
 struct Router {
@@ -27,7 +27,6 @@ struct Link {
 };
 
 // List typedefs
-typedef array<string, 3> graphDataType;
 typedef boost::adjacency_list<boost::listS, boost::listS, boost::undirectedS,
         Router, Link> Graph;
 typedef boost::graph_traits<Graph>::vertex_descriptor Vertex;
