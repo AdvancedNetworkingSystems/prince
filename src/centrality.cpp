@@ -4,7 +4,7 @@
 
 #include "centrality.h"
 
-void simpleBetweennessCentrality(Graph g, string fileSuffix) {
+void simpleBetweennessCentrality(const Graph &g, string fileSuffix) {
     // One way to create centrality_map
     //    boost::shared_array_property_map<double, boost::property_map<Graph, vertex_index_t>::const_type>
     //            centrality_map(num_vertices(g), get(boost::vertex_index, g));
@@ -68,7 +68,7 @@ void simpleBetweennessCentrality(Graph g, string fileSuffix) {
 }
 
 
-void writeBetweennessCentrality(Graph &g, std::vector<double> v_centrality_vec, string fileSuffix) {
+void writeBetweennessCentrality(const Graph &g, std::vector<double> v_centrality_vec, string fileSuffix) {
     cout << "XXX Writing to File";
     string filePath = "../output/boost_" + fileSuffix + ".csv";
     ofstream outFile(filePath);

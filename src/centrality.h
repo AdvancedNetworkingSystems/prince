@@ -10,7 +10,7 @@
 #include <boost/graph/betweenness_centrality.hpp>
 #include "common.h"
 
-void simpleBetweennessCentrality(Graph g, string fileSuffix);
-void writeBetweennessCentrality(Graph &g, std::vector<double> v_centrality_vec, string fileSuffix);
+void simpleBetweennessCentrality(const Graph &g, string fileSuffix);
+void writeBetweennessCentrality(const Graph &g, std::vector<double> v_centrality_vec, string fileSuffix);
 
 #endif //GRAPH_PARSER_CENTRALITY_H
