@@ -11,38 +11,29 @@
 #include <boost/graph/betweenness_centrality.hpp>
 #include <boost/graph/copy.hpp>
 #include "common.h"
+#include "utility.h"
 
 class SubComponent {
-private:
-    VertexVec art_points;
-    VertexVec normal_vertices; // vertices that are not articulation points
-    // std::vector<Vertex*> normal_vertices;
-    // TODO: should this one be public?
-    Graph subGraph;
-    VertexMap weightMap;
-    VertexMap weightReversedMap;
-
-    StdVertexIndexMap v_index_std_map;
-    VertexIndexMap v_index_map;
-    vector<vector<int> > trafficMatrix;
-
-    CentralityVec v_centrality_vec;
-    CentralityMap v_centrality_map;
-
-    // Traffic Matrix
-
-    // Betweenness Centrality
-
 public:
     SubComponent();
-    // SubComponent(VertexVec art_points, Graph subGraph);
-    SubComponent(const VertexVec art_points, const Graph subGraph);
+    SubComponent(const StringSet art_points, const Graph sub_graph);
+
+    // Getter & Setter
+    StringSet art_points() const;
+    void set_art_points(StringSet& art_points);
+
+    // Manipulating subGraph
+    int num_vertices();
+    void AddEdge(Router r1, Router r2, Link l);
+    bool vertex_existed(string s);
+    const Vertex& get_vertex_from_id(string s);
+    Graph const& sub_graph() const;
+
+    // Output to console
+    friend std::ostream& operator<<(std::ostream& os, const SubComponent& sc);
 
     void init();
 
-    // Getter
-    VertexVec get_art_points();
-    int num_vertices();
 
     // calculate Link Weight
     void _initialize_weight();
@@ -63,6 +54,27 @@ public:
     void _initializeBetweennessCentrality();
     void findBetweennessCentrality();
     void printBetweennessCentrality();
+
+private:
+    StringSet art_points_;
+    StringVec normal_vertices; // vertices that are not articulation points
+    // std::vector<Vertex*> normal_vertices;
+    // TODO: should this one be public?
+    std::map<std::string, Vertex> name_vertex_map_;
+    Graph sub_graph_;
+    VertexMap weightMap;
+    VertexMap weightReversedMap;
+
+    StdVertexIndexMap v_index_std_map;
+    VertexIndexMap v_index_map;
+    vector<vector<int> > trafficMatrix;
+
+    CentralityVec v_centrality_vec;
+    CentralityMap v_centrality_map;
+
+    // Traffic Matrix
+
+    // Betweenness Centrality
 };
 
 

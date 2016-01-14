@@ -10,6 +10,7 @@ BiConnectedComponents::BiConnectedComponents(const Graph &g) : g(g) {
     findBiConnectedComponents();
 }
 
+
 void BiConnectedComponents::init() {
     size_t i = 0; // for indexing in the loop
 
@@ -49,46 +50,39 @@ void BiConnectedComponents::findBiConnectedComponents() {
     outops::operator<<(cout, art_point_ids);
 
     // Process the result from boost::biconnected_components
-    // BCCs = Component_t(num_bcc());
-    // verticesInBCC();
+    BCCs = Component_t(num_bcc());
+    verticesInBCC();
     // testVerticesInBCC();
-    // processArtPoints();
+    processArtPoints();
     // testProcessArtPoints();
     // _test_set_difference();
-    // createSubComponents();
+    createSubComponents();
 }
 
 void BiConnectedComponents::createSubComponents() {
-    vector<Graph> subGraphVec(num_bcc());
-    vector< map<string, Vertex> > nameVertexMapVec(num_bcc());
+    // Generating articulation points for each sub-component
+    for (int i = 0; i < num_bcc(); ++i) {
+        StringSet art_point_ids;
+        VertexVec art_points_vec;
+        art_points_vec = get_art_points_for_component(i);
+        graphext::id_of_vertices(g, art_points_vec, art_point_ids);
 
-    // Build subgraphs
-    int comp_index;
+        outops::operator<<(cout, art_point_ids);
+        BCCs[i].set_art_points(art_point_ids);
+    }
+
+    // Generating subgraph for each sub-component
     BGL_FORALL_EDGES(edge, g, Graph) {
-        comp_index = boost::get(component_map, edge);
-        string source = g[edge.m_source].name;
-        string target = g[edge.m_target].name;
-        double cost = g[edge].cost;
-        addLinkToGraph(source, target, cost, subGraphVec[comp_index], nameVertexMapVec[comp_index]);
+        int comp_index = boost::get(component_map, edge);
+        Router r1 = g[boost::source(edge, g)];
+        Router r2 = g[boost::target(edge, g)];
+        Link l = g[edge];
+        BCCs[comp_index].AddEdge(r1, r2, l);
     }
 
-    // Build articulation points for this each subGraph
-    vector<VertexVec> art_points_vec(num_bcc());
     for (int i = 0; i < num_bcc(); ++i) {
-        // TODO optimize here - remove the function
-        art_points_vec[i] = get_art_points_for_component(i);
+        cout << BCCs[i] << endl;
     }
-
-    //
-    for (int i = 0; i < num_bcc(); ++i) {
-        SubComponent subComp = SubComponent(
-                art_points_vec[i],
-                subGraphVec[i]
-        );
-        BCCs[i] = subComp;
-    }
-
-
 }
 
 void BiConnectedComponents::print() {
@@ -216,7 +210,7 @@ void BiConnectedComponents::testProcessArtPoints() {
 
         std::vector<int> components = boost::get(art_point_component_map, articulation_point);
 
-        cout << "Components belonging to articulation point " << g[articulation_point].name << endl;
+        cout << "Components belonging to articulation point " << g[articulation_point].label << endl;
 
         for (ii = components.begin(); ii < components.end(); ++ii) {
             cout << *ii << endl;
@@ -260,215 +254,215 @@ VertexVec BiConnectedComponents::get_normal_vertices_for_component(int comp_inde
     return normal_points;
 }
 
-void BiConnectedComponents::compute_weight() {
-    _initialize_weight();
-    _initialize_queue();
+// void BiConnectedComponents::compute_weight() {
+//     _initialize_weight();
+//     _initialize_queue();
 
-    while (!Q.empty()) {
-        QueueElem elem = Q.front();
-        Q.pop();
-        int comp_index = elem.component_index;
-        Vertex current_art_point = elem.art_point;
+//     while (!Q.empty()) {
+//         QueueElem elem = Q.front();
+//         Q.pop();
+//         int comp_index = elem.component_index;
+//         Vertex current_art_point = elem.art_point;
 
-        if (elem.type == "component_vertex_pair") {
-            int size = BCCs[comp_index].num_vertices() - 1;
-            VertexVec art_points = BCCs[comp_index].get_art_points();
+//         if (elem.type == "component_vertex_pair") {
+//             int size = BCCs[comp_index].num_vertices() - 1;
+//             VertexVec art_points = BCCs[comp_index].art_points();
 
-            // TODO: I assume here that vvi != art_points.end(), aka. the element is always found.
-            VertexVecIter vvi;
-            vvi = std::find(art_points.begin(), art_points.end(), current_art_point);
-            try {
-                art_points.erase(vvi);
-            }
-            catch (exception& e) {
-                cout << "Standard exception: " << e.what() << endl;
-            }
+//             // TODO: I assume here that vvi != art_points.end(), aka. the element is always found.
+//             VertexVecIter vvi;
+//             vvi = std::find(art_points.begin(), art_points.end(), current_art_point);
+//             try {
+//                 art_points.erase(vvi);
+//             }
+//             catch (exception& e) {
+//                 cout << "Standard exception: " << e.what() << endl;
+//             }
 
-            for (vvi = art_points.begin(); vvi != art_points.end(); ++vvi) {
-                cout << "    " << g[*vvi].name << endl;
-                int weight = BCCs[comp_index].getWeight(*vvi);
-                if (weight != -1) {
-                    size += boost::num_vertices(g) - weight - 1;
-                }
-            }
+//             for (vvi = art_points.begin(); vvi != art_points.end(); ++vvi) {
+//                 cout << "    " << g[*vvi].label << endl;
+//                 int weight = BCCs[comp_index].getWeight(*vvi);
+//                 if (weight != -1) {
+//                     size += boost::num_vertices(g) - weight - 1;
+//                 }
+//             }
 
-            int link_weight = size;
-//            _verify_weight(comp_index, current_art_point, link_weight);
-            BCCs[comp_index].setWeight(current_art_point, link_weight);
+//             int link_weight = size;
+// //            _verify_weight(comp_index, current_art_point, link_weight);
+//             BCCs[comp_index].setWeight(current_art_point, link_weight);
 
-            _find_unknown_weight_wrt_art_point(current_art_point);
-        }
+//             _find_unknown_weight_wrt_art_point(current_art_point);
+//         }
 
-        if (elem.type == "vertex_component_pair") {
-            vector<int> comp_indices = get_components_for_art_point(current_art_point);;
+//         if (elem.type == "vertex_component_pair") {
+//             vector<int> comp_indices = get_components_for_art_point(current_art_point);;
 
-            vector<int>::iterator vi;
-            vi = std::find(comp_indices.begin(), comp_indices.end(), comp_index);
-            try {
-                comp_indices.erase(vi);
-            }
-            catch (exception& e) {
-                cout << "Standard exception: " << e.what() << endl;
-            }
+//             vector<int>::iterator vi;
+//             vi = std::find(comp_indices.begin(), comp_indices.end(), comp_index);
+//             try {
+//                 comp_indices.erase(vi);
+//             }
+//             catch (exception& e) {
+//                 cout << "Standard exception: " << e.what() << endl;
+//             }
 
-            int size = 0;
-            for (vi = comp_indices.begin(); vi != comp_indices.end(); ++vi) {
-                int weight = BCCs[*vi].getWeight(current_art_point);
-                if (weight != -1) {
-                    size += weight;
-                }
-            }
+//             int size = 0;
+//             for (vi = comp_indices.begin(); vi != comp_indices.end(); ++vi) {
+//                 int weight = BCCs[*vi].getWeight(current_art_point);
+//                 if (weight != -1) {
+//                     size += weight;
+//                 }
+//             }
 
-            int link_weight = boost::num_vertices(g) - 1 - size;
-//            _verify_weight(comp_index, current_art_point, link_weight);
-            BCCs[comp_index].setWeight(current_art_point, link_weight);
-            _find_unknown_weight_wrt_component(comp_index);
+//             int link_weight = boost::num_vertices(g) - 1 - size;
+// //            _verify_weight(comp_index, current_art_point, link_weight);
+//             BCCs[comp_index].setWeight(current_art_point, link_weight);
+//             _find_unknown_weight_wrt_component(comp_index);
 
-        }
-    }
-}
+//         }
+//     }
+// }
 
-void BiConnectedComponents::_initialize_weight() {
-    ComponentIter_t ci;
-    for (ComponentIter_t ci = BCCs.begin(); ci != BCCs.end(); ++ci) {
-        (*ci)._initialize_weight();
-    }
-}
+// void BiConnectedComponents::_initialize_weight() {
+//     ComponentIter_t ci;
+//     for (ComponentIter_t ci = BCCs.begin(); ci != BCCs.end(); ++ci) {
+//         (*ci)._initialize_weight();
+//     }
+// }
 
-void BiConnectedComponents::_initialize_queue() {
-    VertexVecIter vvi;
+// void BiConnectedComponents::_initialize_queue() {
+//     VertexVecIter vvi;
 
-    int i = 0;
-    VertexVec current_art_points;
-    for (i; i < num_bcc(); ++i) {
-        current_art_points = BCCs[i].get_art_points();
-        if (current_art_points.size() == 1) {
-            // creating element for queue Q
-            Vertex art_point = current_art_points[0];
-            string type = "component_vertex_pair";
-            QueueElem qe = {
-                    .component_index = i,
-                    .art_point = art_point,
-                    .type = type,
-            };
+//     int i = 0;
+//     VertexVec current_art_points;
+//     for (i; i < num_bcc(); ++i) {
+//         current_art_points = BCCs[i].art_points();
+//         if (curr ent_art_points.size() == 1) {
+//             // creating element for queue Q
+//             Vertex art_point = current_art_points[0];
+//             string type = "component_vertex_pair";
+//             QueueElem qe = {
+//                     .component_index = i,
+//                     .art_point = art_point,
+//                     .type = type,
+//             };
 
-            Q.push(qe);
-        }
-    }
-}
+//             Q.push(qe);
+//         }
+//     }
+// }
 
-void BiConnectedComponents::_find_unknown_weight_wrt_art_point(Vertex art_point) {
-    int num_of_uncomputed_weight = 0;
-    vector<int> uncomputed_weight_component_indices;
+// void BiConnectedComponents::_find_unknown_weight_wrt_art_point(Vertex art_point) {
+//     int num_of_uncomputed_weight = 0;
+//     vector<int> uncomputed_weight_component_indices;
 
-    size_t i;
-    for (i = 0; i < num_bcc(); ++i) {
-        if (hasVertex(art_point, i)) {
-            // Check if value -1 appear exactly 1 time
-            if (BCCs[i].getWeight(art_point) == -1) {
-                num_of_uncomputed_weight += 1;
-                uncomputed_weight_component_indices.insert(uncomputed_weight_component_indices.end(), i);
-            }
-        }
+//     size_t i;
+//     for (i = 0; i < num_bcc(); ++i) {
+//         if (hasVertex(art_point, i)) {
+//             // Check if value -1 appear exactly 1 time
+//             if (BCCs[i].getWeight(art_point) == -1) {
+//                 num_of_uncomputed_weight += 1;
+//                 uncomputed_weight_component_indices.insert(uncomputed_weight_component_indices.end(), i);
+//             }
+//         }
 
-        if (num_of_uncomputed_weight > 1) {
-            break;
-        }
-    }
+//         if (num_of_uncomputed_weight > 1) {
+//             break;
+//         }
+//     }
 
-    if (num_of_uncomputed_weight == 1) {
-        QueueElem elem = {
-                component_index: uncomputed_weight_component_indices[0],
-                art_point: art_point,
-                type: "vertex_component_pair",
-        };
-        Q.push(elem);
-    }
-}
+//     if (num_of_uncomputed_weight == 1) {
+//         QueueElem elem = {
+//                 component_index: uncomputed_weight_component_indices[0],
+//                 art_point: art_point,
+//                 type: "vertex_component_pair",
+//         };
+//         Q.push(elem);
+//     }
+// }
 
-void BiConnectedComponents::_find_unknown_weight_wrt_component(int comp_index) {
-    VertexVec unknown_weight_vertices;
-    BCCs[comp_index]._find_vertices_with_unknown_weight(unknown_weight_vertices);
+// void BiConnectedComponents::_find_unknown_weight_wrt_component(int comp_index) {
+//     VertexVec unknown_weight_vertices;
+//     BCCs[comp_index]._find_vertices_with_unknown_weight(unknown_weight_vertices);
 
-    if (unknown_weight_vertices.size() == 1) {
-        QueueElem elem = {
-                .component_index = comp_index,
-                .art_point = unknown_weight_vertices[0],
-                .type = "component_vertex_pair",
-        };
+//     if (unknown_weight_vertices.size() == 1) {
+//         QueueElem elem = {
+//                 .component_index = comp_index,
+//                 .art_point = unknown_weight_vertices[0],
+//                 .type = "component_vertex_pair",
+//         };
 
-        Q.push(elem);
-    }
-}
+//         Q.push(elem);
+//     }
+// }
 
-void BiConnectedComponents::print_weight() {
-    for (int i = 0; i < num_bcc(); ++i) {
-        BCCs[i].printWeight();
-    }
-}
+// void BiConnectedComponents::print_weight() {
+//     for (int i = 0; i < num_bcc(); ++i) {
+//         BCCs[i].printWeight();
+//     }
+// }
 
-void BiConnectedComponents::findBetweennessCentrality() {
-    for (int i = 0; i < num_bcc(); ++i) {
-        // BCCs[i]._computeTrafficMatrix();
-        cout << "###########" << endl;
-        _print_art_points();
-        cout << "###########" << endl;
-        BCCs[i].findBetweennessCentrality();
-    }
-}
+// void BiConnectedComponents::findBetweennessCentrality() {
+//     for (int i = 0; i < num_bcc(); ++i) {
+//         // BCCs[i]._computeTrafficMatrix();
+//         cout << "###########" << endl;
+//         _print_art_points();
+//         cout << "###########" << endl;
+//         BCCs[i].findBetweennessCentrality();
+//     }
+// }
 
-void BiConnectedComponents::printBetweennessCentrality() {
-    for (int i = 0; i < num_bcc(); ++i) {
-        BCCs[i].printBetweennessCentrality();
-    }
-}
+// void BiConnectedComponents::printBetweennessCentrality() {
+//     for (int i = 0; i < num_bcc(); ++i) {
+//         BCCs[i].printBetweennessCentrality();
+//     }
+// }
 
-void BiConnectedComponents::_print_art_points() {
-    for (int i = 0; i < art_points.size(); ++i) {
-        cout << &art_points[i] << endl;
-    }
-}
+// void BiConnectedComponents::_print_art_points() {
+//     for (int i = 0; i < art_points.size(); ++i) {
+//         cout << &art_points[i] << endl;
+//     }
+// }
 
-void BiConnectedComponents::_test_set_difference() {
-    VertexVec component = bcc_vertices[0];
-    VertexVec intersection_result;
+// void BiConnectedComponents::_test_set_difference() {
+//     VertexVec component = bcc_vertices[0];
+//     VertexVec intersection_result;
 
-    cout << "******** Test set_difference ********" << endl;
-    cout << "  Component" << endl;
-    for (VertexVecIter vvi = component.begin(); vvi != component.end(); ++vvi) {
-        cout << "\t" << *vvi << endl;
-    }
-    cout << "  Articulation points" << endl;
-    cout << "  " << &art_points[0] << endl;
-    cout << "  " << &art_points[1] << endl;
+//     cout << "******** Test set_difference ********" << endl;
+//     cout << "  Component" << endl;
+//     for (VertexVecIter vvi = component.begin(); vvi != component.end(); ++vvi) {
+//         cout << "\t" << *vvi << endl;
+//     }
+//     cout << "  Articulation points" << endl;
+//     cout << "  " << &art_points[0] << endl;
+//     cout << "  " << &art_points[1] << endl;
 
-    for (VertexVecIter vvi = art_points.begin(); vvi != art_points.end(); ++vvi) {
-        cout << "\t" << *vvi << endl;
-    }
+//     for (VertexVecIter vvi = art_points.begin(); vvi != art_points.end(); ++vvi) {
+//         cout << "\t" << *vvi << endl;
+//     }
 
-    VertexVec copy_art_points = VertexVec(art_points);
-    cout << "  Copy Articulation points" << endl;
-    cout << "  " << &copy_art_points << endl;
-    // cout << "  " << &(*copy_art_points) << endl;
-    cout << "  " << &(copy_art_points[0]) << " " << copy_art_points[0] << endl;
-    cout << "    " << &(*(&copy_art_points[0])) << " " << *(&copy_art_points[0]) << endl;
-    cout << "  " << &copy_art_points[1] << " " << copy_art_points[1] << endl;
-    for (VertexVecIter vvi = copy_art_points.begin(); vvi != copy_art_points.end(); ++vvi) {
-        cout << "\t" << *vvi << endl;
-    }
+//     VertexVec copy_art_points = VertexVec(art_points);
+//     cout << "  Copy Articulation points" << endl;
+//     cout << "  " << &copy_art_points << endl;
+//     // cout << "  " << &(*copy_art_points) << endl;
+//     cout << "  " << &(copy_art_points[0]) << " " << copy_art_points[0] << endl;
+//     cout << "    " << &(*(&copy_art_points[0])) << " " << *(&copy_art_points[0]) << endl;
+//     cout << "  " << &copy_art_points[1] << " " << copy_art_points[1] << endl;
+//     for (VertexVecIter vvi = copy_art_points.begin(); vvi != copy_art_points.end(); ++vvi) {
+//         cout << "\t" << *vvi << endl;
+//     }
 
-    std::set_intersection(component.begin(), component.end(), art_points.begin(), art_points.end(), back_inserter(intersection_result));
+//     std::set_intersection(component.begin(), component.end(), art_points.begin(), art_points.end(), back_inserter(intersection_result));
 
-    cout << "  Intersection result" << endl;
-    for (VertexVecIter vvi = intersection_result.begin(); vvi != intersection_result.end(); ++vvi) {
-        cout << "\t" << *vvi << endl;
-    }
+//     cout << "  Intersection result" << endl;
+//     for (VertexVecIter vvi = intersection_result.begin(); vvi != intersection_result.end(); ++vvi) {
+//         cout << "\t" << *vvi << endl;
+//     }
 
-    VertexVec difference_result;
-    std::set_intersection(component.begin(), component.end(), art_points.begin(), art_points.end(), back_inserter(difference_result));
+//     VertexVec difference_result;
+//     std::set_intersection(component.begin(), component.end(), art_points.begin(), art_points.end(), back_inserter(difference_result));
 
-    cout << "  Difference result" << endl;
-    for (VertexVecIter vvi = difference_result.begin(); vvi != difference_result.end(); ++vvi) {
-        cout << "\t" << *vvi << endl;
-    }
-}
+//     cout << "  Difference result" << endl;
+//     for (VertexVecIter vvi = difference_result.begin(); vvi != difference_result.end(); ++vvi) {
+//         cout << "\t" << *vvi << endl;
+//     }
+// }

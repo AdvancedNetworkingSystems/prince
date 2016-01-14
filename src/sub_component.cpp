@@ -6,9 +6,10 @@
 
 
 SubComponent::SubComponent() {
+    // do nothing
 }
 
-SubComponent::SubComponent(VertexVec aart_points, Graph asubGraph) : art_points(aart_points), subGraph(asubGraph) {
+SubComponent::SubComponent(StringSet art_points, Graph sub_graph) : art_points_(art_points), sub_graph_(sub_graph) {
 // SubComponent::SubComponent(VertexVec aart_points, Graph asubGraph) {
     // art_points = aart_points;
     // subGraph = asubGraph;
@@ -21,283 +22,70 @@ SubComponent::SubComponent(VertexVec aart_points, Graph asubGraph) : art_points(
     //     cout << "    subGraph " << subGraph[*vi].name << endl;
     // }
 
-    // Test if deep copy is performed for aart_points
-    cout << "Test if deep copy is performed for art_points" << endl;
-    cout << "&art_points " <<  &aart_points << endl;
-    cout << "&this->art_points " << &this->art_points << endl;
-    cout << "art_points[0] " <<  aart_points[0] << endl;
-    cout << "this->art_points[0] " << this->art_points[0] << endl;
 
-     // create Vertex -> Index Mapping
-    v_index_map = VertexIndexMap(v_index_std_map);
-    int i = 0;
-    BGL_FORALL_VERTICES(vertex, this->subGraph, Graph) {
-            boost::put(v_index_map, vertex, i);
-            ++i;
-    }
-
-    // Deep copy for subGraph
-    // TODO: optimize - is there anyway that we can avoid using deep copy
-
-    // This is not working
-    // copy_graph(asubGraph, this->subGraph, vertex_index_map(v_index_map));
-
-    // this->subGraph = Graph(asubGraph);
-
-    // Vertices in this->subGraph
-    cout << "Vertices in this->subGraph | constructor" << endl;
-    BGL_FORALL_VERTICES(vertex, this->subGraph, Graph) {
-        cout << vertex << " " << this->subGraph[vertex].name << endl;
-    }
-
-    cout << "Vertices in asubGraph | constructor" << endl;
-    BGL_FORALL_VERTICES(vertex, asubGraph, Graph) {
-        cout << vertex << " " << asubGraph[vertex].name << endl;
-    }
-    init();
+    // init();
 }
 
-void SubComponent::init() {
-    // create list of normal vertices
-    Viter vi, vi_end;
-    boost::tie(vi, vi_end) = boost::vertices(subGraph);
-    std::set_difference(vi, vi_end,
-                        art_points.begin(), art_points.end(),
-                        back_inserter(normal_vertices)
-    );
-
-
-    cout << "Vertices in this->subGraph | init()" << endl;
-    BGL_FORALL_VERTICES(vertex, this->subGraph, Graph) {
-        cout << vertex << " " << this->subGraph[vertex].name << endl;
-    }
-
-    cout << "Test normal_vertices | init()" << endl;
-    for (vector<Vertex>::iterator vi = normal_vertices.begin(); vi != normal_vertices.end(); ++vi) {
-        cout << *vi << " ";
-        cout << subGraph[*vi].name << endl;
-    }
-
-    /* STEP 1
-    ** Compute Link Weight
-    ** ==> Link Weight is computed by the main Bi Connected Components.
-    ** That main BCC will set the Link Weight value for each sub-component.
-    */
-
-    /* STEP 2
-    ** Compute Traffic Matrix
-    */
-//    _initializeTrafficMatrix();
-//    _computeTrafficMatrix();
-
-    /* STEP 3
-    ** Compute the Betweenness Centrality
-    ** The calculation is executed by the main BCCs calling each sub-component
-    */
-    // Initialize variables for calculating BC
-    _initializeBetweennessCentrality();
-    findBetweennessCentrality();
+StringSet SubComponent::art_points() const {
+    return art_points_;
 }
 
-VertexVec SubComponent::get_art_points() {
-    return art_points;
+void SubComponent::set_art_points(StringSet& art_points) {
+    art_points_ = art_points;
 }
 
 int SubComponent::num_vertices() {
-    return boost::num_vertices(subGraph);
+    return boost::num_vertices(sub_graph_);
 }
 
-void SubComponent::_initialize_weight() {
-    for (VertexVecIter vvi = art_points.begin(); vvi != art_points.end(); ++vvi) {
-        setWeight(*vvi, -1);
-    }
-}
+void SubComponent::AddEdge(Router r1, Router r2, Link l) {
+    cout << "add edge " << r1.label << " - " << r2.label << endl;
 
-void SubComponent::setWeight(Vertex art_point, int value) {
-    weightMap[art_point] = value;
-}
+    string s1 = r1.id;
+    string s2 = r2.id;
+    Vertex v1;
+    Vertex v2;
 
-int SubComponent::getWeight(Vertex art_point) {
-    VertexMapIter vmi;
-
-    vmi = weightMap.find(art_point);
-
-    if (vmi != weightMap.end()) {
-        return weightMap.at(art_point);
-    }
-    else {
-        return 0;
-    }
-}
-
-int SubComponent::getReversedWeight(Vertex art_point) {
-    VertexMapIter vmi;
-
-    vmi = weightMap.find(art_point);
-
-    if (vmi != weightMap.end()) {
-        return (boost::num_vertices(subGraph) - weightMap.at(art_point) - 1);
-    }
-    else {
-        return 0;
-    }
-}
-
-void SubComponent::printWeight() {
-    for (VertexMapIter vmi = weightMap.begin(); vmi != weightMap.end(); ++vmi) {
-        cout << subGraph[(*vmi).first].name << " = " << (*vmi).second << endl;
-    }
-}
-
-void SubComponent::_find_vertices_with_unknown_weight(VertexVec& unknown_weight_vertices) {
-    VertexMapIter wi;
-    Vertex vertex;
-
-    int current_weight;
-    for (wi = weightMap.begin(); wi != weightMap.end(); ++wi) {
-        vertex = (*wi).first;
-        current_weight = (*wi).second;
-
-        if (current_weight == -1) {
-            unknown_weight_vertices.insert(unknown_weight_vertices.end(), vertex);
-        }
-    }
-}
-
-void SubComponent::_initializeTrafficMatrix() {
-    // generate_empty_traffic_matrix, with 1 every where, and 0 in the main diagonal
-    int size = boost::num_vertices(subGraph);
-    trafficMatrix = vector<vector<int> >(size);
-    for (int j = 0; j < size; ++j) {
-        trafficMatrix[j] = vector<int>(size, 1);
-    }
-
-    // Reset the main diagonal to 0
-    for (int j = 0; j < size; ++j) {
-        trafficMatrix[j][j] = 0;
-    }
-}
-
-void SubComponent::_setTrafficMatrix(Vertex v_1, Vertex v_2, int value) {
-    int i_1 = _indexOfVertex(v_1);
-    int i_2 = _indexOfVertex(v_2);
-    trafficMatrix[i_1][i_2] = value;
-    trafficMatrix[i_2][i_1] = value; // because Traffic Matrix is symmetric
-}
-
-int SubComponent::_indexOfVertex(Vertex v) {
     try {
-        return boost::get(v_index_map, v);
+        v1 = get_vertex_from_id(s1);
     }
     catch (exception& e) {
-        // TODO handle exception here
-        cout << "ERROR _indexOfVertex() " << e.what() << endl;
-        return -1;
+        v1 = boost::add_vertex(r1, sub_graph_);
+        name_vertex_map_[s1] = v1;
     }
-}
-
-void SubComponent::_computeTrafficMatrix() {
-    // Update the value when one vertex is a cut-point, another vertex is not a cut-point
-    for (int j = 0; j < art_points.size(); ++j) {
-        for (int k = 0; k < normal_vertices.size(); ++k) {
-            int communication_intensity = getReversedWeight(art_points[j]) + 1;
-            _setTrafficMatrix(art_points[j], normal_vertices[k], communication_intensity);
-        }
-    }
-
-    // Update the value when both vertices are cut-points
-    int size = art_points.size();
-    if (size > 1) {
-        for (int j = 0; j < size - 1; ++j) {
-            for (int k = 1; k < size; ++k) {
-                if (j == k) {
-                    continue;
-                }
-
-                int communication_intensity = (
-                        (getReversedWeight(art_points[j]) + 1) *
-                        (getReversedWeight(art_points[k]) + 1)
-                );
-
-                _setTrafficMatrix(art_points[j], art_points[k], communication_intensity);
-            }
-        }
-    }
-}
-
-int SubComponent::getTrafficMatrix(Vertex v_1, Vertex v_2) {
-    int i_1 = _indexOfVertex(v_1);
-    int i_2 = _indexOfVertex(v_2);
     try {
-        return trafficMatrix[i_1][i_2];
+        v2 = get_vertex_from_id(s2);
     }
     catch (exception& e) {
-        cout << "ERROR: getTrafficMatrix: " << e.what() << endl;
+        v2 = boost::add_vertex(r2, sub_graph_);
+        name_vertex_map_[s2] = v2;
     }
-
+    boost::add_edge(v1, v2, l, sub_graph_);
 }
 
-void SubComponent::_initializeBetweennessCentrality() {
-    v_centrality_vec = CentralityVec(boost::num_vertices(subGraph), 0);
-    v_centrality_map = CentralityMap(v_centrality_vec.begin(), v_index_map);
-    cout << "Test v_index_map" << endl;
-    BGL_FORALL_VERTICES(vertex, subGraph, Graph) {
-        cout << subGraph[vertex].name << " " << boost::get(v_index_map, vertex) << endl;
-    }
-
-    cout << "Vertices in this->subGraph | init BC()" << endl;
-    BGL_FORALL_VERTICES(vertex, this->subGraph, Graph) {
-        cout << vertex << " " << this->subGraph[vertex].id << endl;
-    }
-
-
+bool SubComponent::vertex_existed(string s) {
+    std::map<std::string, Vertex>::iterator it;
+    it = name_vertex_map_.find(s);
+    return (it != name_vertex_map_.end());
 }
 
-void SubComponent::findBetweennessCentrality() {
-    cout << "****** find BC() *******" << endl;
-    cout << "Test art_points" << endl;
-    for (VertexVecIter vi = art_points.begin(); vi != art_points.end(); ++vi) {
-        cout << *vi << " ";
-        cout << subGraph[*vi].name << endl;
+const Vertex& SubComponent::get_vertex_from_id(string s) {
+    if (vertex_existed(s)) {
+        return name_vertex_map_[s];
     }
-
-    cout << "Vertices in this->subGraph | find BC()" << endl;
-    BGL_FORALL_VERTICES(vertex, this->subGraph, Graph) {
-        cout << vertex << " " << this->subGraph[vertex].id << endl;
-    }
-
-    cout << "Test normal_vertices 2" << endl;
-    for (vector<Vertex>::iterator vi = normal_vertices.begin(); vi != normal_vertices.end(); ++vi) {
-        cout << *vi << " " << endl;
-        cout << subGraph[*vi].name << endl;
-    }
-    cout << "BC abc " << endl;
-    /* Test v_index_map */
-    // BGL_FORALL_VERTICES(vertex, subGraph, Graph) {
-    //     cout << subGraph[vertex].name << " " << boost::get(v_index_map, vertex) << endl;
-    // }
-
-    // /* Test v_centrality_map
-    // **
-    // */
-    // cout << "v_centrality_map" << endl;
-    // BGL_FORALL_VERTICES(vertex, subGraph, Graph) {
-    //     cout << subGraph[vertex].name << endl;
-    //     // double score = boost::get(v_centrality_map, vertex);
-    //     // cout << vertex << " " << score << endl;
-    // }
-
-    // brandes_betweenness_centrality(subGraph, boost::centrality_map(v_centrality_map).vertex_index_map(v_index_map));
-    cout << "BC done" << endl;
-}
-
-void SubComponent::printBetweennessCentrality() {
-    cout << "Vertex betweenness" << endl;
-
-    Viter vi, vi_end;
-    int i = 0;
-    for (boost::tie(vi, vi_end) = boost::vertices(subGraph); vi != vi_end; ++vi) {
-        cout << subGraph[*vi].id << "\t" << v_centrality_vec.at(i) << endl;
-        ++i;
+    else {
+        throw std::runtime_error("Vertex not found\n");
     }
 }
+
+std::ostream& operator<<(std::ostream& os, const SubComponent& sc) {
+    cout << "Sub-component" << endl;
+    outops::operator<<(cout, sc.sub_graph());
+    outops::operator<<(cout, sc.art_points());
+    return os;
+}
+
+Graph const& SubComponent::sub_graph() const {
+    return sub_graph_;
+}
+

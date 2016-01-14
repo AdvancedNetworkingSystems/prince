@@ -60,42 +60,20 @@ namespace outops {
         return os;
     }
 
-    std::ostream& operator<<(std::ostream& os, const std::set<std::string>& s) {
-        /* can't make it work with a generic function
-        ** std::ostream& opeartor<<(std::ostream& os, const Container<std::string>& s)
-        */
-        using namespace boost::spirit::karma;
-        os << format("( " << (auto_ % "\n  ") << ")", s);
-    }
+    // std::ostream& operator<<(std::ostream& os, const std::set<std::string>& s) {
+    //      can't make it work with a generic function
+    //     ** std::ostream& opeartor<<(std::ostream& os, const Container<std::string>& s)
 
-}
-
-namespace outopserror {
-    template <typename T>
-    std::ostream& operator<<(std::ostream& os, const std::set<T>& s) {
-        /* can't make it work with a generic function
-        ** std::ostream& opeartor<<(std::ostream& os, const Container<std::string>& s)
-        */
-        using namespace boost::spirit::karma;
-        os << format("( " << (auto_ % "\n  ") << ")", s);
-    }
+    //     using namespace boost::spirit::karma;
+    //     os << format("(" << (auto_ % "\n  ") << ")", s);
+    //     os << endl;
+    // }
 }
 
 namespace graphext {
     void id_of_vertices(const Graph& g, std::set<std::string>& r) {
         BGL_FORALL_VERTICES_T(v, g, Graph) {
             r.insert(g[v].id);
-        }
-    }
-
-    // template <typename Container>
-    // void id_of_vertices(const Graph& g, const Container& container, std::set<std::string>& r) {
-    void id_of_vertices(const Graph& g, const VertexVec& container, std::set<std::string>& r) {
-        /*
-        ** Find id for a vec
-        */
-        for (VertexVec::const_iterator ci = container.begin(); ci != container.end(); ++ci) {
-            r.insert(g[*ci].id);
         }
     }
 }

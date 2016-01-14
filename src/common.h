@@ -18,13 +18,13 @@
 
 using namespace std;
 
-class Router { // aka Vertex
+class Router { // aka VertexProperties
 public:
     string id;
-    string name;
+    string label;
 
     Router() { };
-    Router(string id, string name) : id(id), name(name) { };
+    Router(string i, string l) : id(i), label(l) { };
 
     bool operator<(const Router& rhs)
     {
@@ -36,11 +36,11 @@ public:
    }
 };
 
-struct Link { // aka Edge
+struct Link { // aka EdgeProperties
     double cost;
 
     Link() { };
-    Link(double cost) : cost(cost) { };
+    Link(double c) : cost(c) { };
 };
 
 // List typedefs
@@ -62,13 +62,18 @@ typedef boost::associative_property_map<StdVertexIndexMap> VertexIndexMap;
 typedef map<Edge, size_t> StdEdgeIndexMap;
 typedef boost::associative_property_map<StdEdgeIndexMap> EdgeIndexMap;
 
-
 typedef std::vector<Vertex> VertexVec;
 typedef std::vector<Vertex>::iterator VertexVecIter;
 
 typedef std::map<Vertex, int> VertexMap;
 typedef std::map<Vertex, int>::iterator VertexMapIter;
 
+// TODO: this StringVec is currently un-used
+typedef std::vector<std::string> StringVec;
+typedef std::vector<std::string>::iterator StringVecIter;
+
+typedef std::set<std::string> StringSet;
+typedef std::set<std::string>::iterator StringSetIter;
 
 typedef std::vector<double> CentralityVec;
 typedef boost::iterator_property_map<CentralityVec::iterator, VertexIndexMap> CentralityMap;

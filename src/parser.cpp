@@ -20,7 +20,7 @@ void addLinkToGraph(string s1, string s2, double cost, Graph &g, NameVertexMap &
         routers[s1] = v1;
         pos->second = v1;
         g[v1].id = s1;
-        g[v1].name = s1;
+        g[v1].label = s1;
     } else {
         v1 = pos->second;
     }
@@ -31,7 +31,7 @@ void addLinkToGraph(string s1, string s2, double cost, Graph &g, NameVertexMap &
         routers[s2] = v2;
         pos->second = v2;
         g[v2].id = s2;
-        g[v2].name = s2;
+        g[v2].label = s2;
     } else {
         v2 = pos->second;
     }
