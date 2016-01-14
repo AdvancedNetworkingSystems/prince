@@ -48,7 +48,7 @@ void readEdgeFile(string filePath, Graph &g) {
     typedef std::map<std::string, Vertex> NameVertexMap;
     NameVertexMap routers;
 
-    ifstream inFile(filePath);
+    ifstream inFile(filePath.c_str());
 
     vector<string> strs;
     for (string line; getline(inFile, line); /**/) {
@@ -60,7 +60,9 @@ void readEdgeFile(string filePath, Graph &g) {
         if (strs.size() == 3) {
             string source = strs[0];
             string target = strs[1];
-            double cost = stof(strs[2]);
+            // TODO: use atof as a way around the error: ‘stof’ was not declared in this scope
+            // double cost = stof(strs[2]);
+            double cost = atof(strs[2].c_str());
 
             addLinkToGraph(source, target, cost, g, routers);
 

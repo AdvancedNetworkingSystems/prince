@@ -2,8 +2,39 @@
 #include "parser.h"
 #include "utility.h"
 #include "centrality.h"
+#include "bi_connected_components.h"
 
 
+void handleSimpleGraph() {
+    /* I don't understand the output. Why there are 8 vertices?
+        Simple graph
+        0
+        1
+        2
+        3
+        4
+        5
+        6
+        7
+        8
+    */
+    typedef boost::adjacency_list<> G;
+    G a;
+    {
+        boost::graph_traits<G>::vertex_descriptor v, u, t;
+        u = vertex(1, a);
+        v = vertex(8, a);
+        // t = vertex(5, a);
+        add_edge(u, v, a);
+        // add_edge(u, t, a);
+    }
+
+    std::set<typename boost::graph_traits<G>::vertex_descriptor> av;
+    cout << "Simple graph" << endl;
+    BGL_FORALL_VERTICES_T(v, a, G) {
+        cout << v << endl;
+    }
+}
 void handleSimpleInput(string filePath) {
     // Read the input.edges
     Graph g;
@@ -36,16 +67,34 @@ void handleComplexJsonInput(string filePath) {
     cout << "Done with Betweenness Centrality" << endl;
 }
 
+void testHeuristic(string filePath) {
+    Graph g;
+    readEdgeFile(filePath, g);
+    outops::operator<<(cout, g);
+    BiConnectedComponents bcc(g);
+    // bcc.compute_weight();
+    // bcc.findBetweennessCentrality();
+    // bcc.printBetweennessCentrality();
+    // bcc.print_weight();
+    // bcc.print();
+    cout << "DONE" << endl;
+
+
+}
 
 int main(int, char *[]) {
-    string edgeFilePath = "../input/ninux_30_1.edges";
-    handleSimpleInput(edgeFilePath);
+//    string edgeFilePath = "../input/ninux_30_1.edges";
+//    testHeuristic(edgeFilePath);
+//    handleSimpleInput(edgeFilePath);
+//
+//    string jsonFilePath = "../input/olsr-netjson.json";
+//    handleJsonInput(jsonFilePath);
+//
+//    string complexJsonFilePath = "../input/jsoninfo_topo.json";
+//    handleComplexJsonInput(complexJsonFilePath);
 
-    string jsonFilePath = "../input/olsr-netjson.json";
-    handleJsonInput(jsonFilePath);
 
-    string complexJsonFilePath = "../input/jsoninfo_topo.json";
-    handleComplexJsonInput(complexJsonFilePath);
-
+    string simpleGraphFilePath = "../input/simple.edges";
+    testHeuristic(simpleGraphFilePath);
     return 0;
 }

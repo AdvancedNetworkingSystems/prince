@@ -5,7 +5,7 @@ project (${PROJECT_NAME})
 
 set (PROJECT_SOURCE_DEFINITION_DIRECTORY ${PROJECT_SOURCE_DIR}/src)
 #set (MAIN_FILE ${PROJECT_SOURCE_DEFINITION_DIRECTORY}/main.cpp)
- set (MAIN_FILE ${PROJECT_SOURCE_DEFINITION_DIRECTORY}/main.cpp src/parser.cpp src/parser.h src/common.h src/utility.cpp src/utility.h)
+ set (MAIN_FILE ${PROJECT_SOURCE_DEFINITION_DIRECTORY}/main.cpp src/parser.cpp src/parser.h src/common.h src/utility.cpp src/utility.h src/centrality.cpp src/centrality.h src/sub_component.cpp src/sub_component.h src/bi_connected_components.cpp src/bi_connected_components.h)
 
 set (CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/bin)
 

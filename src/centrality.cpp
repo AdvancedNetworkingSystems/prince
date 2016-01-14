@@ -24,18 +24,15 @@ void simpleBetweennessCentrality(const Graph &g, string fileSuffix) {
 
     // Nov 20, 2015
     // http://stackoverflow.com/questions/15432104/how-to-create-a-propertymap-for-a-boost-graph-using-lists-as-vertex-container
-    typedef std::map<Vertex, size_t> StdVertexIndexMap;
-    StdVertexIndexMap idxMap;
 
-    // This property map is an adaptor that converts any type that is a model of Unique Associative Container such as std::map into a mutable Lvalue Property Map.
-    typedef boost::associative_property_map<StdVertexIndexMap> VertexIndexMap;
-    VertexIndexMap v_index(idxMap);
+    StdVertexIndexMap v_index_std_map;
+    VertexIndexMap v_index_map(v_index_std_map);
 
     // Populate the indexMap
-    Viter v_iter, v_iter_end;
+    Viter vi, ve; // vertex_iterator, vertex_iterator_end
     size_t i = 0;
-    for (boost::tie(v_iter, v_iter_end) = boost::vertices(g); v_iter != v_iter_end; ++v_iter) {
-        boost::put(v_index, *v_iter, i);
+    for (boost::tie(vi, ve) = boost::vertices(g); vi != ve; ++vi) {
+        boost::put(v_index_map, *vi, i);
         ++i;
     }
 
@@ -43,22 +40,22 @@ void simpleBetweennessCentrality(const Graph &g, string fileSuffix) {
     CentralityVec v_centrality_vec(boost::num_vertices(g), 0);
 
     typedef boost::iterator_property_map<CentralityVec::iterator, VertexIndexMap> CentralityMap;
-    CentralityMap v_centrality_map(v_centrality_vec.begin(), v_index);
+    CentralityMap v_centrality_map(v_centrality_vec.begin(), v_index_map);
 
     // Nov 26, try out the normal call to centrality().This version is not working.
 //    brandes_betweenness_centrality( g, boost::centrality_map(v_centrality_map));
 
     // http://stackoverflow.com/questions/30263594/adding-a-vertex-index-to-lists-graph-on-the-fly-for-betweenness-centrality
     // Use named-parameter
-    brandes_betweenness_centrality(g, boost::centrality_map(v_centrality_map).vertex_index_map(v_index));
+    brandes_betweenness_centrality(g, boost::centrality_map(v_centrality_map).vertex_index_map(v_index_map));
     relative_betweenness_centrality(g, v_centrality_map);
 
 
     // Print result of v_centrality_map to console
     cout << "Vertex betweenness" << endl;
     i = 0;
-    for (boost::tie(v_iter, v_iter_end) = boost::vertices(g); v_iter != v_iter_end; ++v_iter) {
-        cout << g[*v_iter].id << "\t" << v_centrality_vec.at(i) << endl;
+    for (boost::tie(vi, ve) = boost::vertices(g); vi != ve; ++vi) {
+        cout << g[*vi].id << "\t" << v_centrality_vec.at(i) << endl;
         ++i;
     }
 
@@ -71,7 +68,7 @@ void simpleBetweennessCentrality(const Graph &g, string fileSuffix) {
 void writeBetweennessCentrality(const Graph &g, std::vector<double> v_centrality_vec, string fileSuffix) {
     cout << "XXX Writing to File";
     string filePath = "../output/boost_" + fileSuffix + ".csv";
-    ofstream outFile(filePath);
+    ofstream outFile(filePath.c_str());
 
     Viter vi, ve;
     size_t i = 0;

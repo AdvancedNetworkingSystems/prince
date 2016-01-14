@@ -5,7 +5,6 @@
 #ifndef GRAPH_PARSER_PARSER_H
 #define GRAPH_PARSER_PARSER_H
 
-#include <iostream>
 #include <boost/algorithm/string.hpp>
 #include <boost/property_tree/json_parser.hpp>
 #include <boost/foreach.hpp>

@@ -5,7 +5,6 @@
 #ifndef GRAPH_PARSER_CENTRALITY_H
 #define GRAPH_PARSER_CENTRALITY_H
 
-#include <iostream>
 #include <fstream>
 #include <boost/graph/betweenness_centrality.hpp>
 #include "common.h"
