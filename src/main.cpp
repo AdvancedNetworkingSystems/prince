@@ -3,6 +3,7 @@
 #include "utility.h"
 #include "centrality.h"
 #include "bi_connected_components.h"
+#include "graph_manager.h"
 
 
 void handleSimpleGraph() {
@@ -68,17 +69,19 @@ void handleComplexJsonInput(string filePath) {
 }
 
 void testHeuristic(string filePath) {
-    Graph g;
-    readEdgeFile(filePath, g);
-    outops::operator<<(cout, g);
-    BiConnectedComponents bcc(g);
-    // bcc.compute_weight();
-    // bcc.findBetweennessCentrality();
-    // bcc.printBetweennessCentrality();
-    // bcc.print_weight();
-    // bcc.print();
+    GraphManager gm;
+    readEdgeFileGraphManager(filePath, gm);
+    BiConnectedComponents bcc(gm);
     cout << "DONE" << endl;
+}
 
+void testGraphManager(string filePath) {
+    GraphManager gm;
+    readEdgeFileGraphManager(filePath, gm);
+    cout << gm;
+
+    gm.ResetVerticesAndEdgesIndexMap();
+    gm.print_v_index_map();
 
 }
 
@@ -93,8 +96,11 @@ int main(int, char *[]) {
 //    string complexJsonFilePath = "../input/jsoninfo_topo.json";
 //    handleComplexJsonInput(complexJsonFilePath);
 
+    // string simpleGraphFilePath = "../input/simple.edges";
+    // testGraphManager(simpleGraphFilePath);
 
     string simpleGraphFilePath = "../input/simple.edges";
     testHeuristic(simpleGraphFilePath);
+
     return 0;
 }

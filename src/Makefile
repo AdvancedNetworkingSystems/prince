@@ -5,7 +5,7 @@
 INCLUDES = -I/usr/local/boost/
 
 # define the C source files
-SRCS = main.cpp bi_connected_components.cpp centrality.cpp parser.cpp sub_component.cpp utility.cpp
+SRCS = main.cpp bi_connected_components.cpp centrality.cpp graph_manager.cpp parser.cpp sub_component.cpp utility.cpp
 
 
 # define the C object files

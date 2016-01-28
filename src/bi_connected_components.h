@@ -8,96 +8,88 @@
 #include <boost/graph/biconnected_components.hpp>
 #include <queue>
 #include "common.h"
-#include "parser.h"
+#include "parser.h" // ? check to remove
 #include "utility.h"
 #include "sub_component.h"
+#include "graph_manager.h"
 
 
 typedef std::vector<edges_size_type> ComponentVec;
 typedef boost::iterator_property_map<ComponentVec::iterator, EdgeIndexMap> ComponentMap;
 
-typedef map<Vertex, vector<int> > ArtPointComponentStdMap;
-typedef boost::associative_property_map<ArtPointComponentStdMap> ArtPointComponentMap;
+typedef map<string, vector<int> > VertexIdToComponentStdMap;
+typedef boost::associative_property_map<VertexIdToComponentStdMap> VertexIdToComponentMap;
 
-typedef std::map<int, vector<Vertex> > ComponentArtPointStdMap;
-typedef boost::associative_property_map<ComponentArtPointStdMap> ComponentArtPointMap;
+typedef std::map<int, vector<string> > ComponentToVertexIdStdMap;
+typedef boost::associative_property_map<ComponentToVertexIdStdMap> ComponentToVertexIdMap;
 
 typedef vector<vector<Vertex> > Bcc_t;
 typedef vector<vector<Vertex> >::iterator BccIter_t;
 
-
-
 typedef struct {
     int component_index;
-    Vertex art_point;
+    string vertex_id;
     string type;
 } QueueElem;
 
 class BiConnectedComponents {
+public:
+    BiConnectedComponents(GraphManager &gm);
+    void init();
+
+    // Getter functions
+    set<string> const& all_art_points_id() const;
+    int num_of_vertices() const;
+
+    // SUB-COMPONENT
+    void FindBiConnectedComponents();
+    void CreateSubComponents();
+
+    // LINK WEIGHT - calculation for all sub-components
+    void CalculateLinkWeight();
+
+    // TRAFFIC MATRIX - calculation for all sub-components
+    void CalculateTrafficMatrix();
+
+    // HELPERS
+    int num_of_bcc();
+
+    // HELPERS FOR OUTPUTTING RESULT
+    void print();
+    friend std::ostream& operator<<(std::ostream& os, const BiConnectedComponents& rhs);
+
+    // Public variables
+    GraphManager gm_;
+    typedef vector<SubComponent> Component_t;
+    typedef vector<SubComponent>::iterator ComponentIter_t;
+    Component_t BCCs;
+
 private:
-    // EdgeIndexMap - boost will return the component id that each edge in the graph belongs to.
-    StdEdgeIndexMap e_index_std_map;
-    EdgeIndexMap e_index_map;
+    // LINK WEIGHT - calculation for all sub-components
+    void initialize_weight();
+    void initialize_queue();
+    void process_component_vertex_pair(int comp_index, string vertex_id);
+    void process_vertex_component_pair(int comp_index, string vertex_id);
+    void find_unknown_weight_wrt_art_point(string vertex_id);
+    void find_unknown_weight_wrt_component(int comp_index);
 
-    // VertexIndexMap - since we use listS instead of vecS, this one maps each vertex to an id
-    StdVertexIndexMap v_index_std_map;
+    // Private variables
+    ComponentVec component_vec_;
+    ComponentMap component_map_;
+    vector<Vertex> art_points_;
 
-    int num_of_bcc = -1;
+    int num_of_bcc_ = -1;
+    int num_of_vertices_ = -1;
+
+    StringSet all_art_points_id_;
 
     std::queue<QueueElem> Q;
 
-public:
-    typedef vector<SubComponent> Component_t;
-    typedef vector<SubComponent>::iterator ComponentIter_t;
-
-    Graph g;
-
-    VertexIndexMap v_index_map;
-    ComponentVec component_vec;
-    ComponentMap component_map;
-
-    vector<Vertex> art_points;
-
-    Bcc_t bcc_vertices;
-    Component_t BCCs;
-
-    ArtPointComponentStdMap art_point_component_std_map;
-    ArtPointComponentMap art_point_component_map;
-
-    ComponentArtPointStdMap component_art_point_std_map;
-    ComponentArtPointMap component_art_point_map;
-
-
-    BiConnectedComponents(const Graph &g);
-    void init();
-    void findBiConnectedComponents();
-    void createSubComponents();
-    void print();
-
-    int num_bcc();
-    void verticesInBCC();
-    void testVerticesInBCC();
-
-    bool hasVertex(Vertex v, int comp_index);
+    // Old code
     void processArtPoints();
     void testProcessArtPoints();
 
-    VertexVec get_art_points_for_component(int comp_index);
-    vector<int> get_components_for_art_point(Vertex vertex);
-
     VertexVec get_normal_vertices_for_component(int comp_index);
-
-    int num_of_vertices_in_component(int comp_index);
-
-    // Calculate link weight (component tree weight)
-    void compute_weight();
-    void _initialize_weight();
-    void _initialize_queue();
-    void _find_unknown_weight_wrt_art_point(Vertex art_point);
-    void _find_unknown_weight_wrt_component(int comp_index);
-    void _find_unknown_weight_for_component(int comp_index, VertexVec& unknown_weight_vertices);
-    bool _verify_weight(int comp_index, Vertex art_point, int weight);
-    void print_weight();
 
     // Calculate Betweenness Centrality
     void findBetweennessCentrality();

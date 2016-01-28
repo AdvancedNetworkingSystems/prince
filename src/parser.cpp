@@ -109,3 +109,34 @@ void readComplexJson(string filePath, Graph &g) {
         addLinkToGraph(source, target, cost, g, routers);
     }
 }
+
+void readEdgeFileGraphManager(string filePath, GraphManager &gm) {
+    // NameVertexMap is to keep track of which router has already been added
+    ifstream inFile(filePath.c_str());
+
+    vector<string> strs;
+    for (string line; getline(inFile, line); /**/) {
+        boost::split(strs, line, boost::is_any_of(" "));
+
+        // Cast vector<string> to array<string, 3>
+        // TODO: this is really crude way to do it.
+        // TODO: how to copy some element of vector to array
+        if (strs.size() == 3) {
+            string source = strs[0];
+            string target = strs[1];
+
+            GraphManager::VertexProperties vp1 = GraphManager::VertexProperties(source, source);
+            GraphManager::VertexProperties vp2 = GraphManager::VertexProperties(target, target);
+
+            // TODO: use atof as a way around the error: ‘stof’ was not declared in this scope
+            // double cost = stof(strs[2]);
+            double cost = atof(strs[2].c_str());
+
+            GraphManager::EdgeProperties ep = GraphManager::EdgeProperties(cost);
+
+            gm.AddEdge(vp1, vp2, ep);
+
+        }
+    }
+    inFile.close();
+}

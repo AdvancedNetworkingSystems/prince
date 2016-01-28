@@ -12,42 +12,55 @@
 #include <boost/graph/copy.hpp>
 #include "common.h"
 #include "utility.h"
+#include "graph_manager.h"
 
 class SubComponent {
 public:
     SubComponent();
-    SubComponent(const StringSet art_points, const Graph sub_graph);
 
     // Getter & Setter
-    StringSet art_points() const;
-    void set_art_points(StringSet& art_points);
+    GraphManager const& gm() const;
+    StringSet const& all_vertices_id() const;
+    StringSet const& art_points_id() const;
+    StringSet const& non_art_points_id() const;
 
-    // Manipulating subGraph
-    int num_vertices();
+    NameToIntMap const& weight_map() const;
+    NameToIntMap const& weight_reversed_map() const;
+
+    vector< vector< int > > const& traffic_matrix() const;
+
+    // CREATE SUB-COMPONENT
     void AddEdge(Router r1, Router r2, Link l);
-    bool vertex_existed(string s);
-    const Vertex& get_vertex_from_id(string s);
-    Graph const& sub_graph() const;
+    void FinalizeSubComponent(StringSet all_art_points_id);
 
-    // Output to console
+    // LINK WEIGHT CALCULATION
+    void initialize_weight();
+    int get_weight_map(string name);
+    int get_weight_reversed_map(string name);
+    void update_weight_map(string name, int value);
+
+    // TRAFFIC MATRIX CALCULATION
+    void CalculateTrafficMatrix();
+    void initialize_traffic_matrix();
+    int get_traffic_matrix(string name_1, string name_2);
+    void update_traffic_matrix(string name_1, string name_2, int value);
+
+    // HELPERS
+    int num_of_vertices();
+    int index_of_vertex_id(string vertex_id);
+    bool vertex_exists(string name);
+    string first_vertex_id_with_unknown_weight();
+
+    // HELPERS FOR OUTPUTTING RESULT
+    void print_traffic_matrix();
     friend std::ostream& operator<<(std::ostream& os, const SubComponent& sc);
 
-    void init();
 
-
-    // calculate Link Weight
-    void _initialize_weight();
-    void setWeight(Vertex art_point, int value);
-    int getWeight(Vertex art_point);
-    int getReversedWeight(Vertex art_point);
+    // OLD CODE
     void printWeight();
     void _find_vertices_with_unknown_weight(VertexVec& unknown_weight_vertices);
 
     // Traffic Matrix
-    int getTrafficMatrix(Vertex v_1, Vertex v_2);
-    void _initializeTrafficMatrix();
-    int _indexOfVertex(Vertex v);
-    void _setTrafficMatrix(Vertex v_1, Vertex v_2, int value);
     void _computeTrafficMatrix();
 
     // Betweenness Centrality
@@ -55,22 +68,19 @@ public:
     void findBetweennessCentrality();
     void printBetweennessCentrality();
 
+    // NEW CODE
+    GraphManager gm_;
+
 private:
-    StringSet art_points_;
-    StringVec normal_vertices; // vertices that are not articulation points
-    // std::vector<Vertex*> normal_vertices;
-    // TODO: should this one be public?
-    std::map<std::string, Vertex> name_vertex_map_;
-    Graph sub_graph_;
-    VertexMap weightMap;
-    VertexMap weightReversedMap;
+    StringSet all_vertices_id_;
+    StringSet art_points_id_;
+    StringSet non_art_points_id_; // vertices that are not articulation points
 
-    StdVertexIndexMap v_index_std_map;
-    VertexIndexMap v_index_map;
-    vector<vector<int> > trafficMatrix;
+    NameToIntMap weight_map_;
+    NameToIntMap weight_reversed_map_;
 
-    CentralityVec v_centrality_vec;
-    CentralityMap v_centrality_map;
+    NameToIntMap name_index_map_;
+    vector<vector<int> > traffic_matrix_;
 
     // Traffic Matrix
 

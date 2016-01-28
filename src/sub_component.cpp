@@ -9,83 +9,202 @@ SubComponent::SubComponent() {
     // do nothing
 }
 
-SubComponent::SubComponent(StringSet art_points, Graph sub_graph) : art_points_(art_points), sub_graph_(sub_graph) {
-// SubComponent::SubComponent(VertexVec aart_points, Graph asubGraph) {
-    // art_points = aart_points;
-    // subGraph = asubGraph;
-    // Deep copy for art_points
-    // cout << "ABC " << endl;
-    // for (VertexVecIter vi = aart_points.begin(); vi != aart_points.end(); ++vi) {
-    //     Vertex v = Vertex(*vi);
-    //     this->art_points.insert(this->art_points.end(), v);
-    //     cout << "   asubGraph " << asubGraph[*vi].name << endl;
-    //     cout << "    subGraph " << subGraph[*vi].name << endl;
-    // }
-
-
-    // init();
+/* GETTERS & SETTERS & UPDATERS */
+GraphManager const& SubComponent::gm() const {
+    return gm_;
 }
 
-StringSet SubComponent::art_points() const {
-    return art_points_;
+StringSet const& SubComponent::all_vertices_id() const {
+    return all_vertices_id_;
 }
 
-void SubComponent::set_art_points(StringSet& art_points) {
-    art_points_ = art_points;
+StringSet const& SubComponent::art_points_id() const {
+    return art_points_id_;
 }
 
-int SubComponent::num_vertices() {
-    return boost::num_vertices(sub_graph_);
+StringSet const& SubComponent::non_art_points_id() const {
+    return non_art_points_id_;
+}
+NameToIntMap const& SubComponent::weight_map() const {
+    // Returns the whole weight_map_, for all the vertices
+    // This one is different from get_weight_map(name)
+    return weight_map_;
 }
 
+NameToIntMap const& SubComponent::weight_reversed_map() const {
+    return weight_reversed_map_;
+}
+
+vector< vector< int > > const& SubComponent::traffic_matrix() const {
+    return traffic_matrix_;
+}
+
+/* CREATE SUB-COMPONENT */
 void SubComponent::AddEdge(Router r1, Router r2, Link l) {
-    cout << "add edge " << r1.label << " - " << r2.label << endl;
-
-    string s1 = r1.id;
-    string s2 = r2.id;
-    Vertex v1;
-    Vertex v2;
-
-    try {
-        v1 = get_vertex_from_id(s1);
-    }
-    catch (exception& e) {
-        v1 = boost::add_vertex(r1, sub_graph_);
-        name_vertex_map_[s1] = v1;
-    }
-    try {
-        v2 = get_vertex_from_id(s2);
-    }
-    catch (exception& e) {
-        v2 = boost::add_vertex(r2, sub_graph_);
-        name_vertex_map_[s2] = v2;
-    }
-    boost::add_edge(v1, v2, l, sub_graph_);
+    gm_.AddEdge(r1, r2, l);
 }
 
-bool SubComponent::vertex_existed(string s) {
-    std::map<std::string, Vertex>::iterator it;
-    it = name_vertex_map_.find(s);
-    return (it != name_vertex_map_.end());
+void SubComponent::FinalizeSubComponent(StringSet all_art_points_id) {
+    // Create set of vertices id
+    graphext::id_of_all_vertices(gm_.g_, all_vertices_id_);
+
+    // Create set of this sub-component's articulation points id
+    using namespace setops;
+    art_points_id_ = all_vertices_id_ / all_art_points_id;
+
+    // Create set of vertices id (such that those vertices are not articulation points)
+    non_art_points_id_ = all_vertices_id_ - art_points_id_;
+
+    // Create name -> index map
+    int index = 0;
+    for (string s : all_vertices_id_) {
+        name_index_map_[s] = index;
+        ++index;
+    }
 }
 
-const Vertex& SubComponent::get_vertex_from_id(string s) {
-    if (vertex_existed(s)) {
-        return name_vertex_map_[s];
+
+/* LINK WEIGHT CALCULATION */
+void SubComponent::initialize_weight() {
+    for (string s : art_points_id_) {
+        update_weight_map(s, -1);
+    }
+}
+
+int SubComponent::get_weight_map(string name) {
+    // Return only the weight for the vertex with the given name.
+    // Check out weight_map()
+    if (stdhelper::exists(weight_map_, name)) {
+        return weight_map_[name];
     }
     else {
-        throw std::runtime_error("Vertex not found\n");
+        return 0;
     }
+}
+
+int SubComponent::get_weight_reversed_map(string name) {
+    // Return only the 'weight reversed' for the vertex with the given name.
+    // Check out weight_reversed_map(). Those 2 functions serve different purpose
+    if (stdhelper::exists(weight_reversed_map_, name)) {
+        return weight_reversed_map_[name];
+    }
+    else {
+        return 0;
+    }
+}
+
+void SubComponent::update_weight_map(string name, int value) {
+    // cout << "update " << name << " = " << value << endl;
+    weight_map_[name] = value;
+}
+
+/* TRAFFIC MATRIX */
+void SubComponent::CalculateTrafficMatrix() {
+    initialize_traffic_matrix();
+
+    // When only one vertex is an articulation point
+    for (string a : art_points_id_) {
+        // cout << a << " ";
+        for (string non_a : non_art_points_id_) {
+            // cout << non_a << " ";
+            int communication_intensity = get_weight_reversed_map(a) + 1;
+            update_traffic_matrix(a, non_a, communication_intensity);
+        }
+        // cout << endl;
+    }
+
+    // When both vertices are articulation points
+    int size = art_points_id_.size();
+    for (string a1 : art_points_id_) {
+        for (string a2 : art_points_id_) {
+            if (a1.compare(a2) == 0)
+                continue;
+
+            int communication_intensity = (
+                (get_weight_reversed_map(a1) + 1) *
+                (get_weight_reversed_map(a2) + 1)
+            );
+            update_traffic_matrix(a1, a2, communication_intensity);
+        }
+    }
+    // cout << "Mark 3\n";
+}
+
+void SubComponent::initialize_traffic_matrix() {
+    // generate_empty_traffic_matrix, with 1 every where, and 0 in the main diagonal
+    int size = num_of_vertices();
+    traffic_matrix_ = vector< vector<int> >(size);
+    for (int i = 0; i < size; ++i) {
+        traffic_matrix_[i] = vector< int >(size, 1);
+    }
+
+    // Reset the main diagonal to 0
+    for (int i = 0; i < size; ++i) {
+        traffic_matrix_[i][i] = 0;
+    }
+}
+
+int SubComponent::get_traffic_matrix(string name_1, string name_2) {
+    int i1 = index_of_vertex_id(name_1);
+    int i2 = index_of_vertex_id(name_2);
+    // TODO: exception
+    return traffic_matrix_[i1][i2];
+}
+
+void SubComponent::update_traffic_matrix(string name_1, string name_2, int value) {
+    int i1 = index_of_vertex_id(name_1);
+    int i2 = index_of_vertex_id(name_2);
+    cout << i1 << " " << i2 << " = " << value << endl;
+    traffic_matrix_[i1][i2] = value;
+    traffic_matrix_[i2][i1] = value; // because Traffic Matrix is symmetric
+}
+
+/* HELPERS */
+int SubComponent::num_of_vertices() {
+    return boost::num_vertices(gm_.g_);
+}
+
+int SubComponent::index_of_vertex_id(string vertex_id) {
+    // TODO: might throw exception here
+    return name_index_map_[vertex_id];
+}
+
+bool SubComponent::vertex_exists(string name) {
+    stdhelper::exists(art_points_id_, name);
+}
+
+string SubComponent::first_vertex_id_with_unknown_weight() {
+    string vertex_id = "";
+    for (auto &i : weight_map_) {
+        if (i.second == -1) {
+            vertex_id = i.first;
+            break;
+        }
+    }
+    return vertex_id;
+}
+
+/* HELPERS FOR OUTPUTTING RESULT */
+void SubComponent::print_traffic_matrix() {
+
 }
 
 std::ostream& operator<<(std::ostream& os, const SubComponent& sc) {
-    cout << "Sub-component" << endl;
-    outops::operator<<(cout, sc.sub_graph());
-    outops::operator<<(cout, sc.art_points());
+    cout << "Sub-component:" << endl;
+    cout << sc.gm_;
+
+    cout << "\nArticulation points ID:\n";
+    outops::operator<<(cout, sc.art_points_id());
+
+    cout << "\nNormal Vertices ID:\n";
+    outops::operator<<(cout, sc.all_vertices_id());
+
+    cout << "\nLink Weight:\n";
+    outops::operator<<(cout, sc.weight_map());
+    // printhelper::for_map<string, int>(sc.weight_map());
+
+    cout << "\nTraffic Matrix:\n";
+    outops::operator<<(cout, sc.traffic_matrix());
+
     return os;
 }
-
-Graph const& SubComponent::sub_graph() const {
-    return sub_graph_;
-}
-

@@ -55,12 +55,12 @@ typedef boost::graph_traits<Graph>::edge_iterator Eiter;
 typedef std::pair<Eiter, Eiter> Epair;
 typedef boost::graph_traits<Graph>::edges_size_type edges_size_type;
 
-typedef map<Vertex, size_t> StdVertexIndexMap;
+typedef map<Vertex, size_t> VertexIndexStdMap;
 // This property map is an adaptor that converts any type that is a model of Unique Associative Container such as std::map into a mutable Lvalue Property Map.
-typedef boost::associative_property_map<StdVertexIndexMap> VertexIndexMap;
+typedef boost::associative_property_map<VertexIndexStdMap> VertexIndexMap;
 
-typedef map<Edge, size_t> StdEdgeIndexMap;
-typedef boost::associative_property_map<StdEdgeIndexMap> EdgeIndexMap;
+typedef map<Edge, size_t> EdgeIndexStdMap;
+typedef boost::associative_property_map<EdgeIndexStdMap> EdgeIndexMap;
 
 typedef std::vector<Vertex> VertexVec;
 typedef std::vector<Vertex>::iterator VertexVecIter;
@@ -68,7 +68,8 @@ typedef std::vector<Vertex>::iterator VertexVecIter;
 typedef std::map<Vertex, int> VertexMap;
 typedef std::map<Vertex, int>::iterator VertexMapIter;
 
-// TODO: this StringVec is currently un-used
+typedef std::map<std::string, int> NameToIntMap;
+
 typedef std::vector<std::string> StringVec;
 typedef std::vector<std::string>::iterator StringVecIter;
 

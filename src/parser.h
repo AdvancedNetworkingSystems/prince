@@ -9,6 +9,7 @@
 #include <boost/property_tree/json_parser.hpp>
 #include <boost/foreach.hpp>
 #include "common.h"
+#include "graph_manager.h"
 
 template<typename NameVertexMap>
 void addLinkToGraph(string s1, string s2, double cost, Graph &g, NameVertexMap &routers);
@@ -17,6 +18,7 @@ void readEdgeFile(string filePath, Graph &g);
 void readJson(string filePath, Graph &g);
 void readComplexJson(string filePath, Graph &g);
 
+void readEdgeFileGraphManager(string filePath, GraphManager& gm);
 
 #endif //GRAPH_PARSER_PARSER_H
 
