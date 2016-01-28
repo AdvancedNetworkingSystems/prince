@@ -154,9 +154,33 @@ int SubComponent::get_traffic_matrix(string name_1, string name_2) {
 void SubComponent::update_traffic_matrix(string name_1, string name_2, int value) {
     int i1 = index_of_vertex_id(name_1);
     int i2 = index_of_vertex_id(name_2);
-    cout << i1 << " " << i2 << " = " << value << endl;
+    // cout << i1 << " " << i2 << " = " << value << endl;
     traffic_matrix_[i1][i2] = value;
     traffic_matrix_[i2][i1] = value; // because Traffic Matrix is symmetric
+}
+
+/* BETWEENNESS CENTRALITY */
+void SubComponent::CalculateBetweennessCentrality() {
+    initialize_betweenness_centrality();
+
+    cout << "Mark 1" << endl;
+
+    boost::brandes_betweenness_centrality(gm_.g_,
+        boost::centrality_map(v_centrality_map_).vertex_index_map(
+            gm_.v_index_map())
+    );
+
+    cout << "Mark 2" << endl;
+
+    cout << "Vertex betweenness\n" << endl;
+    for (int i = 0; i < num_of_vertices(); ++i) {
+        cout << v_centrality_vec_.at(i) << endl;
+    }
+}
+
+void SubComponent::initialize_betweenness_centrality() {
+    v_centrality_vec_ = CentralityVec(num_of_vertices());
+    v_centrality_map_ = CentralityMap(v_centrality_vec_.begin(), gm_.v_index_map());
 }
 
 /* HELPERS */

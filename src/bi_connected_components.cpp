@@ -50,6 +50,10 @@ void BiConnectedComponents::FindBiConnectedComponents() {
     cout << "Calculate Traffic Matrix\n";
     CalculateTrafficMatrix();
 
+    // Calculate Betweenness Centrality
+    cout << "Calculate Betweenness Centrality\n";
+    CalculateBetweennessCentrality();
+
     print();
 }
 
@@ -95,6 +99,13 @@ void BiConnectedComponents::CalculateLinkWeight() {
 void BiConnectedComponents::CalculateTrafficMatrix() {
     for (int i = 0; i < num_of_bcc_; ++i) {
         BCCs[i].CalculateTrafficMatrix();
+    }
+}
+
+/* BETWEENNESS CENTRALITY */
+void BiConnectedComponents::CalculateBetweennessCentrality() {
+    for (int i = 0; i < num_of_bcc_; ++i) {
+        BCCs[i].CalculateBetweennessCentrality();
     }
 }
 

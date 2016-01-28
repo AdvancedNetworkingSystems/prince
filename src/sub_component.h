@@ -16,6 +16,9 @@
 
 class SubComponent {
 public:
+    typedef std::vector<double> CentralityVec;
+    typedef boost::iterator_property_map<CentralityVec::iterator, VertexIndexMap> CentralityMap;
+
     SubComponent();
 
     // Getter & Setter
@@ -45,6 +48,10 @@ public:
     int get_traffic_matrix(string name_1, string name_2);
     void update_traffic_matrix(string name_1, string name_2, int value);
 
+    // BETWEENNESS CENTRALITY
+    void CalculateBetweennessCentrality();
+    void initialize_betweenness_centrality();
+
     // HELPERS
     int num_of_vertices();
     int index_of_vertex_id(string vertex_id);
@@ -60,11 +67,8 @@ public:
     void printWeight();
     void _find_vertices_with_unknown_weight(VertexVec& unknown_weight_vertices);
 
-    // Traffic Matrix
-    void _computeTrafficMatrix();
-
     // Betweenness Centrality
-    void _initializeBetweennessCentrality();
+
     void findBetweennessCentrality();
     void printBetweennessCentrality();
 
@@ -75,16 +79,18 @@ private:
     StringSet all_vertices_id_;
     StringSet art_points_id_;
     StringSet non_art_points_id_; // vertices that are not articulation points
+    NameToIntMap name_index_map_;
+
 
     NameToIntMap weight_map_;
     NameToIntMap weight_reversed_map_;
 
-    NameToIntMap name_index_map_;
     vector<vector<int> > traffic_matrix_;
 
-    // Traffic Matrix
+    CentralityVec v_centrality_vec_;
+    CentralityMap v_centrality_map_;
 
-    // Betweenness Centrality
+
 };
 
 

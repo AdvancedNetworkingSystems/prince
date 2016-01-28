@@ -13,10 +13,6 @@
 #include <boost/graph/iteration_macros.hpp>
 #include "common.h"
 
-
-
-void printGraph(Graph &g);
-
 namespace outops {
     std::ostream& operator<<(std::ostream& os, const Graph& g);
 

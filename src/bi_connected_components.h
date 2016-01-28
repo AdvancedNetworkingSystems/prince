@@ -51,6 +51,9 @@ public:
     // TRAFFIC MATRIX - calculation for all sub-components
     void CalculateTrafficMatrix();
 
+    // BETWEENNESS CENTRALITY
+    void CalculateBetweennessCentrality();
+
     // HELPERS
     int num_of_bcc();
 

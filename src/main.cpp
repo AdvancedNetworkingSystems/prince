@@ -49,7 +49,7 @@ void handleSimpleInput(string filePath) {
 void handleJsonInput(string filePath) {
     Graph g;
     readJson(filePath, g);
-    printGraph(g);
+    outops::operator<<(cout, g);
 
     // Applying the betweenness centrality
     simpleBetweennessCentrality(g, "json_olsr");
@@ -60,7 +60,7 @@ void handleJsonInput(string filePath) {
 void handleComplexJsonInput(string filePath) {
     Graph g;
     readComplexJson(filePath, g);
-    printGraph(g);
+    outops::operator<<(cout, g);
 
     // Applying the betweenness centrality
     simpleBetweennessCentrality(g, "json_topology");
