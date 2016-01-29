@@ -135,8 +135,8 @@ void readEdgeFileGraphManager(string filePath, GraphManager &gm) {
             GraphManager::EdgeProperties ep = GraphManager::EdgeProperties(cost);
 
             gm.AddEdge(vp1, vp2, ep);
-
         }
     }
+    gm.ResetVerticesAndEdgesIndexMap();
     inFile.close();
 }

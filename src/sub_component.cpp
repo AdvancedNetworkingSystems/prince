@@ -39,12 +39,19 @@ vector< vector< int > > const& SubComponent::traffic_matrix() const {
     return traffic_matrix_;
 }
 
+CentralityVec const& SubComponent::v_centrality_vec() const {
+    return v_centrality_vec_;
+}
+
 /* CREATE SUB-COMPONENT */
 void SubComponent::AddEdge(Router r1, Router r2, Link l) {
     gm_.AddEdge(r1, r2, l);
 }
 
 void SubComponent::FinalizeSubComponent(StringSet all_art_points_id) {
+    // TODO: is there anyway to not have to call this function after the graph was created completely?
+    gm_.ResetVerticesAndEdgesIndexMap();
+
     // Create set of vertices id
     graphext::id_of_all_vertices(gm_.g_, all_vertices_id_);
 
@@ -58,7 +65,7 @@ void SubComponent::FinalizeSubComponent(StringSet all_art_points_id) {
     // Create name -> index map
     int index = 0;
     for (string s : all_vertices_id_) {
-        name_index_map_[s] = index;
+        name_index_pmap_[s] = index;
         ++index;
     }
 }
@@ -166,8 +173,8 @@ void SubComponent::CalculateBetweennessCentrality() {
     cout << "Mark 1" << endl;
 
     boost::brandes_betweenness_centrality(gm_.g_,
-        boost::centrality_map(v_centrality_map_).vertex_index_map(
-            gm_.v_index_map())
+        boost::centrality_map(v_centrality_pmap_).vertex_index_map(
+            gm_.v_index_pmap())
     );
 
     cout << "Mark 2" << endl;
@@ -180,7 +187,20 @@ void SubComponent::CalculateBetweennessCentrality() {
 
 void SubComponent::initialize_betweenness_centrality() {
     v_centrality_vec_ = CentralityVec(num_of_vertices());
-    v_centrality_map_ = CentralityMap(v_centrality_vec_.begin(), gm_.v_index_map());
+    v_centrality_pmap_ = CentralityPMap(v_centrality_vec_.begin(), gm_.v_index_pmap());
+}
+
+double SubComponent::get_betweenness_centrality(string name) {
+    // There are 2 ways to retrieve the BC score
+    // 1st way - through v_centrality_vec_
+    int index = gm_.get_index_from_id(name);
+    cout << "    index = " << index << endl;
+    return v_centrality_vec_.at(index);
+}
+
+double SubComponent::get_betweenness_centrality(Vertex v) {
+    // 2nd way - uncomment to use v_centrality_pmap
+    return boost::get(v_centrality_pmap_, v);
 }
 
 /* HELPERS */
@@ -190,7 +210,7 @@ int SubComponent::num_of_vertices() {
 
 int SubComponent::index_of_vertex_id(string vertex_id) {
     // TODO: might throw exception here
-    return name_index_map_[vertex_id];
+    return name_index_pmap_[vertex_id];
 }
 
 bool SubComponent::vertex_exists(string name) {
@@ -209,8 +229,25 @@ string SubComponent::first_vertex_id_with_unknown_weight() {
 }
 
 /* HELPERS FOR OUTPUTTING RESULT */
-void SubComponent::print_traffic_matrix() {
+void SubComponent::print() {
+    cout << "Sub-component:" << endl;
+    gm_.print();
 
+    cout << "\nArticulation points ID:\n";
+    outops::operator<<(cout, art_points_id());
+
+    cout << "\nNormal Vertices ID:\n";
+    outops::operator<<(cout, all_vertices_id());
+
+    cout << "\nLink Weight:\n";
+    outops::operator<< <int> (cout, weight_map());
+    // printhelper::for_map<string, int>(sc.weight_map());
+
+    cout << "\nTraffic Matrix:\n";
+    outops::operator<<(cout, traffic_matrix());
+
+    cout << "\nBetweenness Centrality:\n";
+    outops::operator<< <double>(cout, v_centrality_vec());
 }
 
 std::ostream& operator<<(std::ostream& os, const SubComponent& sc) {
@@ -224,11 +261,14 @@ std::ostream& operator<<(std::ostream& os, const SubComponent& sc) {
     outops::operator<<(cout, sc.all_vertices_id());
 
     cout << "\nLink Weight:\n";
-    outops::operator<<(cout, sc.weight_map());
+    outops::operator<< <int> (cout, sc.weight_map());
     // printhelper::for_map<string, int>(sc.weight_map());
 
     cout << "\nTraffic Matrix:\n";
     outops::operator<<(cout, sc.traffic_matrix());
+
+    cout << "\nBetweenness Centrality:\n";
+    outops::operator<< <double>(cout, sc.v_centrality_vec());
 
     return os;
 }

@@ -17,13 +17,18 @@ namespace outops {
     std::ostream& operator<<(std::ostream& os, const Graph& g);
 
     // I have to use pair to add more than one argument for cout operator<<
-    std::ostream& operator<<(std::ostream& os, std::pair<const Graph&, const VertexIndexMap&> p);
+    std::ostream& operator<<(std::ostream& os, std::pair<const Graph&, const VertexIndexPMap&> p);
 
-    template <typename T> // declared in utitlity.tpp
-    std::ostream& operator<<(std::ostream& os, const std::set<T>& s);
+    // For set
+    template <typename T> std::ostream& operator<<(std::ostream& os, const std::set<T>& data);
 
-    std::ostream& operator<<(std::ostream& os, const std::map<string, int>& m);
+    // For vector
+    template <typename T> std::ostream& operator<<(std::ostream& os, const std::vector<T>& data);
 
+    // For map
+    template <typename T> std::ostream& operator<<(std::ostream& os, const std::map<string, T>& data);
+
+    // For 2-D vector
     std::ostream& operator<<(std::ostream& os, const vector< vector< int> >& data);
 }
 
@@ -38,7 +43,8 @@ namespace graphext {
     void id_of_some_vertices(const Graph& g, const Container& container, std::set<std::string>& r);
 
     void print_v_index_std_map(const Graph& g, const VertexIndexStdMap& v_index_std_map);
-    void print_v_index_map(const Graph& g, const VertexIndexMap& v_index_map);
+    void print_v_index_pmap(const Graph& g, const VertexIndexPMap& v_index_pmap);
+    void print_e_index_pmap(const Graph& g, const EdgeIndexPMap& e_index_pmap);
 }
 
 namespace setops {

@@ -17,7 +17,7 @@
 class SubComponent {
 public:
     typedef std::vector<double> CentralityVec;
-    typedef boost::iterator_property_map<CentralityVec::iterator, VertexIndexMap> CentralityMap;
+    typedef boost::iterator_property_map<CentralityVec::iterator, VertexIndexPMap> CentralityPMap;
 
     SubComponent();
 
@@ -31,6 +31,8 @@ public:
     NameToIntMap const& weight_reversed_map() const;
 
     vector< vector< int > > const& traffic_matrix() const;
+
+    CentralityVec const& v_centrality_vec() const;
 
     // CREATE SUB-COMPONENT
     void AddEdge(Router r1, Router r2, Link l);
@@ -51,6 +53,8 @@ public:
     // BETWEENNESS CENTRALITY
     void CalculateBetweennessCentrality();
     void initialize_betweenness_centrality();
+    double get_betweenness_centrality(string name);
+    double get_betweenness_centrality(Vertex v);
 
     // HELPERS
     int num_of_vertices();
@@ -59,8 +63,9 @@ public:
     string first_vertex_id_with_unknown_weight();
 
     // HELPERS FOR OUTPUTTING RESULT
-    void print_traffic_matrix();
+    void print();
     friend std::ostream& operator<<(std::ostream& os, const SubComponent& sc);
+    void print_traffic_matrix();
 
 
     // OLD CODE
@@ -79,7 +84,7 @@ private:
     StringSet all_vertices_id_;
     StringSet art_points_id_;
     StringSet non_art_points_id_; // vertices that are not articulation points
-    NameToIntMap name_index_map_;
+    NameToIntMap name_index_pmap_;
 
 
     NameToIntMap weight_map_;
@@ -88,10 +93,8 @@ private:
     vector<vector<int> > traffic_matrix_;
 
     CentralityVec v_centrality_vec_;
-    CentralityMap v_centrality_map_;
+    CentralityPMap v_centrality_pmap_;
 
 
 };
-
-
 #endif //GRAPH_PARSER_SUB_COMPONENT_H

@@ -71,18 +71,16 @@ void handleComplexJsonInput(string filePath) {
 void testHeuristic(string filePath) {
     GraphManager gm;
     readEdgeFileGraphManager(filePath, gm);
-    BiConnectedComponents bcc(gm);
+    gm.print();
+    BiConnectedComponents bcc = BiConnectedComponents(gm);
+    cout << bcc;
     cout << "DONE" << endl;
 }
 
 void testGraphManager(string filePath) {
     GraphManager gm;
     readEdgeFileGraphManager(filePath, gm);
-    cout << gm;
-
-    gm.ResetVerticesAndEdgesIndexMap();
-    gm.print_v_index_map();
-
+    gm.print();
 }
 
 int main(int, char *[]) {

@@ -57,10 +57,10 @@ typedef boost::graph_traits<Graph>::edges_size_type edges_size_type;
 
 typedef map<Vertex, size_t> VertexIndexStdMap;
 // This property map is an adaptor that converts any type that is a model of Unique Associative Container such as std::map into a mutable Lvalue Property Map.
-typedef boost::associative_property_map<VertexIndexStdMap> VertexIndexMap;
+typedef boost::associative_property_map<VertexIndexStdMap> VertexIndexPMap;
 
 typedef map<Edge, size_t> EdgeIndexStdMap;
-typedef boost::associative_property_map<EdgeIndexStdMap> EdgeIndexMap;
+typedef boost::associative_property_map<EdgeIndexStdMap> EdgeIndexPMap;
 
 typedef std::vector<Vertex> VertexVec;
 typedef std::vector<Vertex>::iterator VertexVecIter;
@@ -69,6 +69,7 @@ typedef std::map<Vertex, int> VertexMap;
 typedef std::map<Vertex, int>::iterator VertexMapIter;
 
 typedef std::map<std::string, int> NameToIntMap;
+typedef std::map<std::string, double> NameToDoubleMap;
 
 typedef std::vector<std::string> StringVec;
 typedef std::vector<std::string>::iterator StringVecIter;
@@ -77,7 +78,7 @@ typedef std::set<std::string> StringSet;
 typedef std::set<std::string>::iterator StringSetIter;
 
 typedef std::vector<double> CentralityVec;
-typedef boost::iterator_property_map<CentralityVec::iterator, VertexIndexMap> CentralityMap;
+typedef boost::iterator_property_map<CentralityVec::iterator, VertexIndexPMap> CentralityPMap;
 
 #endif //GRAPH_PARSER_COMMON_H
 

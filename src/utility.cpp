@@ -12,12 +12,12 @@ namespace outops {
                 "---------- " << boost::num_vertices(g) << " vertices\n"
                 "---------- " << boost::num_edges(g) << " edges\n";
 
-        std::set<std::string> verticesSet;
-        BGL_FORALL_VERTICES_T(v, g, Graph) verticesSet.insert(g[v].id);
+        std::vector<std::string> verticesVec;
+        BGL_FORALL_VERTICES(v, g, Graph) verticesVec.push_back(g[v].id);
 
         std::vector<std::string> edgesVec;
         std::vector<double> costsVec;
-        BGL_FORALL_EDGES_T(e, g, Graph) {
+        BGL_FORALL_EDGES(e, g, Graph) {
             std::string s = "(" + g[e.m_source].id + ", " + g[e.m_target].id + ") - " + std::to_string(g[e].cost);
             edgesVec.push_back(s);
             costsVec.push_back(g[e].cost);
@@ -26,7 +26,7 @@ namespace outops {
         using namespace boost::spirit::karma;
         os <<   "Vertices:\n"
                 "  ";
-        os << format("(" << auto_ % ", " << ") ", verticesSet);
+        os << format("(" << auto_ % ", " << ") ", verticesVec);
         os << "\n";
 
         os <<   "Edges:\n";
@@ -36,15 +36,15 @@ namespace outops {
         return os;
     }
 
-    std::ostream& operator<<(std::ostream& os, std::pair<const Graph&, const VertexIndexMap&> p) {
+    std::ostream& operator<<(std::ostream& os, std::pair<const Graph&, const VertexIndexPMap&> p) {
         // ERROR: wrong output.
         // I think it's because of copy constructor.
         // Check out shell_output/w14
 
         // Calling example:
-        // outops::operator<<(cout, std::pair<const Graph&, const VertexIndexMap&>(g_, v_index_map_));
+        // outops::operator<<(cout, std::pair<const Graph&, const VertexIndexPMap&>(g_, v_index_pmap_));
         Graph g = p.first;
-        VertexIndexMap v_index_map = p.second;
+        VertexIndexPMap v_index_map = p.second;
 
         std::list<std::string> outputs;
         BGL_FORALL_VERTICES_T(v, g, Graph) {
@@ -58,18 +58,6 @@ namespace outops {
         os << "Vertex Index Map:\n";
         os << "[\n";
         os << format("  " << (auto_ % "\n  ") << "]\n", outputs);
-
-        return os;
-    }
-
-    std::ostream& operator<<(std::ostream& os, const std::map<string, int>& m) {
-        // similar to printhelper::for_map()
-        os << "cout << std::map\n";
-        std::map<string, int>::const_iterator iter;
-        for (iter = m.begin(); iter != m.end(); ++iter) {
-            os << (*iter).first << ": " << (*iter).second << endl;
-        }
-        os << endl;
 
         return os;
     }
@@ -113,18 +101,32 @@ namespace graphext {
         cout << format("[\n  " << (auto_ % "\n  ") << "\n]\n", outputs);
     }
 
-    void print_v_index_map(const Graph& g, const VertexIndexMap& v_index_map) {
-        cout << "Vertex Index Map:\n";
-
+    void print_v_index_pmap(const Graph& g, const VertexIndexPMap& v_index_pmap) {
         std::list<std::string> outputs;
         BGL_FORALL_VERTICES_T(v, g, Graph) {
-            int index = boost::get(v_index_map, v);
+            int index = boost::get(v_index_pmap, v);
             std::string vertex_id = g[v].id;
-            cout << v << endl;
+            // Uncomment to print the address of vertex v
+            // cout << v << endl;
             outputs.push_back(vertex_id + ": " + std::to_string(index));
         }
 
         using namespace boost::spirit::karma;
+        cout << "Vertex Index Map:\n";
+        cout << format("[\n  " << (auto_ % "\n  ") << "\n]\n", outputs);
+    }
+
+    void print_e_index_pmap(const Graph& g, const EdgeIndexPMap& e_index_pmap) {
+        std::list<std::string> outputs;
+        BGL_FORALL_EDGES_T(e, g, Graph) {
+            int index = boost::get(e_index_pmap, e);
+            std::string source_id = g[boost::source(e, g)].id;
+            std::string target_id = g[boost::target(e, g)].id;
+            outputs.push_back("edge (" + source_id + ", " + target_id + ")" + ": " + std::to_string(index));
+        }
+
+        using namespace boost::spirit::karma;
+        cout << "Edge Index Map:\n";
         cout << format("[\n  " << (auto_ % "\n  ") << "\n]\n", outputs);
     }
 }

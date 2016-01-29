@@ -1,10 +1,27 @@
 namespace outops
 {
     template <typename T>
-    std::ostream& operator<<(std::ostream& os, const std::set<T>& s)
-    {
+    std::ostream& operator<<(std::ostream& os, const std::set<T>& data) {
         using namespace boost::spirit::karma;
-        os << format("(" << (auto_ % "\n  ") << ")", s);
+        os << format("(" << (auto_ % "\n  ") << ")", data);
+        os << endl;
+    }
+
+    template <typename T> std::ostream& operator<<(std::ostream& os, const std::vector<T>& data) {
+        os << "cout << std::vector<T>\n";
+
+        using namespace boost::spirit::karma;
+        os << format("(" << (auto_ % "\n  ") << ")", data);
+        os << endl;
+    }
+
+    template <typename T>
+    std::ostream& operator<<(std::ostream& os, const std::map<string, T>& data) {
+        os << "cout << std::map<string, T>\n";
+        typename std::map<string, T>::const_iterator iter;
+        for (iter = data.begin(); iter != data.end(); ++iter) {
+            os << (*iter).first << ": " << (*iter).second << endl;
+        }
         os << endl;
     }
 }
@@ -22,8 +39,7 @@ namespace printhelper {
 }
 namespace graphext {
     template <typename Container>
-    void id_of_some_vertices(const Graph& g, const Container& container, std::set<std::string>& r)
-    {
+    void id_of_some_vertices(const Graph& g, const Container& container, std::set<std::string>& r) {
         /*
         ** Find id for a vec
         */
@@ -35,8 +51,7 @@ namespace graphext {
 
 namespace setops {
     // From http://stackoverflow.com/questions/8175933/to-compare-two-boost-graph-having-same-vertices
-    template <typename T> std::set<T> operator-(const std::set<T>& a, const std::set<T>& b)
-    {
+    template <typename T> std::set<T> operator-(const std::set<T>& a, const std::set<T>& b) {
         std::set<T> r;
         std::set_difference(
                 a.begin(), a.end(),
@@ -46,8 +61,7 @@ namespace setops {
         return r;
     }
 
-    template <typename T> std::set<T> operator/(const std::set<T>& a, const std::set<T>& b)
-    {
+    template <typename T> std::set<T> operator/(const std::set<T>& a, const std::set<T>& b) {
         std::set<T> r;
         std::set_intersection(
                 a.begin(), a.end(),

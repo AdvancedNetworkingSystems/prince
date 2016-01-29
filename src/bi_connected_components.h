@@ -15,7 +15,7 @@
 
 
 typedef std::vector<edges_size_type> ComponentVec;
-typedef boost::iterator_property_map<ComponentVec::iterator, EdgeIndexMap> ComponentMap;
+typedef boost::iterator_property_map<ComponentVec::iterator, EdgeIndexPMap> ComponentMap;
 
 typedef map<string, vector<int> > VertexIdToComponentStdMap;
 typedef boost::associative_property_map<VertexIdToComponentStdMap> VertexIdToComponentMap;
@@ -38,8 +38,10 @@ public:
     void init();
 
     // Getter functions
-    set<string> const& all_art_points_id() const;
-    int num_of_vertices() const;
+    int const num_of_bcc();
+    int const num_of_vertices() const;
+    StringSet const& all_art_points_id() const;
+    NameToDoubleMap const& bc_score() const;
 
     // SUB-COMPONENT
     void FindBiConnectedComponents();
@@ -53,9 +55,9 @@ public:
 
     // BETWEENNESS CENTRALITY
     void CalculateBetweennessCentrality();
-
-    // HELPERS
-    int num_of_bcc();
+    void initialize_betweenness_centrality();
+    void calculate_bc_inter();
+    void finalize_betweenness_centrality();
 
     // HELPERS FOR OUTPUTTING RESULT
     void print();
@@ -80,29 +82,17 @@ private:
     ComponentVec component_vec_;
     ComponentMap component_map_;
     vector<Vertex> art_points_;
+    StringSet all_art_points_id_;
 
     int num_of_bcc_ = -1;
     int num_of_vertices_ = -1;
 
-    StringSet all_art_points_id_;
-
     std::queue<QueueElem> Q;
 
-    // Old code
-    void processArtPoints();
-    void testProcessArtPoints();
-
-    VertexVec get_normal_vertices_for_component(int comp_index);
-
-    // Calculate Betweenness Centrality
-    void findBetweennessCentrality();
-    void printBetweennessCentrality();
-
-    // Function used in debugging
-    void _print_art_points();
-    void _test_set_difference();
-
+    // bc_score_ will be updated gradually, first with the score for non art points, and then the score for art points
+    NameToDoubleMap bc_score_;
+    NameToDoubleMap bc_sum_art_points_; // summing all the bc score for articulation points
+    NameToDoubleMap bc_inter_;
 };
-
 
 #endif //GRAPH_PARSER_BI_CONNECTED_COMPONENTS_H

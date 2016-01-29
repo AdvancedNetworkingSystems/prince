@@ -19,12 +19,29 @@ void BiConnectedComponents::init() {
     num_of_vertices_ = boost::num_vertices(gm_.g_);
 
     component_vec_ = ComponentVec(boost::num_edges(gm_.g_), 0);
-    component_map_ = ComponentMap(component_vec_.begin(), gm_.e_index_map());
+    component_map_ = ComponentMap(component_vec_.begin(), gm_.e_index_pmap());
 }
 
 /* GETTER */
+int const BiConnectedComponents::num_of_bcc() {
+    if (num_of_bcc_ == -1) { // calculate it
+        // +1 to counteract for the zero-indexing
+        num_of_bcc_ = *std::max_element(component_vec_.begin(), component_vec_.end()) + 1;
+    }
+
+    return num_of_bcc_;
+}
+
+int const BiConnectedComponents::num_of_vertices() const {
+    return num_of_vertices_;
+}
+
 StringSet const& BiConnectedComponents::all_art_points_id() const {
     return all_art_points_id_;
+}
+
+NameToDoubleMap const& BiConnectedComponents::bc_score() const {
+    return bc_score_;
 }
 
 /* SUB-COMPONENT */
@@ -33,7 +50,7 @@ void BiConnectedComponents::FindBiConnectedComponents() {
 
     boost::biconnected_components(gm_.g_, component_map_,
                                   back_inserter(art_points_),
-                                  boost::vertex_index_map(gm_.v_index_map()));
+                                  boost::vertex_index_map(gm_.v_index_pmap()));
 
     // Set some variables
     graphext::id_of_some_vertices(gm_.g_, art_points_, all_art_points_id_);
@@ -54,6 +71,7 @@ void BiConnectedComponents::FindBiConnectedComponents() {
     cout << "Calculate Betweenness Centrality\n";
     CalculateBetweennessCentrality();
 
+    // Print all the sub components
     print();
 }
 
@@ -104,34 +122,86 @@ void BiConnectedComponents::CalculateTrafficMatrix() {
 
 /* BETWEENNESS CENTRALITY */
 void BiConnectedComponents::CalculateBetweennessCentrality() {
+    cout << "BETWEENNESS CENTRALITY\n";
+
+    initialize_betweenness_centrality();
+
     for (int i = 0; i < num_of_bcc_; ++i) {
+        cout << "BC for component " << i << endl;
         BCCs[i].CalculateBetweennessCentrality();
+    }
+
+    double score;
+    // Sum the BC for each sub-component
+    for (int i = 0; i < num_of_bcc_; ++i) {
+        // For non articulation points
+        for (string id: BCCs[i].non_art_points_id()) {
+            score = BCCs[i].get_betweenness_centrality(id);
+            cout << "id = " << id << ", score = " << score << endl;
+            bc_score_[id] = score;
+        }
+
+        // For articulation points
+        for (string id: BCCs[i].art_points_id()) {
+            score = BCCs[i].get_betweenness_centrality(id);
+            bc_sum_art_points_[id] += score;
+        }
+    }
+
+    // Update the BC score for articulation points
+    for (string id : all_art_points_id_) {
+        bc_score_[id] = bc_sum_art_points_[id];
+
+        // TODO: Jan 29, 2015: for now, I do not minus the bc_inter_
+        // bc_score_[id] = bc_sum_art_points_[id] - bc_inter_[id];
+    }
+
+    cout << "DONE WITH BETWEENNESS CENTRALITY\n";
+}
+
+void BiConnectedComponents::initialize_betweenness_centrality() {
+    // Initialize bc_inter_ to be 0
+    for (string id: all_art_points_id_) {
+        bc_inter_[id] = 0;
+    }
+
+    StringSet all_vertices_id;
+    graphext::id_of_all_vertices(gm_.g_, all_vertices_id);
+
+    // Initialize bc_sum_, bc_score_ to be 0
+    for (string id: all_vertices_id) {
+        bc_sum_art_points_[id] = 0;
+        bc_score_[id] = 0;
     }
 }
 
-/* HELPERS */
-int BiConnectedComponents::num_of_bcc() {
-    if (num_of_bcc_ == -1) { // calculate it
-        // +1 to counteract for the zero-indexing
-        num_of_bcc_ = *std::max_element(component_vec_.begin(), component_vec_.end()) + 1;
+void BiConnectedComponents::calculate_bc_inter() {
+    for (int i = 0; i < num_of_bcc_; ++i) {
+        for (string id : BCCs[i].art_points_id()) {
+            bc_inter_[id] += BCCs[i].get_weight_map(id) * BCCs[i].get_weight_reversed_map(id);
+        }
     }
-
-    return num_of_bcc_;
 }
 
 /* HELPERS FOR OUTPUTTING RESULT */
+
 void BiConnectedComponents::print() {
     for (int i = 0; i < num_of_bcc(); ++i) {
-        cout << BCCs[i] << endl;
+        // cout << BCCs[i]; // Since I call another print() function inside, I cannot use cout
+        BCCs[i].print();
     }
 }
 
 std::ostream& operator<<(std::ostream& os, const BiConnectedComponents& rhs) {
+    cout << "MARK\n";
     cout << "\n\nBi-Connected Components\n\n";
     cout << rhs.gm_;
 
     cout << "\nArticulation points:\n";
     outops::operator<<(cout, rhs.all_art_points_id());
+
+    cout << "\nBetweenness Centrality Score:\n";
+    outops::operator<< <double>(cout, rhs.bc_score());
     return os;
 
     // TODO: output the result of BCC
