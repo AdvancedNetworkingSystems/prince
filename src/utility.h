@@ -66,6 +66,8 @@ struct second_equal_to
 
     bool operator()(const Pair& p) const
     {
+        // I quick-hacked to make the Pair work for second argument with built-in type, such as int.
+        // return p.second == *value_;
         return p.second == value_;
     }
 

@@ -34,7 +34,6 @@ public:
     const Vertex& get_vertex_from_id(string s);
     int get_index_from_id(string s);
 
-
     // OUTPUTTING THE RESULT
     // TODO: checkout utility.h, I can't overload << operator to output
     // the correct result. Therefore, I use print() ufnction as a replacement.
