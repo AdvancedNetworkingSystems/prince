@@ -42,24 +42,35 @@ public:
     int const num_of_vertices() const;
     StringSet const& all_art_points_id() const;
     NameToDoubleMap const& bc_score() const;
+    NameToDoubleMap const& bc_relative_score() const;
+
+    // Auto run
+    void run();
 
     // SUB-COMPONENT
     void FindBiConnectedComponents();
-    void CreateSubComponents();
 
     // LINK WEIGHT - calculation for all sub-components
     void CalculateLinkWeight();
+    void CalculateLinkWeightReversed();
 
     // TRAFFIC MATRIX - calculation for all sub-components
     void CalculateTrafficMatrix();
 
+    // BETWEENNESS CENTRALITY HEURISTIC
+    void CalculateBetweennessCentralityHeuristic();
+
     // BETWEENNESS CENTRALITY
     void CalculateBetweennessCentrality();
-    void initialize_betweenness_centrality();
-    void calculate_bc_inter();
-    void finalize_betweenness_centrality();
 
     // HELPERS FOR OUTPUTTING RESULT
+    void print_all_sub_components();
+
+    void print_betweenness_centrality();
+    void print_betweenness_centrality_heuristic();
+
+    void write_all_betweenness_centrality(string filepath);
+
     void print();
     friend std::ostream& operator<<(std::ostream& os, const BiConnectedComponents& rhs);
 
@@ -70,6 +81,9 @@ public:
     Component_t BCCs;
 
 private:
+    // SUB-COMPONENT
+    void CreateSubComponents();
+
     // LINK WEIGHT - calculation for all sub-components
     void initialize_weight();
     void initialize_queue();
@@ -77,6 +91,15 @@ private:
     void process_vertex_component_pair(int comp_index, string vertex_id);
     void find_unknown_weight_wrt_art_point(string vertex_id);
     void find_unknown_weight_wrt_component(int comp_index);
+    bool verify_link_weight();
+
+    // BETWEENNESS CENTRALITY HEURISTIC
+    void initialize_betweenness_centrality_heuristic();
+    void calculate_bc_inter();
+    void finalize_betweenness_centrality_heuristic();
+
+    // BETWEENNESS CENTRALITY
+    void initialize_betweenness_centrality();
 
     // Private variables
     ComponentVec component_vec_;
@@ -90,9 +113,15 @@ private:
     std::queue<QueueElem> Q;
 
     // bc_score_ will be updated gradually, first with the score for non art points, and then the score for art points
+    // Betweenness Centrality Heuristic
     NameToDoubleMap bc_score_;
+    NameToDoubleMap bc_relative_score_;
     NameToDoubleMap bc_sum_art_points_; // summing all the bc score for articulation points
     NameToDoubleMap bc_inter_;
+
+    // Betweenness Centrality - standard calculation
+    CentralityVec v_centrality_vec_;
+    CentralityPMap v_centrality_pmap_;
 };
 
 #endif //GRAPH_PARSER_BI_CONNECTED_COMPONENTS_H

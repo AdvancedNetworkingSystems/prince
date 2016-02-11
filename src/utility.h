@@ -7,6 +7,7 @@
 #define GRAPH_PARSER_UTILITY_H
 
 #include <iostream>
+#include <fstream>
 #include <boost/graph/graph_traits.hpp>
 #include <boost/graph/undirected_graph.hpp>
 #include <boost/spirit/include/karma.hpp>
@@ -42,9 +43,13 @@ namespace graphext {
     template <typename Container>
     void id_of_some_vertices(const Graph& g, const Container& container, std::set<std::string>& r);
 
+    void print_edge(const Graph& g, const Edge& e);
+
     void print_v_index_std_map(const Graph& g, const VertexIndexStdMap& v_index_std_map);
     void print_v_index_pmap(const Graph& g, const VertexIndexPMap& v_index_pmap);
     void print_e_index_pmap(const Graph& g, const EdgeIndexPMap& e_index_pmap);
+
+    void write_betweenness_centrality(Graph const& g, std::vector<double> v_centrality_vec, string filepath);
 }
 
 namespace setops {
@@ -55,6 +60,12 @@ namespace setops {
 namespace stdhelper {
     template <typename T1, typename T2> bool exists(const std::map<T1, T2>& m, const T1& key);
     template <typename T> bool exists(const std::set<T>& s, const T& element);
+
+}
+
+namespace helper {
+    // I do not want to use boost::filesystem, due to additional library must be included
+    string get_file_name(const string& s);
 }
 
 template <typename Pair>
@@ -73,6 +84,14 @@ struct second_equal_to
 
 private:
     typename Pair::second_type value_;
+};
+
+template <typename T1, typename T2>
+struct less_second {
+    typedef pair<T1, T2> type;
+    bool operator ()(type const& a, type const& b) const {
+        return a.second < b.second;
+    }
 };
 
 #include "utility.tpp"

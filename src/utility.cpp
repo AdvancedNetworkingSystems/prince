@@ -87,6 +87,13 @@ namespace graphext {
         }
     }
 
+    void print_edge(const Graph& g, const Edge& e) {
+        string s = g[boost::source(e, g)].id;
+        string t = g[boost::target(e, g)].id;
+
+        printf("edge (%s, %s)", s.c_str(), t.c_str());
+    }
+
     void print_v_index_std_map(const Graph& g, const VertexIndexStdMap& v_index_std_map) {
         std::list<std::string> outputs;
 
@@ -128,5 +135,41 @@ namespace graphext {
         using namespace boost::spirit::karma;
         cout << "Edge Index Map:\n";
         cout << format("[\n  " << (auto_ % "\n  ") << "\n]\n", outputs);
+    }
+
+    void write_betweenness_centrality(Graph const& g, std::vector<double> v_centrality_vec, string file_path) {
+        cout << "XXX Writing to File";
+        // string filepath = "../output/boost_" + fileSuffix + ".csv";
+        ofstream out_file(file_path.c_str());
+
+        Viter vi, ve;
+        size_t i = 0;
+        if (out_file.is_open()) {
+            for (boost::tie(vi, ve) = boost::vertices(g); vi != ve; ++vi) {
+                out_file << g[*vi].id << ", " << v_centrality_vec.at(i) << endl;
+                ++i;
+            }
+        }
+        out_file.close();
+
+        cout << "Done Writing BC score to file " << file_path << endl;
+    }
+}
+
+// GENERAL HELPERS
+namespace helper {
+    string get_file_name(const string& s) {
+       char sep = '/';
+
+    #ifdef _WIN32
+       sep = '\\';
+    #endif
+
+       size_t i = s.rfind(sep, s.length());
+       if (i != string::npos) {
+          return(s.substr(i+1, s.length() - i));
+       }
+
+       return("");
     }
 }

@@ -5,100 +5,70 @@
 #include "bi_connected_components.h"
 #include "graph_manager.h"
 
-
-void handleSimpleGraph() {
-    /* I don't understand the output. Why there are 8 vertices?
-        Simple graph
-        0
-        1
-        2
-        3
-        4
-        5
-        6
-        7
-        8
-    */
-    typedef boost::adjacency_list<> G;
-    G a;
-    {
-        boost::graph_traits<G>::vertex_descriptor v, u, t;
-        u = vertex(1, a);
-        v = vertex(8, a);
-        // t = vertex(5, a);
-        add_edge(u, v, a);
-        // add_edge(u, t, a);
-    }
-
-    std::set<typename boost::graph_traits<G>::vertex_descriptor> av;
-    cout << "Simple graph" << endl;
-    BGL_FORALL_VERTICES_T(v, a, G) {
-        cout << v << endl;
-    }
-}
-void handleSimpleInput(string filePath) {
-    // Read the input.edges
-    Graph g;
-    readEdgeFile(filePath, g);
-
-    cout << "Finish creating graph" << endl;
-
-    simpleBetweennessCentrality(g, "edge_list");
-}
-
-void handleJsonInput(string filePath) {
-    Graph g;
-    readJson(filePath, g);
-    outops::operator<<(cout, g);
-
-    // Applying the betweenness centrality
-    simpleBetweennessCentrality(g, "json_olsr");
-
-    cout << "Done with Betweenness Centrality" << endl;
-}
-
-void handleComplexJsonInput(string filePath) {
-    Graph g;
-    readComplexJson(filePath, g);
-    outops::operator<<(cout, g);
-
-    // Applying the betweenness centrality
-    simpleBetweennessCentrality(g, "json_topology");
-
-    cout << "Done with Betweenness Centrality" << endl;
-}
-
-void testHeuristic(string filePath) {
+void testHeuristic(string filepath) {
     GraphManager gm;
-    readEdgeFileGraphManager(filePath, gm);
-    gm.print();
+    readEdgeFileGraphManager(filepath, gm);
     BiConnectedComponents bcc = BiConnectedComponents(gm);
-    cout << bcc;
+    bcc.run();
+    bcc.print();
+
+    bcc.write_all_betweenness_centrality("../output/simple.edges");
     cout << "DONE" << endl;
 }
 
-void testGraphManager(string filePath) {
+void testGraphManager(string filepath) {
     GraphManager gm;
-    readEdgeFileGraphManager(filePath, gm);
+    readEdgeFileGraphManager(filepath, gm);
     gm.print();
 }
 
+void default_run() {
+    // input_files = [(filepath, input_type)]
+    // input_type = 1 ==> edges file
+    // input_type = 2 ==> simple json file
+    // input_type = 3 ==> complex json file
+
+    std::list< std::tuple<string, int> > input_files;
+    // input_files.push_back(std::make_tuple("../input/ninux_unweighted_connected.edges", 1));
+    // input_files.push_back(std::make_tuple("../input/simple.edges", 1));
+    input_files.push_back(std::make_tuple("../input/ninux_30_1.edges", 1));
+    // input_files.push_back(std::make_tuple("../input/olsr-netjson.json", 2));
+    // input_files.push_back(std::make_tuple("../input/jsoninfo_topo.json", 3));
+
+    for (auto input : input_files) {
+        string filepath = std::get<0>(input);
+        int input_type = std::get<1>(input);
+        GraphManager gm;
+        if (input_type == 1) {
+            readEdgeFileGraphManager(filepath, gm);
+        }
+        else if (input_type == 2) {
+            readJsonGraphManager(filepath, gm);
+        }
+        else if (input_type == 3) {
+            readComplexJsonGraphManager(filepath, gm);
+        }
+
+        cout << gm;
+
+        BiConnectedComponents bcc = BiConnectedComponents(gm);
+        bcc.run();
+        // bcc.print();
+        string filename = helper::get_file_name(filepath);
+        string out_filepath = "../output/" + filename + ".out";;
+        bcc.write_all_betweenness_centrality(out_filepath);
+    }
+}
+
+void old_main_code() {
+    string simpleGraphfilepath = "../input/simple.edges";
+    testGraphManager(simpleGraphfilepath);
+
+    testHeuristic(simpleGraphfilepath);
+}
+
 int main(int, char *[]) {
-//    string edgeFilePath = "../input/ninux_30_1.edges";
-//    testHeuristic(edgeFilePath);
-//    handleSimpleInput(edgeFilePath);
-//
-//    string jsonFilePath = "../input/olsr-netjson.json";
-//    handleJsonInput(jsonFilePath);
-//
-//    string complexJsonFilePath = "../input/jsoninfo_topo.json";
-//    handleComplexJsonInput(complexJsonFilePath);
-
-    // string simpleGraphFilePath = "../input/simple.edges";
-    // testGraphManager(simpleGraphFilePath);
-
-    string simpleGraphFilePath = "../input/simple.edges";
-    testHeuristic(simpleGraphFilePath);
+    default_run();
 
     return 0;
 }

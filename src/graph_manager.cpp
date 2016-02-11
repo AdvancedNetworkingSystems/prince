@@ -38,30 +38,33 @@ void GraphManager::AddEdge(VertexProperties vp1, VertexProperties vp2, EdgePrope
 
     string s1 = vp1.id;
     string s2 = vp2.id;
-    Vertex v1;
-    Vertex v2;
 
-    try {
-        v1 = get_vertex_from_id(s1);
-    }
-    catch (exception& e) {
-        v1 = boost::add_vertex(vp1, g_);
-        v_id_vertex_map_[s1] = v1;
-        update_v_index_pmap(v1);
-    }
-    try {
-        v2 = get_vertex_from_id(s2);
-    }
-    catch (exception& e) {
-        v2 = boost::add_vertex(vp2, g_);
-        v_id_vertex_map_[s2] = v2;
-        update_v_index_pmap(v2);
-    }
+    if (s1 != s2) { // do not add self-loop into the graph
+        Vertex v1;
+        Vertex v2;
 
-    Edge e;
-    bool inserted;
-    boost::tie(e, inserted) = boost::add_edge(v1, v2, ep, g_);
-    update_e_index_pmap(e);
+        try {
+            v1 = get_vertex_from_id(s1);
+        }
+        catch (exception& e) {
+            v1 = boost::add_vertex(vp1, g_);
+            v_id_vertex_map_[s1] = v1;
+            update_v_index_pmap(v1);
+        }
+        try {
+            v2 = get_vertex_from_id(s2);
+        }
+        catch (exception& e) {
+            v2 = boost::add_vertex(vp2, g_);
+            v_id_vertex_map_[s2] = v2;
+            update_v_index_pmap(v2);
+        }
+
+        Edge e;
+        bool inserted;
+        boost::tie(e, inserted) = boost::add_edge(v1, v2, ep, g_);
+        update_e_index_pmap(e);
+    }
 }
 
 void GraphManager::ResetVerticesAndEdgesIndexMap() {

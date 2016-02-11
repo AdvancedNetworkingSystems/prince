@@ -18,7 +18,7 @@ void BiConnectedComponents::init() {
     // Set some variables
     num_of_vertices_ = boost::num_vertices(gm_.g_);
 
-    component_vec_ = ComponentVec(boost::num_edges(gm_.g_), 0);
+    component_vec_ = ComponentVec(boost::num_edges(gm_.g_), -1);
     component_map_ = ComponentMap(component_vec_.begin(), gm_.e_index_pmap());
 }
 
@@ -44,7 +44,42 @@ NameToDoubleMap const& BiConnectedComponents::bc_score() const {
     return bc_score_;
 }
 
-/* SUB-COMPONENT */
+NameToDoubleMap const& BiConnectedComponents::bc_relative_score() const {
+    return bc_relative_score_;
+}
+
+// AUTO RUN
+void BiConnectedComponents::run() {
+    /* Auto run all the necessary functions
+    */
+    FindBiConnectedComponents();
+
+    cout << "All Sub Components:\n\n";
+    for (int i = 0; i < num_of_bcc_; ++i) {
+        cout << "    " << i << endl;
+        outops::operator<<(cout, BCCs[i].all_vertices_id());
+    }
+
+    // Calculate Link Weight + Link Weight Reversed
+    cout << "Calculate Link Weight + Link Weight Reversed\n";
+    CalculateLinkWeight();
+    CalculateLinkWeightReversed();
+    verify_link_weight();
+
+    // Calculate Traffic Matrix
+    cout << "Calculate Traffic Matrix\n";
+    CalculateTrafficMatrix();
+
+    // Calculate Betweenness Centrality Heuristic
+    cout << "Calculate Betweenness Centrality Heuristic\n";
+    CalculateBetweennessCentralityHeuristic();
+
+    // Calculate Betweenness Centrality
+    cout << "Calculate Betweenness Centrality\n";
+    CalculateBetweennessCentrality();
+}
+
+// SUB-COMPONENT
 void BiConnectedComponents::FindBiConnectedComponents() {
     cout << "Running FindBiConnectedComponents" << endl;
 
@@ -55,43 +90,16 @@ void BiConnectedComponents::FindBiConnectedComponents() {
     // Set some variables
     graphext::id_of_some_vertices(gm_.g_, art_points_, all_art_points_id_);
 
+    cout << "\nArticulation points:\n";
+    outops::operator<<(cout, all_art_points_id_);
+
     // Process the result from boost::biconnected_components
+    cout << "Create Sub Components\n";
     BCCs = Component_t(num_of_bcc());
     CreateSubComponents();
-
-    // Calculate Link Weight
-    cout << "Calculate Link Weight\n";
-    CalculateLinkWeight();
-
-    // Calculate Traffic Matrix
-    cout << "Calculate Traffic Matrix\n";
-    CalculateTrafficMatrix();
-
-    // Calculate Betweenness Centrality
-    cout << "Calculate Betweenness Centrality\n";
-    CalculateBetweennessCentrality();
-
-    // Print all the sub components
-    print();
 }
 
-void BiConnectedComponents::CreateSubComponents() {
-    // Generating subgraph for each sub-component
-    BGL_FORALL_EDGES(edge, gm_.g_, Graph) {
-        int comp_index = boost::get(component_map_, edge);
-        Router r1 = gm_.g_[boost::source(edge, gm_.g_)];
-        Router r2 = gm_.g_[boost::target(edge, gm_.g_)];
-        Link l = gm_.g_[edge];
-        BCCs[comp_index].AddEdge(r1, r2, l);
-    }
-
-    // Finalizing each sub components
-    for (int i = 0; i < num_of_bcc(); ++i) {
-        BCCs[i].FinalizeSubComponent(all_art_points_id_);
-    }
-}
-
-/* LINK WEIGHT */
+// LINK WEIGHT
 void BiConnectedComponents::CalculateLinkWeight() {
     initialize_weight();
     initialize_queue();
@@ -113,53 +121,349 @@ void BiConnectedComponents::CalculateLinkWeight() {
     }
 }
 
-/* TRAFFIC MATRIX */
+void BiConnectedComponents::CalculateLinkWeightReversed() {
+    for (int i = 0; i < num_of_bcc_; ++i) {
+        BCCs[i].calculate_weight_reversed(num_of_vertices_);
+    }
+}
+
+// TRAFFIC MATRIX
 void BiConnectedComponents::CalculateTrafficMatrix() {
     for (int i = 0; i < num_of_bcc_; ++i) {
         BCCs[i].CalculateTrafficMatrix();
     }
 }
 
-/* BETWEENNESS CENTRALITY */
-void BiConnectedComponents::CalculateBetweennessCentrality() {
-    cout << "BETWEENNESS CENTRALITY\n";
+// BETWEENNESS CENTRALITY HEURISTIC
+void BiConnectedComponents::CalculateBetweennessCentralityHeuristic() {
+    cout << "BETWEENNESS CENTRALITY HEURISTIC\n";
 
-    initialize_betweenness_centrality();
+    initialize_betweenness_centrality_heuristic();
+    calculate_bc_inter();
 
     for (int i = 0; i < num_of_bcc_; ++i) {
         cout << "BC for component " << i << endl;
-        BCCs[i].CalculateBetweennessCentrality();
+        BCCs[i].CalculateBetweennessCentralityHeuristic();
     }
 
     double score;
-    // Sum the BC for each sub-component
     for (int i = 0; i < num_of_bcc_; ++i) {
-        // For non articulation points
-        for (string id: BCCs[i].non_art_points_id()) {
+        // For all points
+        for (string id: BCCs[i].all_vertices_id()) {
             score = BCCs[i].get_betweenness_centrality(id);
-            cout << "id = " << id << ", score = " << score << endl;
-            bc_score_[id] = score;
-        }
-
-        // For articulation points
-        for (string id: BCCs[i].art_points_id()) {
-            score = BCCs[i].get_betweenness_centrality(id);
-            bc_sum_art_points_[id] += score;
+            cout << "XXX score from component << " << i << ", id " << id << " = " << score << endl;
+            bc_score_[id] += score;
         }
     }
 
-    // Update the BC score for articulation points
+    // // Sum the BC for each sub-component
+    // for (int i = 0; i < num_of_bcc_; ++i) {
+    //     // For non articulation points
+    //     for (string id: BCCs[i].non_art_points_id()) {
+    //         score = BCCs[i].get_betweenness_centrality(id);
+    //         bc_score_[id] = score;
+    //     }
+
+    //     // For articulation points
+    //     for (string id: BCCs[i].art_points_id()) {
+    //         score = BCCs[i].get_betweenness_centrality(id);
+    //         bc_sum_art_points_[id] += score;
+    //     }
+    // }
+
+    // // Update the BC score for articulation points
     for (string id : all_art_points_id_) {
-        bc_score_[id] = bc_sum_art_points_[id];
+    //     bc_score_[id] = bc_sum_art_points_[id];
 
         // TODO: Jan 29, 2015: for now, I do not minus the bc_inter_
-        // bc_score_[id] = bc_sum_art_points_[id] - bc_inter_[id];
+        cout << bc_score_[id] << " --> ";
+        bc_score_[id] -= bc_inter_[id];
+        cout << bc_score_[id] << endl;
     }
+
+    finalize_betweenness_centrality_heuristic();
 
     cout << "DONE WITH BETWEENNESS CENTRALITY\n";
 }
 
-void BiConnectedComponents::initialize_betweenness_centrality() {
+// BETWEENNESS CENTRALITY - NORMAL CALCULATION
+void BiConnectedComponents::CalculateBetweennessCentrality() {
+    initialize_betweenness_centrality();
+
+    boost::brandes_betweenness_centrality(gm_.g_,
+        boost::centrality_map(
+            v_centrality_pmap_).vertex_index_map(
+            gm_.v_index_pmap())
+    );
+
+    boost::relative_betweenness_centrality(gm_.g_, v_centrality_pmap_);
+}
+
+
+// HELPERS FOR OUTPUTTING RESULT
+void BiConnectedComponents::print_all_sub_components() {
+    for (int i = 0; i < num_of_bcc(); ++i) {
+        // cout << BCCs[i]; // Since I call another print() function inside, I cannot use cout
+        BCCs[i].print();
+    }
+}
+
+void BiConnectedComponents::print_betweenness_centrality() {
+    BGL_FORALL_VERTICES(v, gm_.g_, Graph) {
+        double bc_score = boost::get(v_centrality_pmap_, v);
+        cout << gm_.g_[v].id << ": " << bc_score << endl;
+    }
+}
+
+void BiConnectedComponents::print_betweenness_centrality_heuristic() {
+    outops::operator<< <double>(cout, bc_relative_score_);
+}
+
+void BiConnectedComponents::write_all_betweenness_centrality(string filepath) {
+    /* Write the heuristic and the normal version of betweenness centrality
+    1st column: brandes_betweenness_centrality
+    2nd column: heuristic_betweenness_centrality
+    */
+
+    vector<pair<string, double> > mapcopy(bc_relative_score_.begin(), bc_relative_score_.end());
+    std::sort(mapcopy.begin(), mapcopy.end(), less_second<string, double>());
+
+    ofstream outFile(filepath.c_str());
+
+    Viter vi, ve;
+    size_t i = 0;
+    if (outFile.is_open()) {
+        for(auto id_bc_score_pair : mapcopy) {
+            string id = id_bc_score_pair.first;
+            double heuristic_bc_score = id_bc_score_pair.second;
+
+            int index = gm_.get_index_from_id(id);
+            double bc_score = v_centrality_vec_.at(index);
+
+            outFile << id << "\t" << bc_score << "\t" << heuristic_bc_score << endl;
+        }
+        // for (boost::tie(vi, ve) = boost::vertices(gm_.g_); vi != ve; ++vi) {
+        //     string id = gm_.g_[*vi].id;
+        //     outFile << id << "\t" << bc_relative_score_[id] << "\t" << v_centrality_vec_.at(i) << endl;
+        //     ++i;
+        // }
+    }
+    outFile.close();
+    cout << "Finish writing brandes and heurisic BC score to file " << filepath << endl;
+}
+
+void BiConnectedComponents::print() {
+    cout << "\n\nBi-Connected Components\n\n";
+    cout << gm_;
+
+    cout << "\nArticulation points:\n";
+    outops::operator<<(cout, all_art_points_id_);
+
+    cout << "\nHeuristic Betweenness Centrality Score:\n";
+    outops::operator<< <double>(cout, bc_score_);
+
+    cout << "\nHeuristic Betweenness Centrality Relative Score:\n";
+    outops::operator<< <double>(cout, bc_relative_score_);
+
+    cout << "\nNormal Betweenness Centrality Score:\n";
+    print_betweenness_centrality();
+
+    cout << "Special debugging case\n";
+    BCCs[71].print();
+}
+
+std::ostream& operator<<(std::ostream& os, const BiConnectedComponents& rhs) {
+    cout << "\n\nBi-Connected Components\n\n";
+    cout << rhs.gm_;
+
+    cout << "\nArticulation points:\n";
+    outops::operator<<(cout, rhs.all_art_points_id());
+
+    cout << "\nHeuristic Betweenness Centrality Score:\n";
+    outops::operator<< <double>(cout, rhs.bc_score());
+
+    cout << "\nHeuristic Betweenness Centrality Relative Score:\n";
+    outops::operator<< <double>(cout, rhs.bc_relative_score());
+
+    return os;
+}
+
+/******************************
+* Private functions
+******************************/
+// SUB-COMPONENT
+void BiConnectedComponents::CreateSubComponents() {
+    // Generating subgraph for each sub-component
+    BGL_FORALL_EDGES(edge, gm_.g_, Graph) {
+        Vertex source = boost::source(edge, gm_.g_);
+        Vertex target = boost::target(edge, gm_.g_);
+
+        int comp_index = boost::get(component_map_, edge);
+        cout << comp_index << endl;
+        if (comp_index == -1) {
+            cout << "ERROR: edge ";
+            graphext::print_edge(gm_.g_, edge);
+            cout << "not belonging to subcomponent\n";
+        }
+        else {
+            Router r1 = gm_.g_[source];
+            Router r2 = gm_.g_[target];
+            Link l = gm_.g_[edge];
+            BCCs[comp_index].AddEdge(r1, r2, l);
+        }
+    }
+
+    // Finalizing each sub components
+    for (int i = 0; i < num_of_bcc(); ++i) {
+        BCCs[i].FinalizeSubComponent(all_art_points_id_);
+    }
+}
+
+// LINK WEIGHT
+void BiConnectedComponents::initialize_weight() {
+    for (int i = 0; i < num_of_bcc_; ++i) {
+        BCCs[i].initialize_weight();
+    }
+}
+
+void BiConnectedComponents::initialize_queue() {
+    for (int i = 0; i < num_of_bcc_; ++i) {
+        if (BCCs[i].vertex_exists("43")) {
+            cout << "### 43 ###\n";
+            outops::operator<<(cout, BCCs[i].all_vertices_id());
+        }
+        if (BCCs[i].art_points_id().size() == 1) {
+            string vertex_id = *(BCCs[i].art_points_id().begin());
+            string type = "component_vertex_pair";
+            QueueElem elem = {
+                .component_index = i,
+                .vertex_id = vertex_id,
+                .type = type,
+            };
+            cout << "adding component_vertex_pair (" << i << " " << vertex_id << ")\n";
+            Q.push(elem);
+        }
+    }
+}
+
+void BiConnectedComponents::process_component_vertex_pair(int comp_index, string vertex_id) {
+    int size = BCCs[comp_index].num_of_vertices() - 1;
+    for (string s : BCCs[comp_index].art_points_id()) {
+        if (s.compare(vertex_id) != 0) {
+            int weight = BCCs[comp_index].get_weight_map(s);
+            if (weight != -1) {
+                size += num_of_vertices_ - weight - 1;
+            }
+        }
+    }
+    int link_weight = size;
+
+    int old_link_weight = BCCs[comp_index].get_weight_map(vertex_id);
+    if (old_link_weight != -1) {
+        if (link_weight != old_link_weight) {
+            cout << "ERROR in Link Weight for vertex " << vertex_id << old_link_weight << " | " << link_weight << endl;
+        }
+    }
+
+    BCCs[comp_index].update_weight_map(vertex_id, link_weight);
+    find_unknown_weight_wrt_art_point(vertex_id);
+}
+
+void BiConnectedComponents::find_unknown_weight_wrt_art_point(string vertex_id) {
+    int count = 0;
+    int comp_index = -1;
+    cout << "find_unknown_weight_wrt_art_point " << vertex_id << "\n";
+
+    for (int i = 0; i < num_of_bcc_; ++i) {
+        if (BCCs[i].vertex_exists(vertex_id)) {
+            if (BCCs[i].get_weight_map(vertex_id) == -1) {
+                cout << "     comp_index = " << i << endl;
+                ++count;
+                comp_index = i;
+            }
+
+            if (count > 1) break;
+        }
+    }
+
+    if (count == 1) {
+        // Add new element to QueueElem
+        QueueElem elem = {
+            .component_index = comp_index,
+            .vertex_id = vertex_id,
+            .type = "vertex_component_pair"
+        };
+
+        cout << "        Add vertex_component_pair: " << comp_index << " - " << vertex_id << endl;
+        Q.push(elem);
+    }
+}
+
+void BiConnectedComponents::process_vertex_component_pair(int comp_index, string vertex_id) {
+    int size = 0;
+
+    for (int i = 0; i < num_of_bcc_; ++i) {
+        if (i != comp_index) {
+            if (BCCs[i].vertex_exists(vertex_id)) {
+                int weight = BCCs[i].get_weight_map(vertex_id);
+                if (weight != -1) {
+                    size += weight;
+                }
+            }
+        }
+    }
+
+    int link_weight = num_of_vertices_ - 1 - size;
+
+    int old_link_weight = BCCs[comp_index].get_weight_map(vertex_id);
+    if (old_link_weight != -1) {
+        if (link_weight != old_link_weight) {
+            cout << "ERROR in Link Weight for vertex " << vertex_id << old_link_weight << " | " << link_weight << endl;
+        }
+    }
+
+    BCCs[comp_index].update_weight_map(vertex_id, link_weight);
+    find_unknown_weight_wrt_component(comp_index);
+}
+
+void BiConnectedComponents::find_unknown_weight_wrt_component(int comp_index) {
+    // The 'counting' solution is found here: http://stackoverflow.com/questions/5517615/counting-number-of-same-values-in-map
+    typedef NameToIntMap::value_type MapEntry;
+    int count = std::count_if(
+        BCCs[comp_index].weight_map().begin(),
+        BCCs[comp_index].weight_map().end(),
+        second_equal_to<MapEntry>(-1));
+
+    if (count == 1) {
+        // Find the vertex id for the vertex with unknown link weight
+        string vertex_id = BCCs[comp_index].first_vertex_id_with_unknown_weight();
+
+        QueueElem elem = {
+            .component_index = comp_index,
+            .vertex_id = vertex_id,
+            .type = "component_vertex_pair",
+        };
+        cout << "Add component_vertex_pair: " << comp_index << " - " << vertex_id << endl;
+        Q.push(elem);
+    }
+}
+
+bool BiConnectedComponents::verify_link_weight() {
+    // Returns True if there is no negative value in Link Weight
+    bool result = true;
+
+    for (int i = 0; i < num_of_bcc_; ++i) {
+        for (string id : BCCs[i].art_points_id()) {
+            if (BCCs[i].get_weight_map(id) == -1) {
+                cout << "ERROR Link Weight for vertex " << id << " = " << -1 << endl;
+                result = false;
+            }
+        }
+    }
+}
+
+// BETWEENNESS CENTRALITY - HEURISTIC
+void BiConnectedComponents::initialize_betweenness_centrality_heuristic() {
     // Initialize bc_inter_ to be 0
     for (string id: all_art_points_id_) {
         bc_inter_[id] = 0;
@@ -183,146 +487,19 @@ void BiConnectedComponents::calculate_bc_inter() {
     }
 }
 
-/* HELPERS FOR OUTPUTTING RESULT */
-
-void BiConnectedComponents::print() {
-    for (int i = 0; i < num_of_bcc(); ++i) {
-        // cout << BCCs[i]; // Since I call another print() function inside, I cannot use cout
-        BCCs[i].print();
+void BiConnectedComponents::finalize_betweenness_centrality_heuristic() {
+    // Divide the bc_score_ by some factor
+    int n = num_of_vertices();
+    double factor = 2.0 / (n*n - 3*n + 2);
+    NameToDoubleMap::iterator iter;
+    for (iter = bc_score_.begin(); iter != bc_score_.end(); ++iter) {
+        double old_value = iter->second;
+        bc_relative_score_[iter->first] = old_value * factor;
     }
 }
 
-std::ostream& operator<<(std::ostream& os, const BiConnectedComponents& rhs) {
-    cout << "MARK\n";
-    cout << "\n\nBi-Connected Components\n\n";
-    cout << rhs.gm_;
-
-    cout << "\nArticulation points:\n";
-    outops::operator<<(cout, rhs.all_art_points_id());
-
-    cout << "\nBetweenness Centrality Score:\n";
-    outops::operator<< <double>(cout, rhs.bc_score());
-    return os;
-
-    // TODO: output the result of BCC
-    // Test the biconnected components
-    // Eiter ei, ei_end;
-    // size_t i = 0;
-    // for (boost::tie(ei, ei_end) = boost::edges(gm_.g_); ei != ei_end; ++ei) {
-    //     string source = gm_.g_[(*ei).m_source].id;
-    //     string target = gm_.g_[(*ei).m_target].id;
-    //     edges_size_type comp = component_vec_.at(i);
-    //     cout << source << " " << target << " " << comp << endl;
-    //     ++i;
-    // }
-}
-
-/******************************
-* Private functions
-******************************/
-
-/* LINK WEIGHT */
-void BiConnectedComponents::initialize_weight() {
-    for (int i = 0; i < num_of_bcc_; ++i) {
-        BCCs[i].initialize_weight();
-    }
-}
-
-void BiConnectedComponents::initialize_queue() {
-    for (int i = 0; i < num_of_bcc_; ++i) {
-        if (BCCs[i].art_points_id().size() == 1) {
-            string vertex_id = *(BCCs[i].art_points_id().begin());
-            string type = "component_vertex_pair";
-            QueueElem elem = {
-                .component_index = i,
-                .vertex_id = vertex_id,
-                .type = type,
-            };
-
-            Q.push(elem);
-        }
-    }
-}
-
-void BiConnectedComponents::process_component_vertex_pair(int comp_index, string vertex_id) {
-    int size = BCCs[comp_index].num_of_vertices() - 1;
-    for (string s : BCCs[comp_index].art_points_id()) {
-        if (s.compare(vertex_id) != 0) {
-            int weight = BCCs[comp_index].get_weight_map(s);
-            if (weight != -1) {
-                size += num_of_vertices_ - weight - 1;
-            }
-        }
-    }
-    int link_weight = size;
-    BCCs[comp_index].update_weight_map(vertex_id, link_weight);
-    find_unknown_weight_wrt_art_point(vertex_id);
-}
-
-void BiConnectedComponents::find_unknown_weight_wrt_art_point(string vertex_id) {
-    int count = 0;
-    int comp_index = -1;
-    for (int i = 0; i < num_of_bcc_; ++i) {
-        if (BCCs[i].vertex_exists(vertex_id)) {
-            if (BCCs[i].get_weight_map(vertex_id) == -1) {
-                ++count;
-                comp_index = i;
-            }
-
-            if (count > 1) break;
-        }
-    }
-
-    if (count == 1) {
-        // Add new element to QueueElem
-        QueueElem elem = {
-            .component_index = comp_index,
-            .vertex_id = vertex_id,
-            .type = "vertex_component_pair"
-        };
-
-        // cout << "Add vertex_component_pair: " << comp_index << " - " << vertex_id << endl;
-        Q.push(elem);
-    }
-}
-
-void BiConnectedComponents::process_vertex_component_pair(int comp_index, string vertex_id) {
-    int size = 0;
-
-    for (int i = 0; i < num_of_bcc_; ++i) {
-        if (i != comp_index) {
-            if (BCCs[i].vertex_exists(vertex_id)) {
-                int weight = BCCs[i].get_weight_map(vertex_id);
-                if (weight != -1) {
-                    size += weight;
-                }
-            }
-        }
-    }
-
-    int link_weight = num_of_vertices_ - 1 - size;
-    BCCs[comp_index].update_weight_map(vertex_id, link_weight);
-    find_unknown_weight_wrt_component(comp_index);
-}
-
-void BiConnectedComponents::find_unknown_weight_wrt_component(int comp_index) {
-    // The 'counting' solution is found here: http://stackoverflow.com/questions/5517615/counting-number-of-same-values-in-map
-    typedef NameToIntMap::value_type MapEntry;
-    int count = std::count_if(
-        BCCs[comp_index].weight_map().begin(),
-        BCCs[comp_index].weight_map().end(),
-        second_equal_to<MapEntry>(-1));
-
-    if (count == 1) {
-        // Find the vertex id for the vertex with unknown link weight
-        string vertex_id = BCCs[comp_index].first_vertex_id_with_unknown_weight();
-
-        QueueElem elem = {
-            .component_index = comp_index,
-            .vertex_id = vertex_id,
-            .type = "component_vertex_pair",
-        };
-        // cout << "Add component_vertex_pair: " << comp_index << " - " << vertex_id << endl;
-        Q.push(elem);
-    }
+// BETWEENNESS CENTRALITY
+void BiConnectedComponents::initialize_betweenness_centrality() {
+    v_centrality_vec_ = CentralityVec(num_of_vertices());
+    v_centrality_pmap_ = CentralityPMap(v_centrality_vec_.begin(), gm_.v_index_pmap());
 }

@@ -4,7 +4,6 @@
 
 #include "sub_component.h"
 
-
 SubComponent::SubComponent() {
     // do nothing
 }
@@ -35,7 +34,7 @@ NameToIntMap const& SubComponent::weight_reversed_map() const {
     return weight_reversed_map_;
 }
 
-vector< vector< int > > const& SubComponent::traffic_matrix() const {
+std::map< std::pair<string, string>, int > const& SubComponent::traffic_matrix() const {
     return traffic_matrix_;
 }
 
@@ -105,8 +104,22 @@ void SubComponent::update_weight_map(string name, int value) {
     weight_map_[name] = value;
 }
 
+void SubComponent::update_weight_reversed_map(string name, int value) {
+    weight_reversed_map_[name] = value;
+}
+
+void SubComponent::calculate_weight_reversed(int V) {
+    // V is the total number of vertices in the parent component
+    for (string name : all_vertices_id_) {
+        int value = get_weight_map(name);
+        update_weight_reversed_map(name, V - 1 - value);
+    }
+}
+
 /* TRAFFIC MATRIX */
 void SubComponent::CalculateTrafficMatrix() {
+    traffic_matrix_pmap_ = TrafficMatrixPMap(traffic_matrix_);
+
     initialize_traffic_matrix();
 
     // When only one vertex is an articulation point
@@ -138,51 +151,51 @@ void SubComponent::CalculateTrafficMatrix() {
 }
 
 void SubComponent::initialize_traffic_matrix() {
-    // generate_empty_traffic_matrix, with 1 every where, and 0 in the main diagonal
-    int size = num_of_vertices();
-    traffic_matrix_ = vector< vector<int> >(size);
-    for (int i = 0; i < size; ++i) {
-        traffic_matrix_[i] = vector< int >(size, 1);
-    }
-
-    // Reset the main diagonal to 0
-    for (int i = 0; i < size; ++i) {
-        traffic_matrix_[i][i] = 0;
+    // generate_empty_traffic_matrix, with 1 for different vertices, and 0 for the same vertices
+    for (string id1 : all_vertices_id_) {
+        for (string id2 : all_vertices_id_) {
+            if (id1.compare(id2) == 0) {
+                update_traffic_matrix(id1, id2, 0);
+            }
+            else {
+                update_traffic_matrix(id1, id2, 1);
+            }
+        }
     }
 }
 
 int SubComponent::get_traffic_matrix(string name_1, string name_2) {
-    int i1 = index_of_vertex_id(name_1);
-    int i2 = index_of_vertex_id(name_2);
-    // TODO: exception
-    return traffic_matrix_[i1][i2];
+    std::pair<string, string> p;
+    if (name_1.compare(name_2) <= 0) {
+        p = std::pair<string, string>(name_1, name_2);
+    }
+    else {
+        p = std::pair<string, string>(name_2, name_1);
+    }
+    return traffic_matrix_[p];
 }
 
 void SubComponent::update_traffic_matrix(string name_1, string name_2, int value) {
-    int i1 = index_of_vertex_id(name_1);
-    int i2 = index_of_vertex_id(name_2);
-    // cout << i1 << " " << i2 << " = " << value << endl;
-    traffic_matrix_[i1][i2] = value;
-    traffic_matrix_[i2][i1] = value; // because Traffic Matrix is symmetric
+    std::pair<string, string> p;
+    if (name_1.compare(name_2) <= 0) {
+        p = std::pair<string, string>(name_1, name_2);
+    }
+    else {
+        p = std::pair<string, string>(name_2, name_1);
+    }
+    traffic_matrix_[p] = value;
 }
 
 /* BETWEENNESS CENTRALITY */
-void SubComponent::CalculateBetweennessCentrality() {
+void SubComponent::CalculateBetweennessCentralityHeuristic() {
     initialize_betweenness_centrality();
 
-    cout << "Mark 1" << endl;
-
-    boost::brandes_betweenness_centrality(gm_.g_,
-        boost::centrality_map(v_centrality_pmap_).vertex_index_map(
+    boost::brandes_betweenness_centrality_heuristic(gm_.g_,
+        traffic_matrix_pmap_,
+        boost::centrality_map(
+            v_centrality_pmap_).vertex_index_map(
             gm_.v_index_pmap())
     );
-
-    cout << "Mark 2" << endl;
-
-    cout << "Vertex betweenness\n" << endl;
-    for (int i = 0; i < num_of_vertices(); ++i) {
-        cout << v_centrality_vec_.at(i) << endl;
-    }
 }
 
 void SubComponent::initialize_betweenness_centrality() {
@@ -194,7 +207,6 @@ double SubComponent::get_betweenness_centrality(string name) {
     // There are 2 ways to retrieve the BC score
     // 1st way - through v_centrality_vec_
     int index = gm_.get_index_from_id(name);
-    cout << "    index = " << index << endl;
     return v_centrality_vec_.at(index);
 }
 
@@ -244,10 +256,21 @@ void SubComponent::print() {
     // printhelper::for_map<string, int>(sc.weight_map());
 
     cout << "\nTraffic Matrix:\n";
-    outops::operator<<(cout, traffic_matrix());
+    print_traffic_matrix();
 
     cout << "\nBetweenness Centrality:\n";
     outops::operator<< <double>(cout, v_centrality_vec());
+}
+
+void SubComponent::print_traffic_matrix() {
+    typedef std::map<std::pair<string, string>, int>::const_iterator Iter;
+
+    for (auto elem : traffic_matrix_) {
+        cout << elem.first.first << " - " << elem.first.second << ": " << elem.second << endl;
+    }
+    // for (Iter iter = traffic_matrix_.begin(); iter != traffic_matrix_.end(); ++iter) {
+    //     cout << *(iter->first) << " - " << endl;
+    // }
 }
 
 std::ostream& operator<<(std::ostream& os, const SubComponent& sc) {
@@ -265,7 +288,8 @@ std::ostream& operator<<(std::ostream& os, const SubComponent& sc) {
     // printhelper::for_map<string, int>(sc.weight_map());
 
     cout << "\nTraffic Matrix:\n";
-    outops::operator<<(cout, sc.traffic_matrix());
+    // I didn't write the << for traffic_matrix
+    // outops::operator<<(cout, sc.traffic_matrix());
 
     cout << "\nBetweenness Centrality:\n";
     outops::operator<< <double>(cout, sc.v_centrality_vec());
