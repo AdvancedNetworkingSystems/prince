@@ -105,8 +105,10 @@ int GraphManager::get_index_from_id(string s) {
 void GraphManager::print() {
     cout << "\nGraph Manager:\n";
     outops::operator<<(cout, g_);
-    print_v_index_pmap();
-    print_e_index_pmap();
+
+    cout << "Is graph connected?\n";
+    bool connected = graphext::is_connected(g_, v_index_pmap_);
+    cout << "Connected = " << connected << endl;
 
     cout << "v_id_index_map:\n";
     outops::operator<< <int>(cout, v_id_index_map_);

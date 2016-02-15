@@ -12,6 +12,7 @@
 #include <boost/graph/undirected_graph.hpp>
 #include <boost/spirit/include/karma.hpp>
 #include <boost/graph/iteration_macros.hpp>
+#include <boost/graph/breadth_first_search.hpp>
 #include "common.h"
 
 namespace outops {
@@ -36,12 +37,27 @@ namespace outops {
 namespace printhelper {
     template <typename T1, typename T2> void for_map(const std::map<T1, T2> m);
 }
+
 // non-member functions operating on Graph datatype.
+template < typename TimeMap, typename T > class bfs_time_visitor : public boost::default_bfs_visitor {
+public:
+    bfs_time_visitor(TimeMap tmap, T & t):m_timemap(tmap), m_time(t) { }
+    template < typename Vertex, typename Graph >
+    void discover_vertex(Vertex u, const Graph & g) const
+    {
+        boost::put(m_timemap, u, m_time++);
+    }
+    TimeMap m_timemap;
+    T & m_time;
+};
+
 namespace graphext {
     void id_of_all_vertices(const Graph& g, std::set<std::string>& r);
 
     template <typename Container>
     void id_of_some_vertices(const Graph& g, const Container& container, std::set<std::string>& r);
+
+    bool is_connected(const Graph& g, const VertexIndexPMap& v_index_pmap);
 
     void print_edge(const Graph& g, const Edge& e);
 

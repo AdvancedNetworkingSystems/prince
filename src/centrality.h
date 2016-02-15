@@ -59,7 +59,7 @@ namespace detail { namespace graph {
                                       VertexIndexMap vertex_index,
                                       ShortestPaths shortest_paths)
   {
-    std::cout << "Heuristic Betweenness Centrality Implementation\n";
+    // std::cout << "Heuristic Betweenness Centrality Implementation\n";
 
     typedef typename graph_traits<Graph>::vertex_iterator vertex_iterator;
     typedef typename graph_traits<Graph>::vertex_descriptor vertex_descriptor;

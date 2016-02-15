@@ -28,12 +28,17 @@ public:
 
     bool operator<(const Router& rhs)
     {
-       return id < rhs.id;
+        return id < rhs.id;
     }
-   bool operator==(const Router& rhs)
-   {
-       return id == rhs.id;
-   }
+
+    bool operator==(const Router& rhs)
+    {
+        return id == rhs.id;
+    }
+
+    bool operator!=(const Router& rhs) {
+        return id != rhs.id;
+    }
 };
 
 struct Link { // aka EdgeProperties

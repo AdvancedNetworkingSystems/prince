@@ -31,9 +31,9 @@ void default_run() {
     std::list< std::tuple<string, int> > input_files;
     // input_files.push_back(std::make_tuple("../input/ninux_unweighted_connected.edges", 1));
     // input_files.push_back(std::make_tuple("../input/simple.edges", 1));
-    input_files.push_back(std::make_tuple("../input/ninux_30_1.edges", 1));
+    // input_files.push_back(std::make_tuple("../input/ninux_30_1.edges", 1));
     // input_files.push_back(std::make_tuple("../input/olsr-netjson.json", 2));
-    // input_files.push_back(std::make_tuple("../input/jsoninfo_topo.json", 3));
+    input_files.push_back(std::make_tuple("../input/jsoninfo_topo.json", 3));
 
     for (auto input : input_files) {
         string filepath = std::get<0>(input);
@@ -49,9 +49,9 @@ void default_run() {
             readComplexJsonGraphManager(filepath, gm);
         }
 
-        cout << gm;
+        gm.print();
 
-        BiConnectedComponents bcc = BiConnectedComponents(gm);
+        BiConnectedComponents bcc = BiConnectedComponents(gm, false);
         bcc.run();
         // bcc.print();
         string filename = helper::get_file_name(filepath);

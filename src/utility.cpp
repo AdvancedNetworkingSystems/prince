@@ -87,6 +87,30 @@ namespace graphext {
         }
     }
 
+    bool is_connected(const Graph& g, const VertexIndexPMap& v_index_pmap) {
+        Vertex v = *(boost::vertices(g).first);
+
+        // This one shows a nice way to incoperate the index, discover_time into VertexProperties
+        // http://www.boost.org/doc/libs/1_58_0/libs/graph/example/bfs-example2.cpp
+        typedef boost::graph_traits < Graph >::vertices_size_type Size;
+        typedef boost::iterator_property_map < std::vector< Size >::iterator,
+            VertexIndexPMap >  dtime_pm_t;
+
+        std::vector < Size > dtime(num_vertices(g));
+        dtime_pm_t dtime_pm(dtime.begin(), v_index_pmap);
+
+        Size time = 0;
+        bfs_time_visitor < dtime_pm_t, Size >vis(dtime_pm, time);
+        boost::breadth_first_search(g, v, boost::vertex_index_map(v_index_pmap).visitor(vis));
+
+        if (dtime.size() == boost::num_vertices(g)) {
+            return true; // BFS discovers all vertices in the graph, so the graph is connected
+        }
+        else {
+            return false;
+        }
+    }
+
     void print_edge(const Graph& g, const Edge& e) {
         string s = g[boost::source(e, g)].id;
         string t = g[boost::target(e, g)].id;
