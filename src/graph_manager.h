@@ -15,15 +15,16 @@ public:
     typedef std::map<std::string, Vertex> NameVertexMap;
 
     // CONSTRUCTOR
-    GraphManager(); // constructor
+    GraphManager(bool weighted_graph=true); // constructor
     GraphManager(const GraphManager& other); // copy constructor
-    GraphManager& operator=(GraphManager& rhs); // assignment operator
+    GraphManager& operator=(const GraphManager& rhs); // assignment operator
     // check out more here: http://www.cplusplus.com/articles/y8hv0pDG/
 
     // GETTERS
     const VertexIndexPMap& v_index_pmap() const;
     const EdgeIndexPMap& e_index_pmap() const;
     NameToIntMap const& v_id_index_map() const;
+    bool weighted_graph() const;
 
     // UPDATE GRAPH
     void AddEdge(VertexProperties vp1, VertexProperties vp2, EdgeProperties ep);
@@ -54,6 +55,8 @@ private:
     void update_e_index_pmap(Edge new_edge);
 
     // VARIABLES
+    bool weighted_graph_;
+
     NameVertexMap v_id_vertex_map_;
     NameToIntMap v_id_index_map_;
 

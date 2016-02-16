@@ -1,20 +1,22 @@
 #include "graph_manager.h"
 
 // CONSTRUCTOR
-GraphManager::GraphManager() {
+GraphManager::GraphManager(bool weighted_graph) : weighted_graph_(weighted_graph) {
     v_index_pmap_ = VertexIndexPMap(v_index_std_map_);
     e_index_pmap_ = EdgeIndexPMap(e_index_std_map_);
 }
 
 GraphManager::GraphManager(const GraphManager& other) {
-    cout << "\n\n*******COPY CONSTRUCTOR******\n\n";
+    // cout << "\n*******COPY CONSTRUCTOR******\n";
     g_ = other.g_;
+    weighted_graph_ = other.weighted_graph_;
     ResetVerticesAndEdgesIndexMap();
 }
 
-GraphManager& GraphManager::operator=(GraphManager& rhs) {
-    cout << "\n\n*******ASSIGNMENT OPERATOR******\n\n";
+GraphManager& GraphManager::operator=(const GraphManager& rhs) {
+    // cout << "\n*******ASSIGNMENT OPERATOR******\n";
     g_ = rhs.g_;
+    weighted_graph_ = rhs.weighted_graph_;
     ResetVerticesAndEdgesIndexMap();
 
     return *this;
@@ -30,6 +32,10 @@ const EdgeIndexPMap& GraphManager::e_index_pmap() const {
 }
 NameToIntMap const& GraphManager::v_id_index_map() const {
     return v_id_index_map_;
+}
+
+bool GraphManager::weighted_graph() const {
+    return weighted_graph_;
 }
 
 // UPDATE GRAPHS
@@ -109,6 +115,9 @@ void GraphManager::print() {
     cout << "Is graph connected?\n";
     bool connected = graphext::is_connected(g_, v_index_pmap_);
     cout << "Connected = " << connected << endl;
+
+    cout << "Is this a weighted graph?\n";
+    cout << "is weighted = " << weighted_graph_ << endl;
 
     cout << "v_id_index_map:\n";
     outops::operator<< <int>(cout, v_id_index_map_);

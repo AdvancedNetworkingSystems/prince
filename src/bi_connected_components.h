@@ -34,7 +34,7 @@ typedef struct {
 
 class BiConnectedComponents {
 public:
-    BiConnectedComponents(GraphManager &gm, bool weighted_graph = true);
+    BiConnectedComponents(GraphManager &gm);
     void init();
 
     // Getter functions
@@ -43,10 +43,6 @@ public:
     StringSet const& all_art_points_id() const;
     NameToDoubleMap const& bc_score() const;
     NameToDoubleMap const& bc_relative_score() const;
-    bool weighted_graph() const;
-
-    // Setter functions
-    void set_weighted_graph(bool rhs);
 
     // Auto run
     void run();
@@ -65,11 +61,11 @@ public:
     void CalculateBetweennessCentralityHeuristic();
 
     // BETWEENNESS CENTRALITY
-    void CalculateBetweennessCentrality();
+    void CalculateBetweennessCentrality(bool targets_inclusion = true);
 
     // HELPERS FOR OUTPUTTING RESULT
     void print_all_sub_components();
-
+    void print_biconnected_components();
     void print_betweenness_centrality();
     void print_betweenness_centrality_heuristic();
 
@@ -80,7 +76,6 @@ public:
 
     // Public variables
     GraphManager gm_;
-    bool weighted_graph_;
     typedef vector<SubComponent> Component_t;
     typedef vector<SubComponent>::iterator ComponentIter_t;
     Component_t BCCs;

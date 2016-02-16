@@ -4,8 +4,10 @@
 
 #include "sub_component.h"
 
-SubComponent::SubComponent() {
-    // do nothing
+SubComponent::SubComponent(bool weighted_graph) {
+    // cout << "===> Start SubComponent() constructor, weighted =" << weighted_graph << endl;
+    gm_ = GraphManager(weighted_graph);
+    // cout << "<=== Finish SubComponent() constructor\n";
 }
 
 /* GETTERS & SETTERS & UPDATERS */
@@ -24,6 +26,7 @@ StringSet const& SubComponent::art_points_id() const {
 StringSet const& SubComponent::non_art_points_id() const {
     return non_art_points_id_;
 }
+
 NameToIntMap const& SubComponent::weight_map() const {
     // Returns the whole weight_map_, for all the vertices
     // This one is different from get_weight_map(name)
@@ -190,12 +193,35 @@ void SubComponent::update_traffic_matrix(string name_1, string name_2, int value
 void SubComponent::CalculateBetweennessCentralityHeuristic() {
     initialize_betweenness_centrality();
 
-    boost::brandes_betweenness_centrality_heuristic(gm_.g_,
-        traffic_matrix_pmap_,
-        boost::centrality_map(
-            v_centrality_pmap_).vertex_index_map(
-            gm_.v_index_pmap())
-    );
+    if (gm_.weighted_graph()) {
+        cout << "---- Sub Component BC for weighted graph -----\n";
+
+        typedef map<Edge, double> EdgeWeightStdMap;
+        typedef boost::associative_property_map<EdgeIndexStdMap> EdgeWeightPMap;
+        EdgeIndexStdMap edge_weight_std_map;
+        EdgeWeightPMap edge_weight_pmap = EdgeWeightPMap(edge_weight_std_map);
+
+        BGL_FORALL_EDGES(edge, gm_.g_, Graph) {
+            edge_weight_std_map[edge] = gm_.g_[edge].cost;
+        }
+
+        boost::brandes_betweenness_centrality_heuristic(gm_.g_,
+            traffic_matrix_pmap_,
+            boost::centrality_map(
+                v_centrality_pmap_).vertex_index_map(
+                gm_.v_index_pmap()).weight_map(
+                edge_weight_pmap)
+        );
+    }
+    else {
+        cout << "---- Sub Component BC for unweighted graph -----\n";
+        boost::brandes_betweenness_centrality_heuristic(gm_.g_,
+            traffic_matrix_pmap_,
+            boost::centrality_map(
+                v_centrality_pmap_).vertex_index_map(
+                gm_.v_index_pmap())
+        );
+    }
 }
 
 void SubComponent::initialize_betweenness_centrality() {

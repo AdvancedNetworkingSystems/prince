@@ -182,18 +182,21 @@ namespace graphext {
 
 // GENERAL HELPERS
 namespace helper {
-    string get_file_name(const string& s) {
-       char sep = '/';
+    void get_file_name_and_extension(string path, string& name, string& ext) {
+        size_t sep = path.find_last_of("\\/");
+        if (sep != std::string::npos)
+            path = path.substr(sep + 1, path.size() - sep - 1);
 
-    #ifdef _WIN32
-       sep = '\\';
-    #endif
-
-       size_t i = s.rfind(sep, s.length());
-       if (i != string::npos) {
-          return(s.substr(i+1, s.length() - i));
-       }
-
-       return("");
+        size_t dot = path.find_last_of(".");
+        if (dot != std::string::npos)
+        {
+            name = path.substr(0, dot);
+            ext  = path.substr(dot, path.size() - dot);
+        }
+        else
+        {
+            name = path;
+            ext  = "";
+        }
     }
 }

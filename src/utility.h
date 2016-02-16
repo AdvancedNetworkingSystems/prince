@@ -81,7 +81,7 @@ namespace stdhelper {
 
 namespace helper {
     // I do not want to use boost::filesystem, due to additional library must be included
-    string get_file_name(const string& s);
+    void get_file_name_and_extension(string s, string& name, string& ext);
 }
 
 template <typename Pair>

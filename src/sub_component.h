@@ -20,7 +20,7 @@ public:
     typedef std::vector<double> CentralityVec;
     typedef boost::iterator_property_map<CentralityVec::iterator, VertexIndexPMap> CentralityPMap;
 
-    SubComponent();
+    SubComponent(bool weighted_graph = false);
 
     // Getter & Setter
     GraphManager const& gm() const;
