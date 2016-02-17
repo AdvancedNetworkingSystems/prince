@@ -1,8 +1,9 @@
 ##############################################
-# Makefile for hello-boost-graph program
+# Makefile for graph-parser program
+# This Makefile is used with OpenWRT. Therefore
+# no $INCLUDES is defined.
+# The BGL will be linked with the BGL in OpenWRT
 ##############################################
-
-INCLUDES = -I/usr/local/boost/
 
 # define the C source files
 SRCS = main.cpp bi_connected_components.cpp graph_manager.cpp parser.cpp sub_component.cpp utility.cpp
@@ -25,14 +26,14 @@ BIN_FILE = graph-parser
 # 	@echo  Simple compiler named main has been compiled
 
 $(MAIN): $(OBJS)
-	$(CXX) $(CFLAGS) $(INCLUDES) -o $(BIN_FILE) $(OBJS) $(LFLAGS) $(LIBS )
+	$(CXX) $(CFLAGS) $(OBJS) $(LFLAGS) -o $(BIN_FILE)
 
 # this is a suffix replacement rule for building .o's from .c's
 # it uses automatic variables $<: the name of the prerequisite of
 # the rule(a .c file) and $@: the name of the target of the rule (a .o file)
 # (see the gnu make manual section about automatic variables)
 .cpp.o:
-	$(CXX) $(CFLAGS) $(INCLUDES) -std=c++11 -c $<  -o $@
+	$(CXX) $(CFLAGS) -std=c++11 -c $<  -o $@
 
 # remove object files and executable when user executes "make clean"
 clean:
