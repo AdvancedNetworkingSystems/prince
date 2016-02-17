@@ -82,5 +82,20 @@ namespace stdhelper {
     bool exists(const std::set<T>& c, const T& key) {
         return (c.count(key) > 0);
     }
+
+    template <typename T>
+    std::string to_string(T value)
+    {
+        // From http://stackoverflow.com/questions/12975341/to-string-is-not-a-member-of-std-says-so-g
+
+        //create an output string stream
+        std::ostringstream os ;
+
+        //throw the value into the string stream
+        os << value ;
+
+        //convert the string stream into a string and return
+        return os.str() ;
+    }
 }
 

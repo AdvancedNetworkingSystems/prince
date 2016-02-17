@@ -26,13 +26,23 @@ fi
 #########
 ## TRY TO AVOID MODIFYING ANYTHING BELOW THIS LINE
 #########
+## Compile the source code
 make
 
-## Remove all the previous output
-# rm ../output/*.out
+## Create output directories if they are not existed
+declare -a dir_arr=("../output" "../output/visualization")
+for i in "${dir_arr[@]}"
+do
+    echo $i;
+    if [ ! -d $i ]; then
+        mkdir $i;
+    fi
+done
 
+filepath="../input/simple.edges"
+input_type=1
 ## Running the script
-../bin/main $WEIGHTED_GRAPH $TARGETS_INCLUSION
+./graph-parser $filepath $input_type $WEIGHTED_GRAPH $TARGETS_INCLUSION
 
 ## Plotting the results
 if [ $WEIGHTED_GRAPH = "true" ]

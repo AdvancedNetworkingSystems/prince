@@ -54,6 +54,8 @@ endef
 define Build/Prepare
 	mkdir -p $(PKG_BUILD_DIR)
 	$(CP) ./src/* $(PKG_BUILD_DIR)/
+	mkdir -p $(PKG_BUILD_DIR)/input
+	$(CP) ./input/* $(PKG_BUILD_DIR)/input/
 endef
 
 
@@ -71,6 +73,7 @@ endef
 define Package/graph-parser/install
 	$(INSTALL_DIR) $(1)/bin
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/graph-parser $(1)/bin/
+	$(INSTALL_BIN) $(PKG_BUILD_DIR)/input/simple.edges $(1)/bin/
 endef
 
 

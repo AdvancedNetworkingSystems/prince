@@ -8,6 +8,7 @@
 
 #include <iostream>
 #include <fstream>
+#include <sstream>
 #include <boost/graph/graph_traits.hpp>
 #include <boost/graph/undirected_graph.hpp>
 #include <boost/spirit/include/karma.hpp>
@@ -77,6 +78,8 @@ namespace stdhelper {
     template <typename T1, typename T2> bool exists(const std::map<T1, T2>& m, const T1& key);
     template <typename T> bool exists(const std::set<T>& s, const T& element);
 
+    template <typename T>
+    std::string to_string(T value);
 }
 
 namespace helper {

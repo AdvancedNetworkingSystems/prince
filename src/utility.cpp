@@ -18,7 +18,7 @@ namespace outops {
         std::vector<std::string> edgesVec;
         std::vector<double> costsVec;
         BGL_FORALL_EDGES(e, g, Graph) {
-            std::string s = "(" + g[e.m_source].id + ", " + g[e.m_target].id + ") - " + std::to_string(g[e].cost);
+            std::string s = "(" + g[e.m_source].id + ", " + g[e.m_target].id + ") - " + stdhelper::to_string(g[e].cost);
             edgesVec.push_back(s);
             costsVec.push_back(g[e].cost);
         }
@@ -51,7 +51,7 @@ namespace outops {
             int index = boost::get(v_index_map, v);
             cout << g[v].id << ": " << v << endl;
             string vertex_id = g[v].id;
-            outputs.push_back(vertex_id + ": " + std::to_string(index));
+            outputs.push_back(vertex_id + ": " + stdhelper::to_string(index));
         }
 
         using namespace boost::spirit::karma;
@@ -123,8 +123,8 @@ namespace graphext {
 
         VertexIndexStdMap::const_iterator iter;
         for (iter = v_index_std_map.begin(); iter != v_index_std_map.end(); ++iter) {
-            outputs.push_back(std::to_string(iter->second));
-            // outputs.push_back(std::to_string(&(iter->first)) + ": " + std::to_string(iter->second));
+            outputs.push_back(stdhelper::to_string(iter->second));
+            // outputs.push_back(stdhelper::to_string(&(iter->first)) + ": " + stdhelper::to_string(iter->second));
         }
 
         using namespace boost::spirit::karma;
@@ -139,7 +139,7 @@ namespace graphext {
             std::string vertex_id = g[v].id;
             // Uncomment to print the address of vertex v
             // cout << v << endl;
-            outputs.push_back(vertex_id + ": " + std::to_string(index));
+            outputs.push_back(vertex_id + ": " + stdhelper::to_string(index));
         }
 
         using namespace boost::spirit::karma;
@@ -153,7 +153,7 @@ namespace graphext {
             int index = boost::get(e_index_pmap, e);
             std::string source_id = g[boost::source(e, g)].id;
             std::string target_id = g[boost::target(e, g)].id;
-            outputs.push_back("edge (" + source_id + ", " + target_id + ")" + ": " + std::to_string(index));
+            outputs.push_back("edge (" + source_id + ", " + target_id + ")" + ": " + stdhelper::to_string(index));
         }
 
         using namespace boost::spirit::karma;
