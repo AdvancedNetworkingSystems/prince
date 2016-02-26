@@ -252,7 +252,7 @@ int SubComponent::index_of_vertex_id(string vertex_id) {
 }
 
 bool SubComponent::vertex_exists(string name) {
-    stdhelper::exists(art_points_id_, name);
+    return stdhelper::exists(art_points_id_, name);
 }
 
 string SubComponent::first_vertex_id_with_unknown_weight() {

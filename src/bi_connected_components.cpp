@@ -439,6 +439,7 @@ void BiConnectedComponents::process_vertex_component_pair(int comp_index, string
     }
 
     BCCs[comp_index].update_weight_map(vertex_id, link_weight);
+    // cout << "  update weight for vertex_component pair: " << comp_index << " | " << vertex_id << " = " << link_weight << endl;
     find_unknown_weight_wrt_component(comp_index);
 }
 
@@ -471,7 +472,7 @@ bool BiConnectedComponents::verify_link_weight() {
     for (int i = 0; i < num_of_bcc_; ++i) {
         for (string id : BCCs[i].art_points_id()) {
             if (BCCs[i].get_weight_map(id) == -1) {
-                cout << "ERROR Link Weight for vertex " << id << " = " << -1 << endl;
+                cout << "ERROR Link Weight for vertex " << id << " in component " << i << " = " << -1 << endl;
                 result = false;
             }
         }

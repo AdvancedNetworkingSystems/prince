@@ -74,6 +74,8 @@ void old_main_code() {
 }
 
 int main(int argc, char * argv[]) {
+    // Example: ./main simple.edges 1 true true
+
     bool is_weighted_graph = true;
     bool targets_inclusion = true;
     string filepath;
