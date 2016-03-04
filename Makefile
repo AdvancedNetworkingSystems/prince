@@ -73,6 +73,7 @@ endef
 define Package/graph-parser/install
 	$(INSTALL_DIR) $(1)/bin
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/graph-parser $(1)/bin/
+	$(INSTALL_BIN) $(PKG_BUILD_DIR)/simulation $(1)/bin/
 	mkdir -p $(1)/input
 	$(CP) $(PKG_BUILD_DIR)/input/* $(1)/input/
 endef

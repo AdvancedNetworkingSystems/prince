@@ -6,7 +6,7 @@
 ##############################################
 
 # define the C source files
-SRCS = main.cpp bi_connected_components.cpp graph_manager.cpp parser.cpp sub_component.cpp utility.cpp
+SRCS = bi_connected_components.cpp graph_manager.cpp parser.cpp sub_component.cpp utility.cpp
 
 
 # define the C object files
@@ -25,9 +25,11 @@ BIN_FILE = graph-parser
 # all: ../bin/$(MAIN)
 # 	@echo  Simple compiler named main has been compiled
 
-$(MAIN): $(OBJS)
-	$(CXX) $(CFLAGS) $(OBJS) $(LFLAGS) -o $(BIN_FILE)
+$(MAIN): $(MAIN).o simulation.o $(OBJS)
+	$(CXX) $(CFLAGS) $(MAIN).o $(OBJS) $(LFLAGS) -o $(BIN_FILE)
+	# $(CXX) $(CFLAGS) simulation.o $(OBJS) $(LFLAGS) -o simulation
 
+# $(CXX) $(CFLAGS) $(MAIN).o $(OBJS) $(LFLAGS) -o $(BIN_FILE)
 # this is a suffix replacement rule for building .o's from .c's
 # it uses automatic variables $<: the name of the prerequisite of
 # the rule(a .c file) and $@: the name of the target of the rule (a .o file)
