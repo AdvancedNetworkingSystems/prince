@@ -68,10 +68,11 @@ void calculate_brandes_bc(const GraphManager& gm, bool targets_inclusion) {
     boost::relative_betweenness_centrality(gm.g_, v_centrality_pmap);
 }
 
-void run_simulation_for_a_graph(string input_path, double& elapsed_secs_bc, double& elapsed_secs_hbc, int number_of_experiments, bool is_weighted_graph) {
+void run_simulation_for_a_graph(string input_path, double& bc_clock_begin, double& bc_clock_end,
+        double& hbc_clock_begin, double& hbc_clock_end, int number_of_experiments, bool is_weighted_graph) {
     /* Returns the running time for Brandes BC and HBC
     */
-    clock_t begin, end;
+    double begin, end;
 
     // Disable the console output: http://stackoverflow.com/questions/30184998/how-to-disable-cout-output-in-the-runtime
     streambuf* orig_buf = cout.rdbuf(); // get underlying buffer
@@ -82,26 +83,20 @@ void run_simulation_for_a_graph(string input_path, double& elapsed_secs_bc, doub
     readEdgeFileGraphManager(input_path, gm);
 
     // For Brandes BC
-    begin = clock();
+    bc_clock_begin = clock();
     bool targets_inclusion = true;
     calculate_brandes_bc(gm, targets_inclusion);
-    end = clock();
-    elapsed_secs_bc = double(end - begin) / CLOCKS_PER_SEC;
+    bc_clock_end = clock();
 
     // For HBC
-    begin = clock();
+    hbc_clock_begin = clock();
     BiConnectedComponents bcc = BiConnectedComponents(gm);
     bcc.run();
-    end = clock();
-    elapsed_secs_hbc = double(end - begin) / CLOCKS_PER_SEC;
-
-    // Restore the console output
+    hbc_clock_end = clock();
     cout.rdbuf(orig_buf);
-
-    // time_log = make_tuple(elapsed_secs_bc, elapsed_secs_hbc);
 }
 
-void write_simulation_result(string out_file_path, string filename, int run_index, double bc_time, double hbc_time) {
+void write_simulation_result(string out_file_path, string filename, int run_index, double bc_clock_begin, double bc_clock_end, double hbc_clock_begin, double hbc_clock_end) {
     ofstream out_file(out_file_path.c_str(), std::ofstream::out | std::ofstream::app);
 
     // Extract information from file name
@@ -110,14 +105,29 @@ void write_simulation_result(string out_file_path, string filename, int run_inde
     string::size_type sep_pos = filename.find('_');
     string number_of_nodes = filename.substr(2, sep_pos - 2);
 
+    long double bc_seconds = (bc_clock_end - bc_clock_begin) * 1.0 / CLOCKS_PER_SEC;
+    if (bc_seconds < 0) {
+        bc_seconds = bc_seconds + 2147;
+    }
+    long double hbc_seconds = (hbc_clock_end - hbc_clock_begin) * 1.0 / CLOCKS_PER_SEC;
+    if (hbc_seconds < 0) {
+        hbc_seconds = hbc_seconds + 2147;
+    }
+
+    cout << "    " << run_index << " " << bc_seconds << " | " << hbc_seconds << endl;
+
     string separator = "\t";
     if (out_file.is_open()) {
         out_file << filename << separator;
         out_file << graph_type << separator;
         out_file << number_of_nodes << separator;
         out_file << run_index << separator;
-        out_file << bc_time << separator;
-        out_file << hbc_time << separator << endl;
+        out_file << bc_seconds << separator;
+        out_file << hbc_seconds << separator;
+        out_file << bc_clock_begin << separator;
+        out_file << bc_clock_end << separator;
+        out_file << hbc_clock_begin << separator;
+        out_file << hbc_clock_end << endl;
     }
     out_file.close();
 }
@@ -164,14 +174,21 @@ int main(int argc, char * argv[]) {
     for (string file : files) {
         cout << "Running for file " << file << endl;
         for (int run_index = 0; run_index < number_of_experiments; ++run_index) {
-            double bc_time;
-            double hbc_time;
+            double bc_clock_begin, bc_clock_end;
+            double hbc_clock_begin, hbc_clock_end;
+
             string input_path = input_dir + "/" + file;
-            run_simulation_for_a_graph(input_path, bc_time, hbc_time, number_of_experiments, is_weighted_graph);
-            cout << "    " << run_index << ": " << bc_time << " | " << hbc_time << endl;
-            write_simulation_result(output_file_path, file, run_index, bc_time, hbc_time);
+            run_simulation_for_a_graph(input_path, bc_clock_begin, bc_clock_end, hbc_clock_begin, hbc_clock_end, number_of_experiments, is_weighted_graph);
+            write_simulation_result(output_file_path, file, run_index, bc_clock_begin, bc_clock_end, hbc_clock_begin, hbc_clock_end);
         }
     }
+
+    cout << "CLOCKS_PER_SEC = " << CLOCKS_PER_SEC << endl;
 }
 
 
+
+// # Negative - end_clock - begin_clock
+// # -2054053648 | 31706352 - 2085760000
+// #
+// # Normal result: 93420000
