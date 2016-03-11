@@ -152,14 +152,14 @@ void BiConnectedComponents::CalculateBetweennessCentralityHeuristic() {
     // }
 
     // Update the BC score for articulation points
-    // for (string id : all_art_points_id_) {
-    // //     bc_score_[id] = bc_sum_art_points_[id];
+    for (string id : all_art_points_id_) {
+    //     bc_score_[id] = bc_sum_art_points_[id];
 
-    //     // TODO: Jan 29, 2015: for now, I do not minus the bc_inter_
-    //     cout << bc_score_[id] << " --> ";
-    //     bc_score_[id] -= bc_inter_[id];
+        // TODO: Jan 29, 2015: for now, I do not minus the bc_inter_
+        cout << bc_score_[id] << " --> ";
+        bc_score_[id] -= bc_inter_[id];
     //     cout << bc_score_[id] << endl;
-    // }
+    }
 
     finalize_betweenness_centrality_heuristic();
 

@@ -10,7 +10,7 @@ void readEdgeFileGraphManager(string filepath, GraphManager &gm) {
 
     vector<string> strs;
     for (string line; getline(inFile, line); /**/) {
-        boost::split(strs, line, boost::is_any_of(" "), boost::token_compress_on);
+        boost::split(strs, line, boost::is_any_of(" ,"), boost::token_compress_on);
 
         // Cast vector<string> to array<string, 3>
         // TODO: this is really crude way to do it.

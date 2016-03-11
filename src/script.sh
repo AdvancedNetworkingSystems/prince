@@ -1,26 +1,41 @@
 ## TUTORIAL:
 ## The script take 2 command-line arguments:
+## $1: input filepath
+## $2: the type of input file, whether it's *.edges or *.json. Filetype is encoded by integer number 1, 2, 3
 ## $1: specify whether to calculate betweenness centrality as an unweighted graph (false) or weighted graph (true). This argument is for both Heuristic BC and Brandes BC
-## $2: specify whether to include targets when calculating betweenness centrality (for the Brandes BC)
+## $2: specify whether to include targets (and only targets, not sources) when calculating betweenness centrality (for the Brandes BC)
 
 ## If no argument is supplied, then the default is "./script.sh true true"
 
 #########
 ## YOU CAN MODIFY THIS PART
 #########
+
+if [ -z "$1" ]; then
+    filepath="../input/simple.edges";
+else
+    filepath="$1";
+fi
+
+if [ -z "$2" ]; then
+    input_type=1;
+else
+    input_type="$2";
+fi
+
 # Change the variables to run the Betweenness Centrality for weighted or unweighted graph.
-if [ -z "$1" ] # No argument supplied
+if [ -z "$3" ] # No argument supplied
 then
     WEIGHTED_GRAPH="true"; # 2 possible values: [true | false]
 else
-    WEIGHTED_GRAPH="$1";
+    WEIGHTED_GRAPH="$3";
 fi
 
-if [ -z "$2" ] # No argument supplied
+if [ -z "$4" ] # No argument supplied
 then
    TARGETS_INCLUSION="true"; # 2 possible values: [true | false]
 else
-    TARGETS_INCLUSION="$1";
+    TARGETS_INCLUSION="$4";
 fi
 
 #########
@@ -39,16 +54,16 @@ do
     fi
 done
 
-filepath="../input/simple.edges"
-input_type=1
 ## Running the script
 ./graph-parser $filepath $input_type $WEIGHTED_GRAPH $TARGETS_INCLUSION
 
 ## Plotting the results
-if [ $WEIGHTED_GRAPH = "true" ]
+if [ $WEIGHTED_GRAPH="true" ]
 then
+    echo "weighted suffix"
     SUFFIX="weighted"; # the suffix used in the filename
 else
+    echo "unweighted suffix"
     SUFFIX="unweighted";
 fi
 

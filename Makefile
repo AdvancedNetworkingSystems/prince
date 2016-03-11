@@ -38,7 +38,7 @@ define Package/graph-parser
 	CATEGORY:=Utilities
 	TITLE:=Graph Parser with Boost Graph Library (BGL)
 	MAINTAINER:=Quynh Nguyen <quynh.xq@gmail.com>
-	DEPENDS:=+libstdcpp +boost +boost-graph
+	DEPENDS:=+libstdcpp +boost-graph
 endef
 
 define Package/graph-parser/description

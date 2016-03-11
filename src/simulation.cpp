@@ -116,7 +116,7 @@ void write_simulation_result(string out_file_path, string filename, int run_inde
 
     cout << "    " << run_index << " " << bc_seconds << " | " << hbc_seconds << endl;
 
-    string separator = "\t";
+    string separator = ",";
     if (out_file.is_open()) {
         out_file << filename << separator;
         out_file << graph_type << separator;
