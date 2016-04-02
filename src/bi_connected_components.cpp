@@ -122,7 +122,6 @@ void BiConnectedComponents::CalculateBetweennessCentralityHeuristic() {
     calculate_bc_inter();
 
     for (int i = 0; i < num_of_bcc_; ++i) {
-        // cout << "BC for component " << i << endl;
         BCCs[i].CalculateBetweennessCentralityHeuristic();
     }
 
@@ -131,34 +130,13 @@ void BiConnectedComponents::CalculateBetweennessCentralityHeuristic() {
         // For all points
         for (string id: BCCs[i].all_vertices_id()) {
             score = BCCs[i].get_betweenness_centrality(id);
-            // cout << "XXX score from component << " << i << ", id " << id << " = " << score << endl;
             bc_score_[id] += score;
         }
     }
 
-    // // Sum the BC for each sub-component
-    // for (int i = 0; i < num_of_bcc_; ++i) {
-    //     // For non articulation points
-    //     for (string id: BCCs[i].non_art_points_id()) {
-    //         score = BCCs[i].get_betweenness_centrality(id);
-    //         bc_score_[id] = score;
-    //     }
-
-    //     // For articulation points
-    //     for (string id: BCCs[i].art_points_id()) {
-    //         score = BCCs[i].get_betweenness_centrality(id);
-    //         bc_sum_art_points_[id] += score;
-    //     }
-    // }
-
     // Update the BC score for articulation points
     for (string id : all_art_points_id_) {
-    //     bc_score_[id] = bc_sum_art_points_[id];
-
-        // TODO: Jan 29, 2015: for now, I do not minus the bc_inter_
-        cout << bc_score_[id] << " --> ";
         bc_score_[id] -= bc_inter_[id];
-    //     cout << bc_score_[id] << endl;
     }
 
     finalize_betweenness_centrality_heuristic();
@@ -167,7 +145,7 @@ void BiConnectedComponents::CalculateBetweennessCentralityHeuristic() {
 }
 
 // BETWEENNESS CENTRALITY - NORMAL CALCULATION
-void BiConnectedComponents::CalculateBetweennessCentrality(bool targets_inclusion) {
+void BiConnectedComponents::CalculateBetweennessCentrality(bool endpoints_inclusion) {
     initialize_betweenness_centrality();
 
     if (gm_.weighted_graph()) { // calculate BC for weighted graph
@@ -181,8 +159,8 @@ void BiConnectedComponents::CalculateBetweennessCentrality(bool targets_inclusio
         BGL_FORALL_EDGES(edge, gm_.g_, Graph) {
             edge_weight_std_map[edge] = gm_.g_[edge].cost;
         }
-        boost::brandes_betweenness_centrality_targets_inclusion(gm_.g_,
-            targets_inclusion,
+        boost::brandes_betweenness_centrality_endpoints_inclusion(gm_.g_,
+            endpoints_inclusion,
             boost::centrality_map(
                 v_centrality_pmap_).vertex_index_map(
                 gm_.v_index_pmap()).weight_map(
@@ -190,8 +168,8 @@ void BiConnectedComponents::CalculateBetweennessCentrality(bool targets_inclusio
         );
     }
     else { // for unweighted graph
-        boost::brandes_betweenness_centrality_targets_inclusion(gm_.g_,
-            targets_inclusion,
+        boost::brandes_betweenness_centrality_endpoints_inclusion(gm_.g_,
+            endpoints_inclusion,
             boost::centrality_map(
                 v_centrality_pmap_).vertex_index_map(
                 gm_.v_index_pmap())
@@ -500,6 +478,12 @@ void BiConnectedComponents::calculate_bc_inter() {
     for (int i = 0; i < num_of_bcc_; ++i) {
         for (string id : BCCs[i].art_points_id()) {
             bc_inter_[id] += BCCs[i].get_weight_map(id) * BCCs[i].get_weight_reversed_map(id);
+        }
+    }
+
+    if (!gm_.weighted_graph()) {
+        for (string id : all_art_points_id_) {
+            bc_inter_[id] /= 2;
         }
     }
 }

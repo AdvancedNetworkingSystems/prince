@@ -98,8 +98,10 @@ namespace detail { namespace graph {
 
         // get communication intensity from traffic_matrix
         // dependency_type communication_intensity = dependency_type(1);
-        dependency_type communication_intensity = get_traffic_matrix_value(g, traffic_matrix, w, *s);
+        dependency_type communication_intensity = get_traffic_matrix_value(g, traffic_matrix, w, *s); // denoted as h in the paper
         put(dependency, w, communication_intensity + get(dependency, w));
+
+        update_centrality(centrality, *s, communication_intensity); // the number of times s is a source
 
         dependency_type factor = dependency_type(get(dependency, w))
           / dependency_type(get(path_count, w));
@@ -348,8 +350,8 @@ namespace detail { namespace graph {
          typename VertexIndexMap, typename ShortestPaths>
 
   void
-  brandes_betweenness_centrality_targets_inclusion_impl(const Graph& g,
-                                        bool targets_inclusion,
+  brandes_betweenness_centrality_endpoints_inclusion_impl(const Graph& g,
+                                        bool endpoints_inclusion,
                                         CentralityMap centrality,     // C_B
                                         EdgeCentralityMap edge_centrality_map,
                                         IncomingMap incoming, // P
@@ -386,6 +388,9 @@ namespace detail { namespace graph {
       shortest_paths(g, *s, ordered_vertices, incoming, distance,
                      path_count, vertex_index);
 
+      // cout << ordered_vertices.size() << endl;
+      update_centrality(centrality, *s, ordered_vertices.size() - 1); // number of times *s is a source
+
       while (!ordered_vertices.empty()) {
         vertex_descriptor w = ordered_vertices.top();
         ordered_vertices.pop();
@@ -407,7 +412,7 @@ namespace detail { namespace graph {
         }
 
         if (w != *s) {
-          if (targets_inclusion) {
+          if (endpoints_inclusion) {
             update_centrality(centrality, w, get(dependency, w) + dependency_type(1));
           }
           else {
@@ -434,8 +439,8 @@ template<typename Graph,
          typename DependencyMap, typename PathCountMap,
          typename VertexIndexMap>
 void
-brandes_betweenness_centrality_targets_inclusion(const Graph& g,
-                               bool targets_inclusion,
+brandes_betweenness_centrality_endpoints_inclusion(const Graph& g,
+                               bool endpoints_inclusion,
                                CentralityMap centrality,     // C_B
                                EdgeCentralityMap edge_centrality_map,
                                IncomingMap incoming, // P
@@ -447,8 +452,8 @@ brandes_betweenness_centrality_targets_inclusion(const Graph& g,
 {
   detail::graph::brandes_unweighted_shortest_paths shortest_paths;
 
-  detail::graph::brandes_betweenness_centrality_targets_inclusion_impl(g,
-                                                     targets_inclusion,
+  detail::graph::brandes_betweenness_centrality_endpoints_inclusion_impl(g,
+                                                     endpoints_inclusion,
                                                      centrality,
                                                      edge_centrality_map,
                                                      incoming, distance,
@@ -463,8 +468,8 @@ template<typename Graph,
          typename DependencyMap, typename PathCountMap,
          typename VertexIndexMap, typename WeightMap>
 void
-brandes_betweenness_centrality_targets_inclusion(const Graph& g,
-                               bool targets_inclusion,
+brandes_betweenness_centrality_endpoints_inclusion(const Graph& g,
+                               bool endpoints_inclusion,
                                CentralityMap centrality,     // C_B
                                EdgeCentralityMap edge_centrality_map,
                                IncomingMap incoming, // P
@@ -478,8 +483,8 @@ brandes_betweenness_centrality_targets_inclusion(const Graph& g,
   detail::graph::brandes_dijkstra_shortest_paths<WeightMap>
     shortest_paths(weight_map);
 
-  detail::graph::brandes_betweenness_centrality_targets_inclusion_impl(g,
-                                                     targets_inclusion,
+  detail::graph::brandes_betweenness_centrality_endpoints_inclusion_impl(g,
+                                                     endpoints_inclusion,
                                                      centrality,
                                                      edge_centrality_map,
                                                      incoming, distance,
@@ -493,8 +498,8 @@ namespace detail { namespace graph {
            typename CentralityMap, typename EdgeCentralityMap,
            typename WeightMap, typename VertexIndexMap>
   void
-  brandes_betweenness_centrality_targets_inclusion_dispatch2(const Graph& g,
-                                           bool targets_inclusion,
+  brandes_betweenness_centrality_endpoints_inclusion_dispatch2(const Graph& g,
+                                           bool endpoints_inclusion,
                                            CentralityMap centrality,
                                            EdgeCentralityMap edge_centrality_map,
                                            WeightMap weight_map,
@@ -516,9 +521,9 @@ namespace detail { namespace graph {
     std::vector<centrality_type> dependency(V);
     std::vector<degree_size_type> path_count(V);
 
-    brandes_betweenness_centrality_targets_inclusion(
+    brandes_betweenness_centrality_endpoints_inclusion(
       g,
-      targets_inclusion,
+      endpoints_inclusion,
       centrality, edge_centrality_map,
       make_iterator_property_map(incoming.begin(), vertex_index),
       make_iterator_property_map(distance.begin(), vertex_index),
@@ -533,8 +538,8 @@ namespace detail { namespace graph {
            typename CentralityMap, typename EdgeCentralityMap,
            typename VertexIndexMap>
   void
-  brandes_betweenness_centrality_targets_inclusion_dispatch2(const Graph& g,
-                                           bool targets_inclusion,
+  brandes_betweenness_centrality_endpoints_inclusion_dispatch2(const Graph& g,
+                                           bool endpoints_inclusion,
                                            CentralityMap centrality,
                                            EdgeCentralityMap edge_centrality_map,
                                            VertexIndexMap vertex_index)
@@ -555,9 +560,9 @@ namespace detail { namespace graph {
     std::vector<centrality_type> dependency(V);
     std::vector<degree_size_type> path_count(V);
 
-    brandes_betweenness_centrality_targets_inclusion(
+    brandes_betweenness_centrality_endpoints_inclusion(
       g,
-      targets_inclusion,
+      endpoints_inclusion,
       centrality, edge_centrality_map,
       make_iterator_property_map(incoming.begin(), vertex_index),
       make_iterator_property_map(distance.begin(), vertex_index),
@@ -567,40 +572,40 @@ namespace detail { namespace graph {
   }
 
   template<typename WeightMap>
-  struct brandes_betweenness_centrality_targets_inclusion_dispatch1
+  struct brandes_betweenness_centrality_endpoints_inclusion_dispatch1
   {
     template<typename Graph,
              typename CentralityMap,
              typename EdgeCentralityMap, typename VertexIndexMap>
     static void
     run(const Graph& g,
-        bool targets_inclusion,
+        bool endpoints_inclusion,
         CentralityMap centrality,
         EdgeCentralityMap edge_centrality_map, VertexIndexMap vertex_index,
         WeightMap weight_map)
     {
-      brandes_betweenness_centrality_targets_inclusion_dispatch2(g,
-                                               targets_inclusion,
+      brandes_betweenness_centrality_endpoints_inclusion_dispatch2(g,
+                                               endpoints_inclusion,
                                                centrality, edge_centrality_map,
                                                weight_map, vertex_index);
     }
   };
 
   template<>
-  struct brandes_betweenness_centrality_targets_inclusion_dispatch1<param_not_found>
+  struct brandes_betweenness_centrality_endpoints_inclusion_dispatch1<param_not_found>
   {
     template<typename Graph,
              typename CentralityMap,
              typename EdgeCentralityMap, typename VertexIndexMap>
     static void
     run(const Graph& g,
-        bool targets_inclusion,
+        bool endpoints_inclusion,
         CentralityMap centrality,
         EdgeCentralityMap edge_centrality_map, VertexIndexMap vertex_index,
         param_not_found)
     {
-      brandes_betweenness_centrality_targets_inclusion_dispatch2(g,
-                                               targets_inclusion,
+      brandes_betweenness_centrality_endpoints_inclusion_dispatch2(g,
+                                               endpoints_inclusion,
                                                centrality, edge_centrality_map,
                                                vertex_index);
     }
@@ -610,17 +615,17 @@ namespace detail { namespace graph {
 
 template<typename Graph, typename Param, typename Tag, typename Rest>
 void
-brandes_betweenness_centrality_targets_inclusion(const Graph& g,
-                               bool targets_inclusion,
+brandes_betweenness_centrality_endpoints_inclusion(const Graph& g,
+                               bool endpoints_inclusion,
                                const bgl_named_params<Param,Tag,Rest>& params
                                BOOST_GRAPH_ENABLE_IF_MODELS_PARM(Graph,vertex_list_graph_tag))
 {
   typedef bgl_named_params<Param,Tag,Rest> named_params;
 
   typedef typename get_param_type<edge_weight_t, named_params>::type ew;
-  detail::graph::brandes_betweenness_centrality_targets_inclusion_dispatch1<ew>::run(
+  detail::graph::brandes_betweenness_centrality_endpoints_inclusion_dispatch1<ew>::run(
     g,
-    targets_inclusion,
+    endpoints_inclusion,
     choose_param(get_param(params, vertex_centrality),
                  dummy_property_map()),
     choose_param(get_param(params, edge_centrality),

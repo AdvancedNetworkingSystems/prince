@@ -24,7 +24,7 @@ void testGraphManager(string filepath) {
     gm.print();
 }
 
-void default_run(string filepath, int input_type, bool is_weighted_graph, bool targets_inclusion) {
+void default_run(string filepath, int input_type, bool is_weighted_graph, bool endpoints_inclusion) {
     // input_files = [(filepath, input_type)]
     // input_type = 1 ==> edges file
     // input_type = 2 ==> simple json file
@@ -49,7 +49,7 @@ void default_run(string filepath, int input_type, bool is_weighted_graph, bool t
 
     // Calculate Betweenness Centrality
     cout << "Calculate Betweenness Centrality\n";
-    bcc.CalculateBetweennessCentrality(targets_inclusion);
+    bcc.CalculateBetweennessCentrality(endpoints_inclusion);
     // bcc.print();
 
     string filename;
@@ -77,7 +77,7 @@ int main(int argc, char * argv[]) {
     // Example: ./main simple.edges 1 true true
 
     bool is_weighted_graph = true;
-    bool targets_inclusion = true;
+    bool endpoints_inclusion = true;
     string filepath;
     int input_type;
     string argument;
@@ -95,12 +95,12 @@ int main(int argc, char * argv[]) {
         if (argc > 4) {
            argument = string(argv[4]);
             if (argument.compare("false") == 0) {
-                targets_inclusion = false;
+                endpoints_inclusion = false;
             }
         }
     }
 
-    default_run(filepath, input_type, is_weighted_graph, targets_inclusion);
+    default_run(filepath, input_type, is_weighted_graph, endpoints_inclusion);
 
     cout << "is weighted graph  = " << is_weighted_graph << endl;
     return 0;

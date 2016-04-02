@@ -32,7 +32,7 @@ void get_all_files_in_directory(string dir_path, vector<string>& files, string w
     }
 }
 
-void calculate_brandes_bc(const GraphManager& gm, bool targets_inclusion) {
+void calculate_brandes_bc(const GraphManager& gm, bool endpoints_inclusion) {
     CentralityVec v_centrality_vec = CentralityVec(boost::num_vertices(gm.g_));
     CentralityPMap v_centrality_pmap = CentralityPMap(v_centrality_vec.begin(), gm.v_index_pmap());;
 
@@ -48,8 +48,8 @@ void calculate_brandes_bc(const GraphManager& gm, bool targets_inclusion) {
         BGL_FORALL_EDGES(edge, gm.g_, Graph) {
             edge_weight_std_map[edge] = gm.g_[edge].cost;
         }
-        boost::brandes_betweenness_centrality_targets_inclusion(gm.g_,
-            targets_inclusion,
+        boost::brandes_betweenness_centrality_endpoints_inclusion(gm.g_,
+            endpoints_inclusion,
             boost::centrality_map(
                 v_centrality_pmap).vertex_index_map(
                 gm.v_index_pmap()).weight_map(
@@ -57,8 +57,8 @@ void calculate_brandes_bc(const GraphManager& gm, bool targets_inclusion) {
         );
     }
     else { // for unweighted graph
-        boost::brandes_betweenness_centrality_targets_inclusion(gm.g_,
-            targets_inclusion,
+        boost::brandes_betweenness_centrality_endpoints_inclusion(gm.g_,
+            endpoints_inclusion,
             boost::centrality_map(
                 v_centrality_pmap).vertex_index_map(
                 gm.v_index_pmap())
@@ -84,8 +84,8 @@ void run_simulation_for_a_graph(string input_path, double& bc_clock_begin, doubl
 
     // For Brandes BC
     bc_clock_begin = clock();
-    bool targets_inclusion = true;
-    calculate_brandes_bc(gm, targets_inclusion);
+    bool endpoints_inclusion = true;
+    calculate_brandes_bc(gm, endpoints_inclusion);
     bc_clock_end = clock();
 
     // For HBC
