@@ -1,0 +1,42 @@
+##############################################
+# Makefile for graph-parser program
+# This Makefile is used with OpenWRT. Therefore
+# no $INCLUDES is defined.
+# The BGL will be linked with the BGL in OpenWRT
+##############################################
+
+# define the C source files
+SRCS = bi_connected_components.cpp graph_manager.cpp parser.cpp sub_component.cpp utility.cpp
+
+
+# define the C object files
+#
+# This uses Suffix Replacement within a macro:
+#   $(name:string1=string2)
+#         For each word in 'name' replace 'string1' with 'string2'
+# Below we are replacing the suffix .c of all words in the macro SRCS
+# with the .o suffix
+#
+OBJS = $(SRCS:.cpp=.o)
+
+MAIN = main
+BIN_FILE = graph-parser
+
+# all: ../bin/$(MAIN)
+# 	@echo  Simple compiler named main has been compiled
+
+$(MAIN): $(MAIN).o $(OBJS)
+	$(CXX) $(CFLAGS) $(MAIN).o $(OBJS) $(LFLAGS) -o $(BIN_FILE)
+	# $(CXX) $(CFLAGS) simulation.o $(OBJS) $(LFLAGS) -o simulation
+
+# $(CXX) $(CFLAGS) $(MAIN).o $(OBJS) $(LFLAGS) -o $(BIN_FILE)
+# this is a suffix replacement rule for building .o's from .c's
+# it uses automatic variables $<: the name of the prerequisite of
+# the rule(a .c file) and $@: the name of the target of the rule (a .o file)
+# (see the gnu make manual section about automatic variables)
+.cpp.o:
+	$(CXX) $(CFLAGS) -std=c++11 -c $<  -o $@
+
+# remove object files and executable when user executes "make clean"
+clean:
+	$(RM) *.o $(BIN_FILE)
