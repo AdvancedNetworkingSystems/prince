@@ -42,15 +42,15 @@ void default_run(string filepath, int input_type, bool is_weighted_graph, bool e
         readComplexJsonGraphManager(filepath, gm);
     }
 
-    gm.print();
+    //gm.print();
 
     BiConnectedComponents bcc = BiConnectedComponents(gm);
-    bcc.run();
+    // bcc.run();
 
     // Calculate Betweenness Centrality
     cout << "Calculate Betweenness Centrality\n";
     bcc.CalculateBetweennessCentrality(endpoints_inclusion);
-    // bcc.print();
+    /* bcc.print();
 
     string filename;
     string ext;
@@ -64,6 +64,7 @@ void default_run(string filepath, int input_type, bool is_weighted_graph, bool e
         out_filepath += "_unweighted.out";
     }
     bcc.write_all_betweenness_centrality(out_filepath);
+    */
 }
 
 void old_main_code() {
