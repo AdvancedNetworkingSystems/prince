@@ -63,7 +63,7 @@ void BiConnectedComponents::run() {
     CalculateBetweennessCentralityHeuristic();
 }
 
-// SUB-COMPONENT
+// Search for the BiConnectedComponents  and populate BCC[]
 void BiConnectedComponents::FindBiConnectedComponents() {
     boost::biconnected_components(gm_.g_, component_map_,
                                   back_inserter(art_points_),
@@ -281,7 +281,7 @@ std::ostream& operator<<(std::ostream& os, const BiConnectedComponents& rhs) {
 void BiConnectedComponents::reset_num_of_bcc() {
     num_of_bcc_ = *std::max_element(component_vec_.begin(), component_vec_.end()) + 1;
 }
-
+//push the BCC in the list
 void BiConnectedComponents::CreateSubComponents() {
     for (int i = 0; i < num_of_bcc_; ++i) {
         BCCs.push_back(SubComponent(gm_.weighted_graph()));
@@ -322,7 +322,7 @@ void BiConnectedComponents::initialize_weight() {
         BCCs[i].initialize_weight();
     }
 }
-
+//push the BiConnectedComponents inside of the queue
 void BiConnectedComponents::initialize_queue() {
     for (int i = 0; i < num_of_bcc_; ++i) {
         if (BCCs[i].art_points_id().size() == 1) {
@@ -406,7 +406,6 @@ void BiConnectedComponents::process_vertex_component_pair(int comp_index, string
             }
         }
     }
-
     int link_weight = num_of_vertices_ - 1 - size;
 
     int old_link_weight = BCCs[comp_index].get_weight_map(vertex_id);
