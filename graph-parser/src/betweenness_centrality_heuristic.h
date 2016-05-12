@@ -37,8 +37,6 @@ typedef struct {
 
 class BetweennessCentralityHeuristic : public BetweennessCentrality {
 public:
-	//BiConnectedComponents();
-    //BiConnectedComponents(GraphManager &gm);
     void init(GraphManager &gm);
     void init();
 
@@ -63,9 +61,6 @@ public:
 
     // BETWEENNESS CENTRALITY HEURISTIC
     void CalculateBetweennessCentralityHeuristic();
-
-    // BETWEENNESS CENTRALITY
-    //void CalculateBetweennessCentrality(bool targets_inclusion = true);
 
     // HELPERS FOR OUTPUTTING RESULT
     void print_all_sub_components();
@@ -103,9 +98,6 @@ private:
     void calculate_bc_inter();
     void finalize_betweenness_centrality_heuristic();
 
-    // BETWEENNESS CENTRALITY
-    //void initialize_betweenness_centrality();
-
     // Private variables
     ComponentVec component_vec_;
     ComponentMap component_map_;
@@ -113,7 +105,6 @@ private:
     StringSet all_art_points_id_;
 
     int num_of_bcc_ = -1;
-    //int num_of_vertices_ = -1;
 
     std::queue<QueueElem> Q;
 
@@ -124,9 +115,6 @@ private:
     NameToDoubleMap bc_sum_art_points_; // summing all the bc score for articulation points
     NameToDoubleMap bc_inter_;
 
-    // Betweenness Centrality - standard calculation
-    //CentralityVec v_centrality_vec_;
-    //CentralityPMap v_centrality_pmap_;
 };
 
 #endif //GRAPH_PARSER_BI_CONNECTED_COMPONENTS_H
