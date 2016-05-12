@@ -1,5 +1,4 @@
 #include "graph_parser.h"
-#include "parser.h"
 
 
   graph_parser::graph_parser(bool weight, bool _heuristic): heuristic(_heuristic), gm(weight){};
@@ -8,12 +7,12 @@
 	  parse_netjson(istream, gm);
   }
   void graph_parser::calculate_bc(){
-	  bcc.init(gm);
-	  bc.init(gm);
 	  if(heuristic){
+		  bcc.init(gm);
 		  bcc.CalculateBetweennessCentrality();
 	  }else{
 		  bc.CalculateBetweennessCentrality();
+		  bc.init(gm);
 	  }
   }
 

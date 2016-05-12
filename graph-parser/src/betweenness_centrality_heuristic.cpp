@@ -9,13 +9,6 @@ using namespace std;
 * Public functions
 ******************************/
 
-//BiConnectedComponents::BiConnectedComponents(){
-//
-//}
-//BiConnectedComponents::BiConnectedComponents(GraphManager &gm) : gm_(gm) {
-//    init();
-//}
-
 void BetweennessCentralityHeuristic::init(GraphManager &gm){
 		gm_ = gm;
 		num_of_vertices_ = boost::num_vertices(gm_.g_);

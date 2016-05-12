@@ -7,6 +7,8 @@
 #include "graph_manager.h"
 #include "betweenness_centrality.h"
 #include "betweenness_centrality_heuristic.h"
+#include "parser.h"
+
 
 class graph_parser
 {
