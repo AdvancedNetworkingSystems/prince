@@ -2,11 +2,12 @@
 # Makefile for hello-boost-graph program
 ##############################################
 
-INCLUDES = -I/usr/local/boost/
-
 # define the C source files
-SRCS = bi_connected_components.cpp graph_manager.cpp sub_component.cpp utility.cpp graph_parser.cpp parser.cpp
-
+SRCS = betweenness_centrality_heuristic.cpp betweenness_centrality.cpp graph_manager.cpp sub_component.cpp utility.cpp parser.cpp
+TARGET = libgraphparser
+OBJS = $(SRCS:.cpp=.o)
+CXXFLAGS = -std=c++11 -fPIC
+LDFLAGS = -shared 
 
 # define the C object files
 #
@@ -16,22 +17,17 @@ SRCS = bi_connected_components.cpp graph_manager.cpp sub_component.cpp utility.c
 # Below we are replacing the suffix .c of all words in the macro SRCS
 # with the .o suffix
 #
-OBJS = $(SRCS:.cpp=.o)
 
-MAIN = main
-MAIN_BIN = main
-
-(MAIN): $(MAIN).o $(OBJS)
-	$(CXX) $(CFLAGS) $(INCLUDES) -o $(MAIN_BIN) $(MAIN).o $(OBJS) $(LFLAGS) $(LIBS )
-	$(CXX) $(CFLAGS) $(INCLUDES) -o  $(OBJS) $(LFLAGS) $(LIBS )
+(TARGET): $(OBJS)
+	$(CXX) $(CXXFLAGS) $(INCLUDES) $(LDFLAGS) -o $(TARGET).so $(OBJS)  $(LIBS )
 
 # this is a suffix replacement rule for building .o's from .c's
 # it uses automatic variables $<: the name of the prerequisite of
 # the rule(a .c file) and $@: the name of the target of the rule (a .o file)
 # (see the gnu make manual section about automatic variables)
 .cpp.o:
-	$(CXX) $(CFLAGS) $(INCLUDES)  -std=c++11 -c $<  -o $@
+	$(CXX) $(CFLAGS) $(INCLUDES) $(CXXFLAGS) -c $<  -o $@
 
 # remove object files and executable when user executes "make clean"
 clean:
-	$(RM) *.o $(BIN_FILE)
+	$(RM) *.o $(TARGET).so
