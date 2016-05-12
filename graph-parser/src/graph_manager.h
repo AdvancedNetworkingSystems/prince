@@ -6,7 +6,6 @@
 #define GRAPH_PARSER_GRAPH_MANAGER_H
 
 #include "common.h"
-#include "utility.h"
 
 class GraphManager {
 public:

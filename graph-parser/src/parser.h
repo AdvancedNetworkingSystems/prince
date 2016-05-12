@@ -11,9 +11,8 @@
 #include "common.h"
 #include "graph_manager.h"
 
-void readEdgeFileGraphManager(string filepath, GraphManager& gm);
-void readJsonGraphManager(string filepath, GraphManager & gm);
-void readComplexJsonGraphManager(string filepath, GraphManager& gm);
+void parse_netjson(std::basic_istream<char> & istream, GraphManager & gm);
+void parse_jsoninfo(std::basic_istream<char> & istream, GraphManager &gm);
 
 #endif //GRAPH_PARSER_PARSER_H
 
