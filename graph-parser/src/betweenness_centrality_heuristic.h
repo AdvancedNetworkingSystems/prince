@@ -6,12 +6,15 @@
 #define GRAPH_PARSER_BI_CONNECTED_COMPONENTS_H
 
 #include <boost/graph/biconnected_components.hpp>
+#include <boost/algorithm/string.hpp>
+#include <boost/property_tree/json_parser.hpp>
+#include <boost/foreach.hpp>
 #include <queue>
 #include "common.h"
-#include "parser.h" // ? check to remove
 #include "utility.h"
 #include "sub_component.h"
 #include "graph_manager.h"
+#include "betweenness_centrality.h"
 
 
 typedef std::vector<int> ComponentVec; // use int instead of edges_size_type because I want to set default value to be -1
@@ -32,20 +35,21 @@ typedef struct {
     string type;
 } QueueElem;
 
-class BiConnectedComponents {
+class BetweennessCentralityHeuristic : public BetweennessCentrality {
 public:
-    BiConnectedComponents(GraphManager &gm);
+	//BiConnectedComponents();
+    //BiConnectedComponents(GraphManager &gm);
+    void init(GraphManager &gm);
     void init();
 
     // Getter functions
     int const num_of_bcc();
-    int const num_of_vertices() const;
     StringSet const& all_art_points_id() const;
     NameToDoubleMap const& bc_score() const;
     NameToDoubleMap const& bc_relative_score() const;
 
     // Auto run
-    void run();
+    void CalculateBetweennessCentrality();
 
     // SUB-COMPONENT
     void FindBiConnectedComponents();
@@ -61,7 +65,7 @@ public:
     void CalculateBetweennessCentralityHeuristic();
 
     // BETWEENNESS CENTRALITY
-    void CalculateBetweennessCentrality(bool targets_inclusion = true);
+    //void CalculateBetweennessCentrality(bool targets_inclusion = true);
 
     // HELPERS FOR OUTPUTTING RESULT
     void print_all_sub_components();
@@ -70,9 +74,9 @@ public:
     void print_betweenness_centrality_heuristic();
 
     void write_all_betweenness_centrality(string filepath);
-
+    void compose_bc_map(vector<pair<string, double> > &map);
     void print();
-    friend std::ostream& operator<<(std::ostream& os, const BiConnectedComponents& rhs);
+    friend std::ostream& operator<<(std::ostream& os, const BetweennessCentralityHeuristic& rhs);
 
     // Public variables
     GraphManager gm_;
@@ -100,7 +104,7 @@ private:
     void finalize_betweenness_centrality_heuristic();
 
     // BETWEENNESS CENTRALITY
-    void initialize_betweenness_centrality();
+    //void initialize_betweenness_centrality();
 
     // Private variables
     ComponentVec component_vec_;
@@ -109,7 +113,7 @@ private:
     StringSet all_art_points_id_;
 
     int num_of_bcc_ = -1;
-    int num_of_vertices_ = -1;
+    //int num_of_vertices_ = -1;
 
     std::queue<QueueElem> Q;
 
@@ -121,8 +125,8 @@ private:
     NameToDoubleMap bc_inter_;
 
     // Betweenness Centrality - standard calculation
-    CentralityVec v_centrality_vec_;
-    CentralityPMap v_centrality_pmap_;
+    //CentralityVec v_centrality_vec_;
+    //CentralityPMap v_centrality_pmap_;
 };
 
 #endif //GRAPH_PARSER_BI_CONNECTED_COMPONENTS_H

@@ -194,8 +194,8 @@ void SubComponent::CalculateBetweennessCentralityHeuristic() {
     initialize_betweenness_centrality();
 
     if (gm_.weighted_graph()) {
-        cout << "---- Sub Component BC for weighted graph -----\n";
-
+        //cout << "---- Sub Component BC for weighted graph -----\n";
+    	//TODO: Fix heuristic with weight
         typedef map<Edge, double> EdgeWeightStdMap;
         typedef boost::associative_property_map<EdgeIndexStdMap> EdgeWeightPMap;
         EdgeIndexStdMap edge_weight_std_map;
@@ -214,7 +214,7 @@ void SubComponent::CalculateBetweennessCentralityHeuristic() {
         );
     }
     else {
-        cout << "---- Sub Component BC for unweighted graph -----\n";
+        //cout << "---- Sub Component BC for unweighted graph -----\n";
         boost::brandes_betweenness_centrality_heuristic(gm_.g_,
             traffic_matrix_pmap_,
             boost::centrality_map(
@@ -266,59 +266,59 @@ string SubComponent::first_vertex_id_with_unknown_weight() {
     return vertex_id;
 }
 
-/* HELPERS FOR OUTPUTTING RESULT */
-void SubComponent::print() {
-    cout << "Sub-component:" << endl;
-    gm_.print();
-
-    cout << "\nArticulation points ID:\n";
-    outops::operator<<(cout, art_points_id());
-
-    cout << "\nNormal Vertices ID:\n";
-    outops::operator<<(cout, all_vertices_id());
-
-    cout << "\nLink Weight:\n";
-    outops::operator<< <int> (cout, weight_map());
-    // printhelper::for_map<string, int>(sc.weight_map());
-
-    cout << "\nTraffic Matrix:\n";
-    print_traffic_matrix();
-
-    cout << "\nBetweenness Centrality:\n";
-    outops::operator<< <double>(cout, v_centrality_vec());
-}
-
-void SubComponent::print_traffic_matrix() {
-    typedef std::map<std::pair<string, string>, int>::const_iterator Iter;
-
-    for (auto elem : traffic_matrix_) {
-        cout << elem.first.first << " - " << elem.first.second << ": " << elem.second << endl;
-    }
-    // for (Iter iter = traffic_matrix_.begin(); iter != traffic_matrix_.end(); ++iter) {
-    //     cout << *(iter->first) << " - " << endl;
-    // }
-}
-
-std::ostream& operator<<(std::ostream& os, const SubComponent& sc) {
-    cout << "Sub-component:" << endl;
-    cout << sc.gm_;
-
-    cout << "\nArticulation points ID:\n";
-    outops::operator<<(cout, sc.art_points_id());
-
-    cout << "\nNormal Vertices ID:\n";
-    outops::operator<<(cout, sc.all_vertices_id());
-
-    cout << "\nLink Weight:\n";
-    outops::operator<< <int> (cout, sc.weight_map());
-    // printhelper::for_map<string, int>(sc.weight_map());
-
-    cout << "\nTraffic Matrix:\n";
-    // I didn't write the << for traffic_matrix
-    // outops::operator<<(cout, sc.traffic_matrix());
-
-    cout << "\nBetweenness Centrality:\n";
-    outops::operator<< <double>(cout, sc.v_centrality_vec());
-
-    return os;
-}
+///* HELPERS FOR OUTPUTTING RESULT */
+//void SubComponent::print() {
+//    cout << "Sub-component:" << endl;
+//    gm_.print();
+//
+//    cout << "\nArticulation points ID:\n";
+//    outops::operator<<(cout, art_points_id());
+//
+//    cout << "\nNormal Vertices ID:\n";
+//    outops::operator<<(cout, all_vertices_id());
+//
+//    cout << "\nLink Weight:\n";
+//    outops::operator<< <int> (cout, weight_map());
+//    // printhelper::for_map<string, int>(sc.weight_map());
+//
+//    cout << "\nTraffic Matrix:\n";
+//    print_traffic_matrix();
+//
+//    cout << "\nBetweenness Centrality:\n";
+//    outops::operator<< <double>(cout, v_centrality_vec());
+//}
+//
+//void SubComponent::print_traffic_matrix() {
+//    typedef std::map<std::pair<string, string>, int>::const_iterator Iter;
+//
+//    for (auto elem : traffic_matrix_) {
+//        cout << elem.first.first << " - " << elem.first.second << ": " << elem.second << endl;
+//    }
+//    // for (Iter iter = traffic_matrix_.begin(); iter != traffic_matrix_.end(); ++iter) {
+//    //     cout << *(iter->first) << " - " << endl;
+//    // }
+//}
+//
+//std::ostream& operator<<(std::ostream& os, const SubComponent& sc) {
+//    cout << "Sub-component:" << endl;
+//    cout << sc.gm_;
+//
+//    cout << "\nArticulation points ID:\n";
+//    outops::operator<<(cout, sc.art_points_id());
+//
+//    cout << "\nNormal Vertices ID:\n";
+//    outops::operator<<(cout, sc.all_vertices_id());
+//
+//    cout << "\nLink Weight:\n";
+//    outops::operator<< <int> (cout, sc.weight_map());
+//    // printhelper::for_map<string, int>(sc.weight_map());
+//
+//    cout << "\nTraffic Matrix:\n";
+//    // I didn't write the << for traffic_matrix
+//    // outops::operator<<(cout, sc.traffic_matrix());
+//
+//    cout << "\nBetweenness Centrality:\n";
+//    outops::operator<< <double>(cout, sc.v_centrality_vec());
+//
+//    return os;
+//}
