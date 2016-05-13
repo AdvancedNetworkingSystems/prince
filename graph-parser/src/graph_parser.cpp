@@ -6,6 +6,10 @@
   void graph_parser::_parse_netjson(std::basic_istream<char> &istream){
 	  parse_netjson(istream, gm);
   }
+
+  void graph_parser::_parse_jsoinfo(std::basic_istream<char> &istream){
+	  parse_jsoninfo(istream, gm);
+  }
   void graph_parser::calculate_bc(){
 	  if(heuristic){
 		  bcc.init(gm);

@@ -45,21 +45,29 @@ NameToDoubleMap const& BetweennessCentralityHeuristic::bc_relative_score() const
 void BetweennessCentralityHeuristic::CalculateBetweennessCentrality() {
     /* Auto run all the necessary functions
     */
-    //cout << "Running FindBiConnectedComponents" << endl;
+#ifdef LOG
+	BOOST_LOG_TRIVIAL(info)<< "Running FindBiConnectedComponents" << endl;
+#endif
     FindBiConnectedComponents();
 
     // Calculate Link Weight + Link Weight Reversed
-    //cout << "Calculate Link Weight + Link Weight Reversed\n";
+#ifdef LOG
+    BOOST_LOG_TRIVIAL(info)<< "Calculate Link Weight + Link Weight Reversed\n";
+#endif
     CalculateLinkWeight();
     CalculateLinkWeightReversed();
     verify_link_weight();
 
     // Calculate Traffic Matrix
-    //cout << "Calculate Traffic Matrix\n";
+#ifdef LOG
+    BOOST_LOG_TRIVIAL(info) << "Calculate Traffic Matrix\n";
+#endif
     CalculateTrafficMatrix();
 
     // Calculate Betweenness Centrality Heuristic
-    //cout << "Calculate Betweenness Centrality Heuristic\n";
+#ifdef LOG
+     BOOST_LOG_TRIVIAL(info) << "Calculate Betweenness Centrality Heuristic\n";
+#endif
     CalculateBetweennessCentralityHeuristic();
 }
 
@@ -72,10 +80,11 @@ void BetweennessCentralityHeuristic::FindBiConnectedComponents() {
     // Set some necessary variables
     graphext::id_of_some_vertices(gm_.g_, art_points_, all_art_points_id_);
     reset_num_of_bcc();
-    //cout << "Total # of components: " << num_of_bcc_ << endl;
-
+#ifdef LOG
+    BOOST_LOG_TRIVIAL(info) << "Total # of components: " << num_of_bcc_ << endl;
+    BOOST_LOG_TRIVIAL(info) << "Create Sub Components\n";
+#endif
     // Process the result from boost::biconnected_components
-    //cout << "Create Sub Components\n";
     CreateSubComponents();
 }
 
@@ -91,11 +100,15 @@ void BetweennessCentralityHeuristic::CalculateLinkWeight() {
         string vertex_id = elem.vertex_id;
 
         if (elem.type == "component_vertex_pair") {
-            // cout << "component_vertex_pair: " << comp_index << " - " << vertex_id << endl;
+#ifdef LOG
+        	BOOST_LOG_TRIVIAL(info) << "component_vertex_pair: " << comp_index << " - " << vertex_id << endl;
+#endif
             process_component_vertex_pair(comp_index, vertex_id);
         }
         else if (elem.type == "vertex_component_pair") {
-            // cout << "vertex_component_pair: " << comp_index << " - " << vertex_id << endl;
+#ifdef LOG
+        	BOOST_LOG_TRIVIAL(info) << "vertex_component_pair: " << comp_index << " - " << vertex_id << endl;
+#endif
             process_vertex_component_pair(comp_index, vertex_id);
         }
     }
@@ -116,8 +129,9 @@ void BetweennessCentralityHeuristic::CalculateTrafficMatrix() {
 
 // BETWEENNESS CENTRALITY HEURISTIC
 void BetweennessCentralityHeuristic::CalculateBetweennessCentralityHeuristic() {
-    //cout << "BETWEENNESS CENTRALITY HEURISTIC\n";
-
+#ifdef LOG
+    BOOST_LOG_TRIVIAL(info) << "BETWEENNESS CENTRALITY HEURISTIC\n";
+#endif
     initialize_betweenness_centrality_heuristic();
     calculate_bc_inter();
 
@@ -140,8 +154,9 @@ void BetweennessCentralityHeuristic::CalculateBetweennessCentralityHeuristic() {
     }
 
     finalize_betweenness_centrality_heuristic();
-
-    //cout << "DONE WITH BETWEENNESS CENTRALITY\n";
+#ifdef LOG
+    BOOST_LOG_TRIVIAL(info) << "DONE WITH BETWEENNESS CENTRALITY\n";
+#endif
 }
 
 //// HELPERS FOR OUTPUTTING RESULT
@@ -308,7 +323,9 @@ void BetweennessCentralityHeuristic::initialize_queue() {
                 .vertex_id = vertex_id,
                 .type = type,
             };
-            // cout << "adding component_vertex_pair (" << i << " " << vertex_id << ")\n";
+#ifdef LOG
+            BOOST_LOG_TRIVIAL(info)  << "adding component_vertex_pair (" << i << " " << vertex_id << ")\n";
+#endif
             Q.push(elem);
         }
     }
@@ -329,24 +346,32 @@ void BetweennessCentralityHeuristic::process_component_vertex_pair(int comp_inde
     int old_link_weight = BCCs[comp_index].get_weight_map(vertex_id);
     if (old_link_weight != -1) {
         if (link_weight != old_link_weight) {
-            //cout << "ERROR in Link Weight for comp " << comp_index << " | vertex " << vertex_id << old_link_weight << " | " << link_weight << endl;
+#ifdef LOG
+        	BOOST_LOG_TRIVIAL(fatal)  << "ERROR in Link Weight for comp " << comp_index << " | vertex " << vertex_id << old_link_weight << " | " << link_weight << endl;
+#endif
         }
     }
 
     BCCs[comp_index].update_weight_map(vertex_id, link_weight);
-    // cout << "  update weight for comp " << comp_index << " | vertex " << vertex_id << " = " << link_weight << endl;
+#ifdef LOG
+    BOOST_LOG_TRIVIAL(info)  << "  update weight for comp " << comp_index << " | vertex " << vertex_id << " = " << link_weight << endl;
+#endif
     find_unknown_weight_wrt_art_point(vertex_id);
 }
 
 void BetweennessCentralityHeuristic::find_unknown_weight_wrt_art_point(string vertex_id) {
     int count = 0;
     int comp_index = -1;
-    // cout << "find_unknown_weight_wrt_art_point " << vertex_id << "\n";
+#ifdef LOG
+    BOOST_LOG_TRIVIAL(info)  << "find_unknown_weight_wrt_art_point " << vertex_id << "\n";
+#endif
 
     for (int i = 0; i < num_of_bcc_; ++i) {
         if (BCCs[i].vertex_exists(vertex_id)) {
             if (BCCs[i].get_weight_map(vertex_id) == -1) {
-                // cout << "     comp_index = " << i << endl;
+#ifdef LOG
+            	BOOST_LOG_TRIVIAL(info)  << "     comp_index = " << i << endl;
+#endif
                 ++count;
                 comp_index = i;
             }
@@ -363,7 +388,9 @@ void BetweennessCentralityHeuristic::find_unknown_weight_wrt_art_point(string ve
             .type = "vertex_component_pair"
         };
 
-        // cout << "        Add vertex_component_pair: " << comp_index << " - " << vertex_id << endl;
+#ifdef LOG
+        BOOST_LOG_TRIVIAL(info) << "        Add vertex_component_pair: " << comp_index << " - " << vertex_id << endl;
+#endif
         Q.push(elem);
     }
 }
@@ -386,12 +413,16 @@ void BetweennessCentralityHeuristic::process_vertex_component_pair(int comp_inde
     int old_link_weight = BCCs[comp_index].get_weight_map(vertex_id);
     if (old_link_weight != -1) {
         if (link_weight != old_link_weight) {
-            //cout << "ERROR in Link Weight for comp " << comp_index << " | vertex " << vertex_id << old_link_weight << " | " << link_weight << endl;
+#ifdef LOG
+            BOOST_LOG_TRIVIAL(info )<< "ERROR in Link Weight for comp " << comp_index << " | vertex " << vertex_id << old_link_weight << " | " << link_weight << endl;
+#endif
         }
     }
 
     BCCs[comp_index].update_weight_map(vertex_id, link_weight);
-    // cout << "  update weight for vertex_component pair: " << comp_index << " | " << vertex_id << " = " << link_weight << endl;
+#ifdef LOG
+    BOOST_LOG_TRIVIAL(info) << "  update weight for vertex_component pair: " << comp_index << " | " << vertex_id << " = " << link_weight << endl;
+#endif
     find_unknown_weight_wrt_component(comp_index);
 }
 
@@ -412,7 +443,9 @@ void BetweennessCentralityHeuristic::find_unknown_weight_wrt_component(int comp_
             .vertex_id = vertex_id,
             .type = "component_vertex_pair",
         };
-        // cout << "Add component_vertex_pair: " << comp_index << " - " << vertex_id << endl;
+#ifdef LOG
+        BOOST_LOG_TRIVIAL(info) << "Add component_vertex_pair: " << comp_index << " - " << vertex_id << endl;
+#endif
         Q.push(elem);
     }
 }
@@ -424,7 +457,10 @@ bool BetweennessCentralityHeuristic::verify_link_weight() {
     for (int i = 0; i < num_of_bcc_; ++i) {
         for (string id : BCCs[i].art_points_id()) {
             if (BCCs[i].get_weight_map(id) == -1) {
-                //cout << "ERROR Link Weight for vertex " << id << " in component " << i << " = " << -1 << endl;
+#ifdef LOG
+            	BOOST_LOG_TRIVIAL(fatal) << "ERROR Link Weight for vertex " << id << " in component " << i << " = " << -1 << endl;
+#endif
+
                 result = false;
             }
         }
