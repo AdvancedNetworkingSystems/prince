@@ -18,7 +18,7 @@ public:
 	void _parse_netjson(std::basic_istream<char> &istream);
 	void calculate_bc();
 	void compose_bc_map(vector<pair<string, double> > & map);
-
+	void _parse_jsoinfo(std::basic_istream<char> &istream);
 
 private:
   GraphManager gm;
