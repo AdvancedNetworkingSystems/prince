@@ -16,11 +16,6 @@
 #include "graph_manager.h"
 #include "betweenness_centrality.h"
 
-#ifdef LOG
-#include <boost/log/trivial.hpp>
-#endif
-
-
 typedef std::vector<int> ComponentVec; // use int instead of edges_size_type because I want to set default value to be -1
 typedef boost::iterator_property_map<ComponentVec::iterator, EdgeIndexPMap> ComponentMap;
 
