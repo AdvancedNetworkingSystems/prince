@@ -4,6 +4,9 @@
 .project
 .settings/
 
+prince/build
+graph-parser/build
+
 #files being edited
 *~
 

@@ -6,8 +6,9 @@
 SRCS = betweenness_centrality_heuristic.cpp betweenness_centrality.cpp graph_manager.cpp sub_component.cpp utility.cpp parser.cpp graph_parser.cpp
 TARGET = libgraphparser
 OBJS = $(SRCS:.cpp=.o)
-CXXFLAGS = -std=c++11 -fPIC
+CXXFLAGS = -std=c++11 -fPIC -g
 LDFLAGS = -shared -Wl,-soname,$(TARGET).so
+BPATH = ../build
 
 # define the C object files
 #
@@ -19,7 +20,7 @@ LDFLAGS = -shared -Wl,-soname,$(TARGET).so
 #
 
 (TARGET): $(OBJS)
-	$(CXX) $(CXXFLAGS) $(INCLUDES) $(LDFLAGS) -o ../lib/$(TARGET).so $(OBJS)  $(LIBS )
+	$(CXX) $(CXXFLAGS) $(INCLUDES) $(LDFLAGS) -o $(BPATH)/lib/$(TARGET).so $(OBJS)  $(LIBS )
 
 # this is a suffix replacement rule for building .o's from .c's
 # it uses automatic variables $<: the name of the prerequisite of
