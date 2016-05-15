@@ -32,7 +32,9 @@ void BetweennessCentrality::CalculateBetweennessCentrality(bool endpoints_inclus
     initialize_betweenness_centrality();
 
     if (gm_.weighted_graph()) { // calculate BC for weighted graph
-        //cout << "======= BCC - BC for weighted graph ======\n";
+#ifdef LOG
+    	BOOST_LOG_TRIVIAL(info) << "======= BCC - BC for weighted graph ======\n";
+#endif
         typedef map<Edge, double> EdgeWeightStdMap;
         typedef boost::associative_property_map<EdgeIndexStdMap> EdgeWeightPMap;
         EdgeIndexStdMap edge_weight_std_map;

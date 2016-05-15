@@ -5,9 +5,13 @@
 #include "sub_component.h"
 
 SubComponent::SubComponent(bool weighted_graph) {
-    // cout << "===> Start SubComponent() constructor, weighted =" << weighted_graph << endl;
+#ifdef LOG
+	BOOST_LOG_TRIVIAL(info) << "===> Start SubComponent() constructor, weighted =" << weighted_graph << endl;
+#endif
     gm_ = GraphManager(weighted_graph);
-    // cout << "<=== Finish SubComponent() constructor\n";
+#ifdef LOG
+    BOOST_LOG_TRIVIAL(info) << "<=== Finish SubComponent() constructor\n";
+#endif
 }
 
 /* GETTERS & SETTERS & UPDATERS */
@@ -194,7 +198,9 @@ void SubComponent::CalculateBetweennessCentralityHeuristic() {
     initialize_betweenness_centrality();
 
     if (gm_.weighted_graph()) {
-        //cout << "---- Sub Component BC for weighted graph -----\n";
+#ifdef LOG
+    	BOOST_LOG_TRIVIAL(info)<< "---- Sub Component BC for weighted graph -----\n"
+#endif
     	//TODO: Fix heuristic with weight
         typedef map<Edge, double> EdgeWeightStdMap;
         typedef boost::associative_property_map<EdgeIndexStdMap> EdgeWeightPMap;
@@ -214,7 +220,9 @@ void SubComponent::CalculateBetweennessCentralityHeuristic() {
         );
     }
     else {
-        //cout << "---- Sub Component BC for unweighted graph -----\n";
+#ifdef LOG
+    	BOOST_LOG_TRIVIAL(info) << "---- Sub Component BC for unweighted graph -----\n";
+#endif
         boost::brandes_betweenness_centrality_heuristic(gm_.g_,
             traffic_matrix_pmap_,
             boost::centrality_map(

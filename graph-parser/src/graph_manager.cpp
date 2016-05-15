@@ -7,14 +7,18 @@ GraphManager::GraphManager(bool weighted_graph) : weighted_graph_(weighted_graph
 }
 
 GraphManager::GraphManager(const GraphManager& other) {
-    // cout << "\n*******COPY CONSTRUCTOR******\n";
+#ifdef LOG
+	BOOST_LOG_TRIVIAL(info) << "\n*******COPY CONSTRUCTOR******\n";
+#endif
     g_ = other.g_;
     weighted_graph_ = other.weighted_graph_;
     ResetVerticesAndEdgesIndexMap();
 }
 
 GraphManager& GraphManager::operator=(const GraphManager& rhs) {
-    // cout << "\n*******ASSIGNMENT OPERATOR******\n";
+#ifdef LOG
+	BOOST_LOG_TRIVIAL(info) << "\n*******ASSIGNMENT OPERATOR******\n";
+#endif
     g_ = rhs.g_;
     weighted_graph_ = rhs.weighted_graph_;
     ResetVerticesAndEdgesIndexMap();
@@ -40,7 +44,9 @@ bool GraphManager::weighted_graph() const {
 
 // UPDATE GRAPHS
 void GraphManager::AddEdge(VertexProperties vp1, VertexProperties vp2, EdgeProperties ep) {
-    // cout << "add edge GM " << vp1.label << " - " << vp2.label << endl;
+#ifdef LOG
+	BOOST_LOG_TRIVIAL(info)<< "add edge GM " << vp1.label << " - " << vp2.label << endl;
+#endif
 
     string s1 = vp1.id;
     string s2 = vp2.id;

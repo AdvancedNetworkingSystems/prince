@@ -16,6 +16,10 @@
 #include <boost/graph/adjacency_list.hpp>
 #include <boost/graph/iteration_macros.hpp>
 
+#ifdef LOG
+#include <boost/log/trivial.hpp>
+#endif
+
 using namespace std;
 
 class Router { // aka VertexProperties
