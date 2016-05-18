@@ -199,7 +199,7 @@ void SubComponent::CalculateBetweennessCentralityHeuristic() {
 
     if (gm_.weighted_graph()) {
 #ifdef LOG
-    	BOOST_LOG_TRIVIAL(info)<< "---- Sub Component BC for weighted graph -----\n"
+    	BOOST_LOG_TRIVIAL(info)<< "---- Sub Component BC for weighted graph -----\n";
 #endif
     	//TODO: Fix heuristic with weight
         typedef map<Edge, double> EdgeWeightStdMap;

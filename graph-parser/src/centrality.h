@@ -363,9 +363,9 @@ namespace detail { namespace graph {
   {
     typedef typename graph_traits<Graph>::vertex_iterator vertex_iterator;
     typedef typename graph_traits<Graph>::vertex_descriptor vertex_descriptor;
-
-    cout << "@@@ Targets Inclusion @@@\n";
-
+#ifdef LOG
+    BOOST_LOG_TRIVIAL(info) << "@@@ Targets Inclusion @@@\n";
+#endif
     // Initialize centrality
     init_centrality_map(vertices(g), centrality);
     init_centrality_map(edges(g), edge_centrality_map);

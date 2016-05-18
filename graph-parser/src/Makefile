@@ -8,7 +8,9 @@ TARGET = libgraphparser
 OBJS = $(SRCS:.cpp=.o)
 CXXFLAGS = -std=c++11 -fPIC -g
 LDFLAGS = -shared -Wl,-soname,$(TARGET).so
+
 BPATH = ../build
+
 
 # define the C object files
 #
@@ -19,7 +21,11 @@ BPATH = ../build
 # with the .o suffix
 #
 
-(TARGET): $(OBJS)
+log: $(OBJS)
+	$(CXX) $(CXXFLAGS) $(INCLUDES) $(LDFLAGS) -o $(BPATH)/lib/$(TARGET).so $(OBJS)  $(LIBS ) -DLOG -DBOOST_ALL_DYN_LINK -lboost_log -lpthread
+
+
+$(TARGET): $(OBJS)
 	$(CXX) $(CXXFLAGS) $(INCLUDES) $(LDFLAGS) -o $(BPATH)/lib/$(TARGET).so $(OBJS)  $(LIBS )
 
 # this is a suffix replacement rule for building .o's from .c's

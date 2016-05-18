@@ -1,14 +1,12 @@
 TARGETS=test
+CFLAGS = -std=c++11 -g
+LIBS = -L../../build/lib -lgraphparser -lboost_unit_test_framework
 
 all: $(TARGETS)
 
-test: $(TARGETS)
 
 %: %.cpp
-	$(CXX) $(CFLAGS) -o$@ $^ -lboost_unit_test_framework
-
-run-%: %
-	-./$^ --output_format=XML --log_level=test_suite > $(^)-report.xml
-
+	$(CXX) $(CFLAGS) -o$@ $^  $(LIBS)
+	
 clean:
 	rm $(TARGETS) *-report.xml
