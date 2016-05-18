@@ -13,11 +13,11 @@ class graph_parser
 {
 public:
 
-	graph_parser(bool weight=true, bool heuristic=false);
+	graph_parser(bool weight, bool _heuristic);
 	void _parse_netjson(std::basic_istream<char> &istream);
 	void calculate_bc();
 	void compose_bc_map(vector<pair<string, double> > & map);
-	void _parse_jsoinfo(std::basic_istream<char> &istream);
+	void _parse_jsoninfo(std::basic_istream<char> &istream);
 
 private:
   GraphManager gm;
@@ -33,10 +33,15 @@ extern "C"{
 #endif
 
 typedef struct _id_bc_pair{
-	char * id;
+	char* id;
 	double bc;
 
 }id_bc_pair;
+
+typedef struct _map_id_bc_pair{
+	id_bc_pair *map;
+	ssize_t size;
+}map_id_bc_pair;
 
 typedef void c_graph_parser;
 
@@ -44,7 +49,7 @@ c_graph_parser* new_graph_parser(int weight, int heuristic);
 
 void graph_parser_parse_netjson(c_graph_parser* v, char *json);
 void graph_parser_calculate_bc(c_graph_parser* v);
-void graph_parser_compose_bc_map(c_graph_parser* v, id_bc_pair *map);
+void graph_parser_compose_bc_map(c_graph_parser* v, map_id_bc_pair *map);
 void graph_parser_parse_jsoninfo(c_graph_parser* v, char *json);
 void delete_my_class(c_graph_parser* v);
 
