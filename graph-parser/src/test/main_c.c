@@ -13,9 +13,9 @@ int main(){
 	FILE * file;
 	struct stat stat;
 	file = fopen("test/olsr-netjson.json", "r");
-	graph_parser gp;
+	c_graph_parser gp;
 	gp = new_graph_parser(1,0);
 
-	graph_parser_parse_netjson(gp, )
+	//graph_parser_parse_netjson(gp, )
 }
 
