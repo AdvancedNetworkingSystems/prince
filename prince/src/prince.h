@@ -20,17 +20,17 @@
 #include <strings.h>
 
 
-#define SIZE_TO_READ 100
+#define SIZE_TO_READ 4096
 #define true 1
 #define false 0
 
 
 
 int main();
-char * receive_data(int sd);
+int receive_data(int sd, char **finalBuffer);
 void close_socket(int sock);
 int create_socket(char* Destinazione, int Porta);
-
+int check_header_clen(char *header,char *body);
 
 #endif /* SRC_PRINCE_H_ */
 
