@@ -9,9 +9,10 @@
 using namespace boost;
 using namespace boost::unit_test;
 
+#define FILENAME "../../input/olsr-netjson.json"
 
-BOOST_AUTO_TEST_CASE(test_wrapper){
-	FILE *fd = fopen("olsr-netjson.json", "r");
+BOOST_AUTO_TEST_CASE(test_c_wrapper){
+	FILE *fd = fopen(FILENAME, "r");
 	struct stat st;
 	fstat(fileno(fd), &st);
 	char *buffer = (char*) malloc(st.st_size);
@@ -20,15 +21,19 @@ BOOST_AUTO_TEST_CASE(test_wrapper){
 	c_graph_parser *gp = new_graph_parser(false, false);
 	graph_parser_parse_netjson(gp, buffer);
 	graph_parser_calculate_bc(gp);
-	id_bc_pair *map;
-	graph_parser_compose_bc_map(gp, &map);
-
-
+	map_id_bc_pair map;
+	graph_parser_compose_bc_map(gp, &map); //TODO: free
+	BOOST_CHECK_EQUAL(map.size, 24);
+	for(int i=0;i<map.size ;i++){
+		if(strcmp(map.map[i].id, "10.150.25.1")==0){
+			BOOST_CHECK_CLOSE(map.map[i].bc, 0.715415, 0.01);
+		}
+	}
 }
 
 
 void generic_test_base(bool weight, bool heur){
-	ifstream ifs("olsr-netjson.json");
+	ifstream ifs(FILENAME);
 	graph_parser gp(weight, heur);
 	vector<pair<string, double> > map;
 	gp._parse_netjson(ifs);

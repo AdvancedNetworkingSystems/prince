@@ -1,13 +1,13 @@
 #include "graph_parser.h"
 
 
-  graph_parser::graph_parser(bool weight, bool _heuristic): heuristic(_heuristic), gm(weight){};
+  graph_parser::graph_parser(bool weight, bool _heuristic): gm(weight), heuristic(_heuristic){};
 
   void graph_parser::_parse_netjson(std::basic_istream<char> &istream){
 	  parse_netjson(istream, gm);
   }
 
-  void graph_parser::_parse_jsoinfo(std::basic_istream<char> &istream){
+  void graph_parser::_parse_jsoninfo(std::basic_istream<char> &istream){
 	  parse_jsoninfo(istream, gm);
   }
   void graph_parser::calculate_bc(){
@@ -15,8 +15,8 @@
 		  bcc.init(gm);
 		  bcc.CalculateBetweennessCentrality();
 	  }else{
-		  bc.CalculateBetweennessCentrality();
 		  bc.init(gm);
+		  bc.CalculateBetweennessCentrality();
 	  }
   }
 
@@ -49,17 +49,14 @@
 
           void graph_parser_parse_netjson(c_graph_parser* v, char *json){
           		graph_parser *vc = (graph_parser*)v;
-              	membuf sbuf(json, json + sizeof(json));
-                  std::istream in(&sbuf);
-                  vc->_parse_netjson(in);
+                std::istringstream ss(json);
+                vc->_parse_netjson(ss);
           }
 
           void graph_parser_parse_jsoninfo(c_graph_parser* v, char *json){
-      		graph_parser *vc = (graph_parser*)v;
-
-          	membuf sbuf(json, json + sizeof(json));
-                  std::istream in(&sbuf);
-                  vc->_parse_jsoinfo(in);
+        	  graph_parser *vc = (graph_parser*)v;
+        	  std:istringstream ss(json);
+        	  vc->_parse_jsoninfo(ss);
           }
 
           void graph_parser_calculate_bc(c_graph_parser* v){
@@ -67,20 +64,20 @@
           	vc->calculate_bc();
           }
 
-          void graph_parser_compose_bc_map(c_graph_parser* v, id_bc_pair * map){
+          void graph_parser_compose_bc_map(c_graph_parser* v, map_id_bc_pair * map){
       		graph_parser *vc = (graph_parser*)v;
           	vector<pair<string, double> > cppmap;
           	vc->compose_bc_map(cppmap);
 
           	int i=0;
-          	//id_bc_pair *c_map = (id_bc_pair*)malloc(sizeof(id_bc_pair)*cppmap.size());
-          	//id_bc_pair *c_map = new id_bc_pair[cppmap.size()];
-          	//for(pair<string, double> item: cppmap){
-          	//	c_map[i].id = new char[item.first.length()];
-          	//	strcpy(c_map[i].id, item.first.c_str());
-          	//	c_map[i++].bc = item.second;
-          	//}
-          	//map = c_map;
+          	map->size=cppmap.size();
+          	map->map = new id_bc_pair[map->size];
+          	for(pair<string, double> item: cppmap){
+          		map->map[i].id = new char[strlen(item.first.c_str())];
+          		strcpy(map->map[i].id, item.first.c_str());
+          		map->map[i].bc = item.second;
+          		i++;
+          	}
           }
 
 

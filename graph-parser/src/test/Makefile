@@ -4,7 +4,6 @@ LIBS = -L../../build/lib -lgraphparser -lboost_unit_test_framework
 
 all: $(TARGETS)
 
-
 %: %.cpp
 	$(CXX) $(CFLAGS) -o$@ $^  $(LIBS)
 	
