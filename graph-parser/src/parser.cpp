@@ -9,7 +9,7 @@
 	boost::property_tree::read_json(istream, pt);
 
     BOOST_FOREACH(const boost::property_tree::ptree::value_type &v, pt.get_child("links")) {
-        cout << v.second.get_value<std::string>() << " ";
+        //cout << v.second.get_value<std::string>() << " ";
         string source = v.second.get_child("source").get_value<std::string>();
         string target = v.second.get_child("target").get_value<std::string>();
         double cost = v.second.get_child("cost").get_value<double>();
@@ -26,7 +26,7 @@
 	     boost::property_tree::read_json(istream, pt);
 
 	     BOOST_FOREACH(const boost::property_tree::ptree::value_type &v, pt.get_child("topology")) {
-	         cout << v.second.get_value<std::string>() << " ";
+	         //cout << v.second.get_value<std::string>() << " ";
 	         string source = v.second.get_child("lastHopIP").get_value<std::string>();
 	         string target = v.second.get_child("destinationIP").get_value<std::string>();
 	         double cost = v.second.get_child("neighborLinkQuality").get_value<double>();
