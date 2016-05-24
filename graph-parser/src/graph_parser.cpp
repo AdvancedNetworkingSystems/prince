@@ -29,18 +29,6 @@
   	  }
     }
 
-
-
-
-  struct membuf : std::streambuf
-  {
-      membuf(char* begin, char* end) {
-          this->setg(begin, begin, end);
-      }
-  };
-
-
-
   extern "C" {
   		c_graph_parser* new_graph_parser(int weight, int heuristic){
       		graph_parser *v = (graph_parser*)new graph_parser(weight, heuristic);
