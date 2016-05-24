@@ -81,6 +81,7 @@
           }
 
 
+
           void delete_my_class(c_graph_parser* v) {
       		graph_parser *vc = (graph_parser*)v;
           	delete vc;
