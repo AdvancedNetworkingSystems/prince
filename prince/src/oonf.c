@@ -7,14 +7,12 @@
  * @return pointer to oonf plugin handler
  */
 oonf_routing_plugin*
-new_oonf_plugin(char* host){
+new_oonf_plugin(char* host, c_graph_parser *gp){
 	oonf_routing_plugin *o =(oonf_routing_plugin*) malloc(sizeof(oonf_routing_plugin));
 	o->port=2009;
 	o->host=(char*)malloc(strlen(host)*sizeof(char));
-	o->bc_map = (map_id_bc_pair*)malloc(sizeof(map_id_bc_pair));
-	o->degree_map = (map_id_degree_pair*)malloc(sizeof(map_id_degree_pair));
 	strcpy(o->host, host);
-	o->gp = new_graph_parser(true, false);
+	o->gp = gp;
 	return o;
 }
 
@@ -26,7 +24,7 @@ new_oonf_plugin(char* host){
 int
 get_netjson_topology(oonf_routing_plugin *o){
 	int sd = _create_socket(o->host, o->port);
-	char *req = "/netjsoninfo graph\n";
+	char *req = "/netjsoninfo filter graph ipv6_0\n";
 	int sent = send(sd,req,strlen(req),0);
 	if(!_receive_data(sd, &(o->recv_buffer))){
 		return 0;
@@ -37,19 +35,6 @@ get_netjson_topology(oonf_routing_plugin *o){
 	return 1;
 }
 
-/**
- * Compute the bc using libgraphparser
- * @param oonf plugin handler object
- * @return 1 if success, 0 otherwise
- */
-int
-oonf_compute_graph(oonf_routing_plugin *o){
-	graph_parser_calculate_bc(o->gp);
-	graph_parser_compose_bc_map(o->gp, o->bc_map);
-	graph_parser_compose_degree_map(o->gp, o->degree_map);
-	return 1;
-}
-
 
 /**
  * Push the timers value to the routing daemon
@@ -57,10 +42,10 @@ oonf_compute_graph(oonf_routing_plugin *o){
  * @return 1 if success, 0 otherwise
  */
 int
-oonf_push_timers(oonf_routing_plugin *o, float h_timer, float tc_timer){
+oonf_push_timers(oonf_routing_plugin *o, struct timers t){
 	int sd =_create_socket(o->host, o->port);
 	char cmd[100];
-	sprintf(cmd, "/config set olsrv2.tc_timer=%4.2f/config set interface.hello_timer=%4.2f/config commit", tc_timer, h_timer);
+	sprintf(cmd, "/config set olsrv2.tc_timer=%4.2f/config set interface.hello_timer=%4.2f/config commit", t.tc_timer, t.h_timer);
 	if(!_send_telnet_cmd(sd, cmd))
 		return 0;
 	return 1;

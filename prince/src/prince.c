@@ -11,15 +11,34 @@ int
 main(int argc, char* argv[]){
 	struct prince_handler *ph= new_prince_handler();
 	ph->self_id="10.150.13.4";
-	ph->olsr_rp = new_olsr_plugin("79.52.131.119", ph->gp);
-	get_jsoninfo_topology(ph->olsr_rp);
-
+	int rp=1;
+	switch(rp){
+	case 0: //olsr
+		ph->olsr_rp = new_olsr_plugin("79.52.131.119", ph->gp);
+		get_jsoninfo_topology(ph->olsr_rp);
+	break;
+	case 1: //oonf
+		ph->oonf_rp = new_oonf_plugin("10.150.13.4", ph->gp);
+		get_netjson_topology(ph->oonf_rp);
+	break;
+	}
 	graph_parser_calculate_bc(ph->gp);
 	graph_parser_compose_bc_map(ph->gp, ph->bc_map);
 	graph_parser_compose_degree_map(ph->gp, ph->degree_map);
 	compute_constants(ph);
 	compute_timers(ph);
-	olsr_push_timers(ph->olsr_rp, ph->opt_t);
+
+
+	switch(rp){
+		case 0: //olsr
+			olsr_push_timers(ph->olsr_rp, ph->opt_t);
+		break;
+
+		case 1: //oonf
+			oonf_push_timers(ph->oonf_rp, ph->opt_t);
+		break;
+		}
+
 	return 1;
 
 }
@@ -36,7 +55,7 @@ new_prince_handler(){
 	ph->def_t.tc_timer=5.0;
 	ph->degree_map = (map_id_degree_pair *) malloc(sizeof(map_id_degree_pair));
 	ph->bc_map = (map_id_bc_pair *) malloc(sizeof(map_id_bc_pair));
-	ph->gp = new_graph_parser(true, false);
+	ph->gp = new_graph_parser(false, false);
 	return ph;
 }
 

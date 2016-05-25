@@ -2,10 +2,10 @@
 
 
 /**
- * Receive HTTP data from sd
- * @param sd socket descriptor
- * @param **finalbuffer pointer to
- * @return 1 if success, 0 otherwise
+ * Initialize a socket
+ * @param host hostname of the server
+ * @param port remote port of the server
+ * @return socket descriptor
  */
 int
 _create_socket(char* host, int port)
@@ -13,9 +13,8 @@ _create_socket(char* host, int port)
   struct sockaddr_in temp;
   struct hostent *h;
   int sock;
-  int errore;
+  int error;
 
-  //Tipo di indirizzo
   temp.sin_family=AF_INET;
   temp.sin_port=htons(port);
   h=gethostbyname(host);
@@ -25,57 +24,38 @@ _create_socket(char* host, int port)
     exit(1);
   }
   bcopy(h->h_addr,&temp.sin_addr,h->h_length);
-  //Creazione socket.
   sock=socket(AF_INET,SOCK_STREAM, 0);
-  //Connessione del socket. Esaminare errore per compiere azioni
-  //opportune in caso di errore.
-  errore=connect(sock, (struct sockaddr*) &temp, sizeof(temp));
+  error=connect(sock, (struct sockaddr*) &temp, sizeof(temp));
   return sock;
 }
 
-
-//OLD FUNCTIONS TODO: CLEAN
+/**
+ * Receive plain ASCII data from sd
+ * @param sd socket descriptor
+ * @param **buffer pointer to
+ * @return 1 if success, 0 otherwise
+ */
 int
-_receive_data(int sd, char **finalBuffer){
+_telnet_receive(int sd, char **buffer){
 	//ALLOC finalBuffer ->> MUST FREE IT
-	int i = 0;
+	int i=0;
 	int amntRecvd = 0;
-	int currentSize = SIZE_TO_READ;
-	int oldSize = currentSize;
-	char * pageContentBuffer = (char*) malloc(currentSize);
-	while ((amntRecvd = recv(sd, pageContentBuffer + i, SIZE_TO_READ, 0)) > 0) {
-	    i += amntRecvd;
-	    oldSize = currentSize;
-	    currentSize += SIZE_TO_READ;
-	    char *newBuffer = (char*) malloc(currentSize);
-	    memcpy(newBuffer, pageContentBuffer, oldSize);
-	    free(pageContentBuffer);
-	    pageContentBuffer = newBuffer;
+	char * page = (char*) malloc(SIZE_TO_READ);
+	while((amntRecvd = recv(sd, page+i, SIZE_TO_READ, 0)) >0){
+		i+=amntRecvd;
+		realloc(page, i+SIZE_TO_READ);
 	}
-	if(i==0) return 0;
-
-	char *body = strstr(pageContentBuffer, "\r\n\r\n");
-	if(body) body+=4;
-	*finalBuffer=body;
-
-	//check if we have received the full topology
-	return _check_header_clen(pageContentBuffer, body);
+	if(!amntRecvd) return 0;
+	*buffer=page;
+	return 1;
 
 }
-int
-_check_header_clen(char *header, char *body){
-
-		char *buffer = strstr(header, "Content-Length:");
-		char *endbuf = strstr(buffer, "\r\n");
-		char *len = (char*)malloc(endbuf-buffer);
-		memcpy(len, buffer+15,endbuf-buffer);
-		unsigned long size=atol(len);
-		if(strlen(body) == size)
-			return size;
-		else
-			return 0;
-
-}
+/**
+ * Receive HTTP data from sd
+ * @param sd socket descriptor
+ * @param **finalbuffer pointer to
+ * @return 1 if success, 0 otherwise
+ */
 int
 _http_receive(int sd, char **buffer){
 	FILE* fd = fdopen(sd,"r");
@@ -90,40 +70,15 @@ _http_receive(int sd, char **buffer){
 		}
 	}
 	if(!size) return 0;
-	char * pageContentBuffer = (char*) malloc(size);
+	char * page = (char*) malloc(size);
 	int i=0;
 	while(i<size){
 		fgets(line, LINE_SIZE, fd);
 		int line_len=strlen(line);
-		memcpy(pageContentBuffer+i, line, line_len);
+		memcpy(page+i, line, line_len);
 		i+=line_len;
 	}
-	*buffer = pageContentBuffer;
+	*buffer = page;
 	return 1;
-
-}
-int
-_receive_data_olsr2(int sd, char **finalBuffer){
-	//ALLOC finalBuffer ->> MUST FREE IT
-	int i = 0;
-	int amntRecvd = 0;
-	int currentSize = SIZE_TO_READ;
-	int oldSize = currentSize;
-	char * pageContentBuffer = (char*) malloc(currentSize);
-	while ((amntRecvd = recv(sd, pageContentBuffer + i, SIZE_TO_READ, 0)) > 0) {
-	    i += amntRecvd;
-	    oldSize = currentSize;
-	    currentSize += SIZE_TO_READ;
-	    char *newBuffer = (char*) malloc(currentSize);
-	    memcpy(newBuffer, pageContentBuffer, oldSize);
-	    free(pageContentBuffer);
-	    pageContentBuffer = newBuffer;
-	}
-	if(i==0) return 0;
-
-
-	*finalBuffer=pageContentBuffer;
-	return 1;
-
 }
 

@@ -9,7 +9,7 @@ BPATH = ../build/
 $(TARGET) : $(OBJS)
 	$(CXX) $(CCFLAGS) -o $(BPATH)$(TARGET) $(OBJS) $(LIBS)
 
-.cpp.o:
+.c.o:
 	$(CC) $(CFLAGS) -c $< -o $@
 
 clean:

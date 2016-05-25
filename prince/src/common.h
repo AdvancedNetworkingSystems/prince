@@ -32,8 +32,7 @@ struct timers{
 //FUNCTIONS DECLARATION
 int _create_socket(char* destinazione, int porta);
 int _http_receive(int sd, char **buffer);
-int _receive_data(int sd, char **finalBuffer);
-int _check_header_clen(char *header, char *body);
+int _telnet_receive(int sd, char **finalBuffer);
 
 
 #endif /* SRC_COMMON_H_ */
