@@ -1,4 +1,4 @@
-SRCS = prince.c
+SRCS = prince.c olsr.c oonf.c common.c
 TARGET = prince
 OBJS = $(SRCS:.cpp = .o)
 CFLAGS = -g
