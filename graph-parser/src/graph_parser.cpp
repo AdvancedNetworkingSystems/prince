@@ -33,6 +33,11 @@
 	 gm.get_degrees(map);
   }
 
+  int graph_parser::get_n_edges(){
+	  return num_edges(gm.g_);
+
+  }
+
   extern "C" {
   		c_graph_parser* new_graph_parser(int weight, int heuristic){
       		graph_parser *v = (graph_parser*)new graph_parser(weight, heuristic);
@@ -82,6 +87,7 @@
 
           	int i=0;
           	map->size=cppmap.size();
+          	map->n_edges = vc->get_n_edges();
           	map->map = new id_degree_pair[map->size];
           	for(pair<string, int> item: cppmap){
           		map->map[i].id = new char[strlen(item.first.c_str())];
