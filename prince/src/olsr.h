@@ -23,8 +23,6 @@ olsr_routing_plugin_{
 	char *host;
 	short port;
 	c_graph_parser *gp;
-	map_id_bc_pair *bc_map;
-	map_id_degree_pair *degree_map;
 
 }olsr_routing_plugin;
 

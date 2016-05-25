@@ -23,19 +23,13 @@ oonf_routing_plugin_{
 	char *host;
 	short port;
 	c_graph_parser *gp;
-	map_id_bc_pair *bc_map;
-	map_id_degree_pair *degree_map;
-
 }oonf_routing_plugin;
 
 
 //PUBLIC FUNCTIONS
 oonf_routing_plugin* new_oonf_plugin(char* host, c_graph_parser *gp);
 int get_netjson_topology(oonf_routing_plugin *o);
-int oonf_compute_graph(oonf_routing_plugin *o);
-map_id_bc_pair oonf_get_bc(oonf_routing_plugin *o);
-map_id_degree_pair oonf_get_degree(oonf_routing_plugin *o);
-int oonf_push_timers(oonf_routing_plugin *o);
+int oonf_push_timers(oonf_routing_plugin *o, struct timers t);
 void oonf_delete_oonf_plugin(oonf_routing_plugin* o);
 
 

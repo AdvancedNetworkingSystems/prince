@@ -11,8 +11,6 @@ new_olsr_plugin(char* host, c_graph_parser *gp){
 	olsr_routing_plugin *o = (olsr_routing_plugin *) malloc(sizeof(olsr_routing_plugin));
 	o->port=9090;
 	o->host=(char*)malloc(strlen(host)*sizeof(char));
-	//o->bc_map = (map_id_bc_pair*)malloc(sizeof(map_id_bc_pair));
-	//o->degree_map = (map_id_degree_pair*)malloc(sizeof(map_id_degree_pair));
 	strcpy(o->host, host);
 	o->gp = gp;
 	return o;
