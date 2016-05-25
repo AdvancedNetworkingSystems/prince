@@ -19,6 +19,7 @@ public:
 	void compose_bc_map(vector<pair<string, double> > & map);
 	void compose_degree_map(vector<pair<string, int> > &map);
 	void _parse_jsoninfo(std::basic_istream<char> &istream);
+	int get_n_edges();
 
 private:
   GraphManager gm;
@@ -53,6 +54,7 @@ typedef struct _id_degree_pair{
 typedef struct _map_id_degree_pair{
 	id_degree_pair *map;
 	ssize_t size;
+	int n_edges;
 }map_id_degree_pair;
 
 
@@ -66,7 +68,6 @@ void graph_parser_compose_bc_map(c_graph_parser* v, map_id_bc_pair *map);
 void graph_parser_compose_degree_map(c_graph_parser* v, map_id_degree_pair * map);
 void graph_parser_parse_jsoninfo(c_graph_parser* v, char *json);
 void delete_graph_parser(c_graph_parser* v);
-
 
 #ifdef __cplusplus
 }
