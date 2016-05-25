@@ -113,6 +113,15 @@ struct less_second {
     }
 };
 
+template <typename T1, typename T2>
+struct less_first {
+    typedef pair<T1, T2> type;
+    bool operator ()(type const& a, type const& b) const {
+        return a.first < b.first;
+    }
+};
+
+
 #include "utility.tpp"
 
 #endif //GRAPH_PARSER_UTILITY_H

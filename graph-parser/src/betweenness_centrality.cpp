@@ -77,6 +77,7 @@ void BetweennessCentrality::compose_bc_map(vector<pair<string, double> > &map){
      		pair<string, double> item(id_index_pair.first, v_centrality_vec_.at(id_index_pair.second));
             mapcopy.push_back(item);
      	}
+     	std::sort(mapcopy.begin(), mapcopy.end(), less_first<string, double>());
      	map=mapcopy;
 }
 

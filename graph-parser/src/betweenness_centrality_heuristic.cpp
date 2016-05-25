@@ -193,7 +193,7 @@ void BetweennessCentralityHeuristic::compose_bc_map(vector<pair<string, double> 
     //HEURISTIC NOT WORKING WITH WEIGHTED LINKS
 
 	vector<pair<string, double> > mapcopy(bc_relative_score_.begin(), bc_relative_score_.end());
-    std::sort(mapcopy.begin(), mapcopy.end(), less_second<string, double>());
+    std::sort(mapcopy.begin(), mapcopy.end(), less_first<string, double>());
     map=mapcopy;
 
 }
