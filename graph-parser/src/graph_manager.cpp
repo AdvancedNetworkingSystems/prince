@@ -115,6 +115,7 @@ void GraphManager::get_degrees(vector<pair<string, int> > &map){
 		p.second = degree(v, g_);
 		map.push_back(p);
 	}
+	sort(map.begin(), map.end(), less_first<string, int>());
 }
 
 const Vertex& GraphManager::get_vertex_from_id(string s) {
