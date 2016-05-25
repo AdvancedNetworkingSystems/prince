@@ -8,32 +8,37 @@
 #ifndef SRC_PRINCE_H_
 #define SRC_PRINCE_H_
 
-#include "../../graph-parser/src/graph_parser.h"
-
-#include <sys/types.h>
-#include <sys/socket.h>
-//"in" per "sockaddr_in"
-#include <netinet/in.h>
-//"netdb" per "gethostbyname"
-#include <netdb.h>
-#include <unistd.h>
-#include <strings.h>
-#include <stdio.h>
+#include "common.h"
+#include "olsr.h"
+#include "oonf.h"
+#include <math.h>
 
 
-#define SIZE_TO_READ 1024
-#define true 1
-#define false 0
 
+struct constants{
+	double O_H, O_TC, sq_lambda_H, sq_lambda_TC, R;
+};
+
+
+struct prince_handler{
+	struct timers def_t, opt_t;
+	struct constants c;
+	char *self_id;
+	c_graph_parser *gp;
+	map_id_bc_pair *bc_map;
+	map_id_degree_pair *degree_map;
+	olsr_routing_plugin *olsr_rp;
+	oonf_routing_plugin *oonf_rp;
+	int rp;
+};
 
 
 int main(int argc, char *argv[]);
-int receive_data(int sd, char **finalBuffer);
-void close_socket(int sock);
-int create_socket(char* Destinazione, int Porta);
-int check_header_clen(char *header,char *body);
-int smart_receive(int sd, char **finalBuffer);
-int receive_data_olsr2(int sd, char **finalBuffer);
+
+struct prince_handler* new_prince_handler();
+int compute_constants(struct prince_handler *ph);
+int compute_timers(struct prince_handler *ph);
+void delete_prince_handler(struct prince_handler*);
 
 #endif /* SRC_PRINCE_H_ */
 
