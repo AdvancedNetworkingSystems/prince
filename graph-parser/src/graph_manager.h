@@ -31,6 +31,7 @@ public:
 
     // HELPERS
     bool vertex_existed(string s);
+    void get_degrees(vector<pair<string, int> > &map);
     const Vertex& get_vertex_from_id(string s);
     int get_index_from_id(string s);
 

@@ -31,6 +31,21 @@ BOOST_AUTO_TEST_CASE(test_c_wrapper){
 	}
 }
 
+BOOST_AUTO_TEST_CASE(degree_test_base){
+	ifstream ifs(FILENAME);
+	graph_parser gp(1, 0);
+	vector<pair<string, int> > map;
+	gp._parse_netjson(ifs);
+	gp.calculate_bc();
+	gp.compose_degree_map(map);
+	for(pair<string, int> id_degree_score_pair : map) {
+		if(strcmp(id_degree_score_pair.first.c_str(), "10.150.25.1")==0){
+			BOOST_CHECK_EQUAL(id_degree_score_pair.second, 5);
+		}
+	}
+	BOOST_CHECK_EQUAL(map.size(), 24);
+}
+
 
 void generic_test_base(bool weight, bool heur){
 	ifstream ifs(FILENAME);
