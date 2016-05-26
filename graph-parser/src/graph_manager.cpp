@@ -96,18 +96,6 @@ bool GraphManager::vertex_existed(string s) {
 }
 
 void GraphManager::get_degrees(vector<pair<string, int> > &map){
-//	typedef typename boost::graph_traits<Graph>::vertex_iterator
-//			vertex_iterator;
-//	boost::graph_traits<Graph>::vertex_iterator vi, vi_end, next;
-//	boost::tie(vi, vi_end) = boost::vertices(g_);
-//	for(next= vi; vi != vi_end; vi=next){
-//		pair<string, int> p;
-//		p.first=g_[*vi].id;
-//		p.second = degree(*vi, g_);
-//		++next;
-//
-//	}
-//
 	BGL_FORALL_VERTICES(v, g_, Graph) {
 		pair<string, int> p;
 		int index = boost::get(v_index_pmap_, v);
