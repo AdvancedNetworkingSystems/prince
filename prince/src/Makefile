@@ -1,6 +1,6 @@
-SRCS = prince.c olsr.c oonf.c common.c
+SRCS = olsr.c oonf.c common.c prince.c 
 TARGET = prince
-OBJS = $(SRCS:.cpp = .o)
+OBJS = $(SRCS:.c=.o)
 CFLAGS = -g
 CCFLAGS = --std=c++11 -g
 LIBS = -L../../graph-parser/build/lib -lgraphparser
