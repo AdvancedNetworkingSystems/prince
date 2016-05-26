@@ -16,6 +16,9 @@
 #include <netdb.h>
 #include <unistd.h>
 #include "../../graph-parser/src/graph_parser.h"
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
 //DEFINES
 #define true 1
@@ -33,6 +36,7 @@ struct timers{
 int _create_socket(char* destinazione, int porta);
 int _http_receive(int sd, char **buffer);
 int _telnet_receive(int sd, char **finalBuffer);
-
+int _receive_data(int sd, char **finalBuffer);
+int check_header_clen(char *header, char *body);
 
 #endif /* SRC_COMMON_H_ */

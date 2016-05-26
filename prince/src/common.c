@@ -43,9 +43,12 @@ _telnet_receive(int sd, char **buffer){
 	char * page = (char*) malloc(SIZE_TO_READ);
 	while((amntRecvd = recv(sd, page+i, SIZE_TO_READ, 0)) >0){
 		i+=amntRecvd;
-		realloc(page, i+SIZE_TO_READ);
+		if(!(page=realloc(page, i+SIZE_TO_READ))){
+			free(page);
+			return 0;
+		}
 	}
-	if(!amntRecvd) return 0;
+	if(!i) return 0;
 	*buffer=page;
 	return 1;
 
@@ -82,3 +85,44 @@ _http_receive(int sd, char **buffer){
 	return 1;
 }
 
+
+
+int _receive_data(int sd, char **buffer){
+	//ALLOC finalBuffer ->> MUST FREE IT
+
+	int i=0;
+	int amntRecvd = 0;
+	char * page = (char*) malloc(SIZE_TO_READ);
+	while((amntRecvd = recv(sd, page+i, SIZE_TO_READ, 0)) >0){
+		i+=amntRecvd;
+		if(!(page=realloc(page, i+SIZE_TO_READ))){
+			free(page);
+			return 0;
+		}
+	}
+	if(!i) return 0;
+	*buffer=page;
+	char *body = strstr(page, "\r\n\r\n");
+	if(body) body+=4;
+
+	//check if we have received the full topology
+	int r = check_header_clen(page, body);
+
+	*buffer=body;
+	//TODO: REALLOC IT AND FREE THE OLD ONE WITH HEADER
+	return r;
+
+}
+
+int check_header_clen(char *header, char *body){
+		char *buffer = strstr(header, "Content-Length:");
+		char *endbuf = strstr(buffer, "\r\n");
+		char *len = (char*)malloc(endbuf-buffer);
+		memcpy(len, buffer+15,endbuf-buffer);
+		unsigned long size=atol(len);
+		if(strlen(body) == size)
+			return 1;
+		else
+			return 0;
+
+}

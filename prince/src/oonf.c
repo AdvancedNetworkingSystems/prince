@@ -26,7 +26,7 @@ get_netjson_topology(oonf_routing_plugin *o){
 	int sd = _create_socket(o->host, o->port);
 	char *req = "/netjsoninfo filter graph ipv6_0\n";
 	int sent = send(sd,req,strlen(req),0);
-	if(!_receive_data(sd, &(o->recv_buffer))){
+	if(!_telnet_receive(sd, &(o->recv_buffer))){
 		return 0;
 	}
 	graph_parser_parse_netjson(o->gp, o->recv_buffer);

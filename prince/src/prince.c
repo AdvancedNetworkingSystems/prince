@@ -9,17 +9,21 @@
 
 int
 main(int argc, char* argv[]){
+
 	struct prince_handler *ph= new_prince_handler();
-	ph->self_id="10.150.13.4";
-	int rp=1;
+	int rp=0;
 	switch(rp){
 	case 0: //olsr
+		ph->self_id="10.150.25.1";
 		ph->olsr_rp = new_olsr_plugin("79.52.131.119", ph->gp);
-		get_jsoninfo_topology(ph->olsr_rp);
+		if(!get_jsoninfo_topology(ph->olsr_rp))
+			return 0;
 	break;
 	case 1: //oonf
+		ph->self_id="10.150.13.4";
 		ph->oonf_rp = new_oonf_plugin("10.150.13.4", ph->gp);
-		get_netjson_topology(ph->oonf_rp);
+		if(!get_netjson_topology(ph->oonf_rp))
+			return 0;
 	break;
 	}
 	graph_parser_calculate_bc(ph->gp);
@@ -80,7 +84,7 @@ compute_constants(struct prince_handler *ph){
 	double sqrt_sum1=0, sqrt_sum2=0;
 	for(int i=0; i<m_degree->size; i++){
 		sqrt_sum1+=sqrt(m_degree->map[i].degree * m_bc->map[i].bc);
-		sqrt_sum2+=sqrt(ph->c.R*m_degree->map[i].degree);
+		sqrt_sum2+=sqrt(ph->c.R*m_bc->map[i].bc);
 	}
 	ph->c.sq_lambda_H = sqrt_sum1/ph->c.O_H;
 	ph->c.sq_lambda_TC = sqrt_sum2/ph->c.O_TC;
@@ -102,9 +106,9 @@ compute_timers(struct prince_handler *ph){
 		}
 	}
 	if(my_index==-1) return 0;
-	ph->opt_t.h_timer = sqrt(ph->degree_map->map[my_index].degree * ph->bc_map->map[my_index].bc) * ph->c.sq_lambda_H;
+	ph->opt_t.h_timer = sqrt(ph->degree_map->map[my_index].degree / ph->bc_map->map[my_index].bc) * ph->c.sq_lambda_H;
 	//ph->opt_t.h_timer = sqrt((ph->degree_map->map[my_index].degree)*(ph->bc_map->map[my_index].bc))*(ph->c.sq_lambda_H);
-	ph->opt_t.tc_timer = sqrt(ph->c.R*ph->bc_map->map[my_index].bc)*ph->c.sq_lambda_TC;
+	ph->opt_t.tc_timer = sqrt(ph->c.R/ph->bc_map->map[my_index].bc)*ph->c.sq_lambda_TC;
 	return 1;
 
 }

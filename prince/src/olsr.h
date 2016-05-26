@@ -8,8 +8,6 @@
 #ifndef SRC_OLSR_H_
 #define SRC_OLSR_H_
 
-#include <strings.h>
-#include <stdio.h>
 
 #include "common.h"
 

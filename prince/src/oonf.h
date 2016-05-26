@@ -8,9 +8,6 @@
 #ifndef SRC_OONF_H_
 #define SRC_OONF_H_
 
-#include <strings.h>
-#include <stdio.h>
-
 #include "common.h"
 
 #define LINE_SIZE 64
