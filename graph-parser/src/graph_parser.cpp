@@ -67,14 +67,6 @@ graph_parser::get_n_edges(){
 
 }
 
-/**
- * Return the originator id
- */
-string
-graph_parser::get_originator(){
-  return gm.originator;
-}
-
 
 extern "C" {
 	c_graph_parser*

@@ -54,7 +54,7 @@ _telnet_receive(int sd, char **buffer){
 
 }
 /**
- * Receive HTTP data from sd
+ * Receive HTTP data from sd reading line by line
  * @param sd socket descriptor
  * @param **finalbuffer pointer to
  * @return 1 if success, 0 otherwise
@@ -86,8 +86,14 @@ _http_receive(int sd, char **buffer){
 }
 
 
-
-int _receive_data(int sd, char **buffer){
+/**
+ * Receive HTTP data from sd reading with pages
+ * @param sd socket descriptor
+ * @param **finalbuffer pointer to
+ * @return 1 if success, 0 otherwise
+ */
+int
+_receive_data(int sd, char **buffer){
 	//ALLOC finalBuffer ->> MUST FREE IT
 
 	int i=0;
@@ -113,8 +119,14 @@ int _receive_data(int sd, char **buffer){
 	return r;
 
 }
-
-int check_header_clen(char *header, char *body){
+/**
+ * Check if the size of the HTTP content is the same as the header
+ * @param *header	header buffer
+ * @param *body		http body buffer
+ * @return 1 if equal, 0 otherwise
+ */
+int
+check_header_clen(char *header, char *body){
 		char *buffer = strstr(header, "Content-Length:");
 		char *endbuf = strstr(buffer, "\r\n");
 		char *len = (char*)malloc(endbuf-buffer);
