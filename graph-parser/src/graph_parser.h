@@ -1,5 +1,7 @@
 // Graph_Parser_lib.h
 
+
+#ifdef __cplusplus
 #include <cstdlib>
 #include <iostream>
 #include <string>
@@ -20,6 +22,8 @@ public:
 	void compose_degree_map(vector<pair<string, int> > &map);
 	void _parse_jsoninfo(std::basic_istream<char> &istream);
 	int get_n_edges();
+	string get_originator();
+
 
 private:
   GraphManager gm;
@@ -30,7 +34,6 @@ private:
 
 
 
-#ifdef __cplusplus
 extern "C"{
 #endif
 
@@ -55,6 +58,7 @@ typedef struct _map_id_degree_pair{
 	id_degree_pair *map;
 	ssize_t size;
 	int n_edges;
+	char *originator;
 }map_id_degree_pair;
 
 
