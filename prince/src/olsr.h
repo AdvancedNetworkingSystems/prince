@@ -20,14 +20,15 @@ olsr_routing_plugin_{
 	char *recv_buffer;
 	char *host;
 	short port;
+	int proto;
 	c_graph_parser *gp;
 
 }olsr_routing_plugin;
 
 
 //PUBLIC FUNCTIONS
-olsr_routing_plugin* new_olsr_plugin(char* host, c_graph_parser *gp);
-int get_jsoninfo_topology(olsr_routing_plugin *o);
+olsr_routing_plugin* new_olsr_plugin(char* host, c_graph_parser *gp, int proto);
+int get_olsr_topology(olsr_routing_plugin *o);
 int olsr_push_timers(olsr_routing_plugin *o, struct timers t);
 void delete_olsr_plugin(olsr_routing_plugin* o);
 

@@ -11,17 +11,17 @@ int
 main(int argc, char* argv[]){
 
 	struct prince_handler *ph= new_prince_handler();
-	int rp=0;
-	switch(rp){
+	if(argc>1)
+		read_config_file(ph, argv[1]);
+	ph->gp = new_graph_parser(ph->weights, ph->heuristic);
+	switch(ph->rp){
 	case 0: //olsr
-		ph->self_id="10.150.25.1";
-		ph->olsr_rp = new_olsr_plugin("79.52.131.119", ph->gp);
-		if(!get_jsoninfo_topology(ph->olsr_rp))
+		ph->olsr_rp = new_olsr_plugin(ph->host, ph->gp, 1);
+		if(!get_olsr_topology(ph->olsr_rp))
 			return 0;
 	break;
 	case 1: //oonf
-		ph->self_id="10.150.13.4";
-		ph->oonf_rp = new_oonf_plugin("10.150.13.4", ph->gp);
+		ph->oonf_rp = new_oonf_plugin(ph->host, ph->gp);
 		if(!get_netjson_topology(ph->oonf_rp))
 			return 0;
 	break;
@@ -33,7 +33,7 @@ main(int argc, char* argv[]){
 	compute_timers(ph);
 
 
-	switch(rp){
+	switch(ph->rp){
 		case 0: //olsr
 			olsr_push_timers(ph->olsr_rp, ph->opt_t);
 		break;
@@ -59,7 +59,8 @@ new_prince_handler(){
 	ph->def_t.tc_timer=5.0;
 	ph->degree_map = (map_id_degree_pair *) malloc(sizeof(map_id_degree_pair));
 	ph->bc_map = (map_id_bc_pair *) malloc(sizeof(map_id_bc_pair));
-	ph->gp = new_graph_parser(false, false);
+	ph->weights=0;
+	ph->heuristic=1;
 	return ph;
 }
 
@@ -107,9 +108,52 @@ compute_timers(struct prince_handler *ph){
 	}
 	if(my_index==-1) return 0;
 	ph->opt_t.h_timer = sqrt(ph->degree_map->map[my_index].degree / ph->bc_map->map[my_index].bc) * ph->c.sq_lambda_H;
-	//ph->opt_t.h_timer = sqrt((ph->degree_map->map[my_index].degree)*(ph->bc_map->map[my_index].bc))*(ph->c.sq_lambda_H);
 	ph->opt_t.tc_timer = sqrt(ph->c.R/ph->bc_map->map[my_index].bc)*ph->c.sq_lambda_TC;
 	return 1;
 
 }
 
+
+/**
+ * Read the configuration from a file and load it in the prince handler struct
+ * @param *ph pinter to the prince_handler object
+ * @param *filepath path to the configuration file
+ * @return 1 if success, 0 if fail
+ */
+int read_config_file(struct prince_handler *ph, char *filepath){
+	FILE* config;
+	char lb[LINE_SIZE], lb2[LINE_SIZE];
+	int val;
+	config = fopen(filepath, "r");
+	int params=0;
+
+	while(fscanf(config, "%s %s\n", &lb, &lb2)>0){
+		if(strcmp(lb, "protocol" )==0){
+			if(strcmp(lb2, "olsr")==0){
+				ph->rp=0;
+				params++;
+			}else if(strcmp(lb2, "oonf")==0){
+				ph->rp=1;
+				params++;
+		}
+		}else if(strcmp(lb, "host" )==0){
+			ph->host=malloc(strlen(lb2)*sizeof(char));
+			strcpy(ph->host, lb2);//SHould i malloc it?
+			params++;
+
+		}else if(strcmp(lb, "self_id")==0){
+			ph->self_id=malloc(strlen(lb2)*sizeof(char));
+			strcpy(ph->self_id, lb2);
+			params++;
+		}else if(strcmp(lb, "heuristic")==0){
+			if(strcmp(lb2, true)) ph->heuristic=1;
+			if(strcmp(lb2, false)) ph->heuristic=0;
+		}else if(strcmp(lb, "weights")==0){
+			if(strcmp(lb2, true)) ph->weights=1;
+			if(strcmp(lb2, false)) ph->weights=0;
+		}
+	}
+	if(params<4) return 0; //check if the parametes are setted
+	return 1;
+
+}
