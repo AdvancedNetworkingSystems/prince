@@ -7,41 +7,50 @@
 #include "prince.h"
 
 
+routing_plugin* (*new_plugin)(char* host, c_graph_parser *gp, int json_type);
+int (*get_topology)(routing_plugin *o);
+int (*push_timers)(routing_plugin *o, struct timers t);
+void (*delete_plugin)(routing_plugin* o);
+
+
 int
 main(int argc, char* argv[]){
-
 	struct prince_handler *ph= new_prince_handler();
+	void *handle;
+	int json_type;
+
 	if(argc>1)
 		read_config_file(ph, argv[1]);
 	ph->gp = new_graph_parser(ph->weights, ph->heuristic);
-	switch(ph->rp){
+	switch(ph->proto){
 	case 0: //olsr
-		ph->olsr_rp = new_olsr_plugin(ph->host, ph->gp, 1);
-		if(!get_olsr_topology(ph->olsr_rp))
-			return 0;
+		json_type=0;
+        handle = dlopen ("libprince_olsr.so", RTLD_LAZY);
 	break;
 	case 1: //oonf
-		ph->oonf_rp = new_oonf_plugin(ph->host, ph->gp);
-		if(!get_netjson_topology(ph->oonf_rp))
-			return 0;
+        handle = dlopen ("libprince_oonf.so", RTLD_LAZY);
 	break;
 	}
+	if(!handle)
+		return 0;
+
+	new_plugin = (routing_plugin* (*)(char* host, c_graph_parser *gp, int json_type)) dlsym(handle, "new_plugin");
+	get_topology = (int (*)(routing_plugin *o)) dlsym(handle, "get_topology");
+	push_timers = (int (*)(routing_plugin *o, struct timers t)) dlsym(handle, "push_timers");
+	delete_plugin = (void (*)(routing_plugin *o)) dlsym(handle, "delete_plugin");
+
+
+	ph->rp = new_plugin(ph->host, ph->gp, json_type);
+	if(!get_topology(ph->rp))
+		return 0;
+
 	graph_parser_calculate_bc(ph->gp);
 	graph_parser_compose_bc_map(ph->gp, ph->bc_map);
 	graph_parser_compose_degree_map(ph->gp, ph->degree_map);
 	compute_constants(ph);
 	compute_timers(ph);
 
-
-	switch(ph->rp){
-		case 0: //olsr
-			olsr_push_timers(ph->olsr_rp, ph->opt_t);
-		break;
-
-		case 1: //oonf
-			oonf_push_timers(ph->oonf_rp, ph->opt_t);
-		break;
-		}
+	push_timers(ph->rp, ph->opt_t);
 
 	return 1;
 
@@ -120,7 +129,8 @@ compute_timers(struct prince_handler *ph){
  * @param *filepath path to the configuration file
  * @return 1 if success, 0 if fail
  */
-int read_config_file(struct prince_handler *ph, char *filepath){
+int
+read_config_file(struct prince_handler *ph, char *filepath){
 	FILE* config;
 	char lb[LINE_SIZE], lb2[LINE_SIZE];
 	int val;
@@ -130,10 +140,10 @@ int read_config_file(struct prince_handler *ph, char *filepath){
 	while(fscanf(config, "%s %s\n", &lb, &lb2)>0){
 		if(strcmp(lb, "protocol" )==0){
 			if(strcmp(lb2, "olsr")==0){
-				ph->rp=0;
+				ph->proto=0;
 				params++;
 			}else if(strcmp(lb2, "oonf")==0){
-				ph->rp=1;
+				ph->proto=1;
 				params++;
 		}
 		}else if(strcmp(lb, "host" )==0){
@@ -146,11 +156,11 @@ int read_config_file(struct prince_handler *ph, char *filepath){
 			strcpy(ph->self_id, lb2);
 			params++;
 		}else if(strcmp(lb, "heuristic")==0){
-			if(strcmp(lb2, true)) ph->heuristic=1;
-			if(strcmp(lb2, false)) ph->heuristic=0;
+			if(strcmp(lb2, "true")) ph->heuristic=1;
+			if(strcmp(lb2, "false")) ph->heuristic=0;
 		}else if(strcmp(lb, "weights")==0){
-			if(strcmp(lb2, true)) ph->weights=1;
-			if(strcmp(lb2, false)) ph->weights=0;
+			if(strcmp(lb2, "true")) ph->weights=1;
+			if(strcmp(lb2, "false")) ph->weights=0;
 		}
 	}
 	if(params<4) return 0; //check if the parametes are setted
