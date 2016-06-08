@@ -9,6 +9,7 @@
 #include "graph_manager.h"
 #include "betweenness_centrality.h"
 #include "betweenness_centrality_heuristic.h"
+#include "bc_interface.h"
 #include "parser.h"
 
 class graph_parser
@@ -27,8 +28,9 @@ public:
 
 private:
   GraphManager gm;
-  BetweennessCentrality bc;
-  BetweennessCentralityHeuristic bcc;
+  BetweennessCentralityInterface *bci;
+  //BetweennessCentrality bc;
+  //BetweennessCentralityHeuristic bcc;
   bool heuristic;
 };
 

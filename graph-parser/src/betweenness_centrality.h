@@ -16,17 +16,20 @@
 #include "common.h"
 #include "utility.h"
 #include "graph_manager.h"
+#include "bc_interface.h"
 
-class BetweennessCentrality{
+class BetweennessCentrality  : public BetweennessCentralityInterface{
 public:
 	BetweennessCentrality();
 	BetweennessCentrality(GraphManager gm);
+	~BetweennessCentrality();
 	void init(GraphManager &gm);
 	void init();
-	void CalculateBetweennessCentrality(bool endpoints_inclusion = true);
+	void CalculateBetweennessCentrality();
 	void compose_bc_map(vector<pair<string, double> > &map);
 	void initialize_betweenness_centrality();
-	int const num_of_vertices() const;
+	int const num_of_vertices();
+
 
 protected:
     GraphManager gm_;

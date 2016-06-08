@@ -1,7 +1,10 @@
 #include "graph_parser.h"
 
 
-graph_parser::graph_parser(bool weight, bool _heuristic): gm(weight), heuristic(_heuristic){};
+graph_parser::graph_parser(bool weight, bool _heuristic): gm(weight), heuristic(_heuristic){
+	if(heuristic) bci = new BetweennessCentralityHeuristic();
+	else bci = new BetweennessCentrality();
+};
 
 /**
  * Parse netjson from istream
@@ -26,13 +29,9 @@ graph_parser::_parse_jsoninfo(std::basic_istream<char> &istream){
  */
 void
 graph_parser::calculate_bc(){
-  if(heuristic){
-	  bcc.init(gm);
-	  bcc.CalculateBetweennessCentrality();
-  }else{
-	  bc.init(gm);
-	  bc.CalculateBetweennessCentrality();
-  }
+	bci->init(gm);
+	bci->CalculateBetweennessCentrality();
+
 }
 
 /**
@@ -41,12 +40,7 @@ graph_parser::calculate_bc(){
  */
 void
 graph_parser::compose_bc_map(vector<pair<string, double> > &map){
-  if(heuristic){
-	  bcc.compose_bc_map(map);
-
-  }else{
-	  bc.compose_bc_map(map);
-  }
+  bci->compose_bc_map(map);
 }
 
 /**
