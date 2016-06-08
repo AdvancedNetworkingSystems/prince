@@ -8,10 +8,9 @@
 #ifndef SRC_PRINCE_H_
 #define SRC_PRINCE_H_
 
-#include "common.h"
-#include "olsr.h"
-#include "oonf.h"
 #include <math.h>
+#include <dlfcn.h>
+#include "common.h"
 
 
 
@@ -27,9 +26,8 @@ struct prince_handler{
 	c_graph_parser *gp;
 	map_id_bc_pair *bc_map;
 	map_id_degree_pair *degree_map;
-	olsr_routing_plugin *olsr_rp;
-	oonf_routing_plugin *oonf_rp;
-	int rp, heuristic, weights;
+	routing_plugin *rp;
+	int proto, heuristic, weights;
 };
 
 

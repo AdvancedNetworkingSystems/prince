@@ -1,4 +1,10 @@
-#include "oonf.h"
+#include "plugin_interface.h"
+#include "common.h"
+#include "socket.h"
+
+
+int	_send_telnet_cmd(int sd, char* cmd);
+
 
 //PUBLIC FUNCTIONS
 /**
@@ -6,13 +12,14 @@
  * @param host host address as a string
  * @return pointer to oonf plugin handler
  */
-oonf_routing_plugin*
-new_oonf_plugin(char* host, c_graph_parser *gp){
-	oonf_routing_plugin *o =(oonf_routing_plugin*) malloc(sizeof(oonf_routing_plugin));
+routing_plugin*
+new_plugin(char* host, c_graph_parser *gp, int json_type){
+	routing_plugin *o =(routing_plugin*) malloc(sizeof(routing_plugin));
 	o->port=2009;
 	o->host=(char*)malloc(strlen(host)*sizeof(char));
 	strcpy(o->host, host);
 	o->gp = gp;
+	o->json_type=json_type;
 	return o;
 }
 
@@ -22,7 +29,7 @@ new_oonf_plugin(char* host, c_graph_parser *gp){
  * @return 1 if success, 0 otherwise
  */
 int
-get_netjson_topology(oonf_routing_plugin *o){
+get_topology(routing_plugin *o){ //netjson
 	int sd = _create_socket(o->host, o->port);
 	char *req = "/netjsoninfo filter graph ipv6_0\n";
 	int sent = send(sd,req,strlen(req),0);
@@ -42,7 +49,7 @@ get_netjson_topology(oonf_routing_plugin *o){
  * @return 1 if success, 0 otherwise
  */
 int
-oonf_push_timers(oonf_routing_plugin *o, struct timers t){
+push_timers(routing_plugin *o, struct timers t){
 	int sd =_create_socket(o->host, o->port);
 	char cmd[100];
 	sprintf(cmd, "/config set olsrv2.tc_timer=%4.2f/config set interface.hello_timer=%4.2f/config commit", t.tc_timer, t.h_timer);
@@ -56,7 +63,7 @@ oonf_push_timers(oonf_routing_plugin *o, struct timers t){
  * @param oonf plugin handler object
  */
 void
-delete_oonf_plugin(oonf_routing_plugin* o){
+delete_oonf_plugin(routing_plugin* o){
 	delete_graph_parser(o->gp);
 	free(o->host);
 	free(o->recv_buffer);
