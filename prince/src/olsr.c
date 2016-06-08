@@ -1,6 +1,4 @@
-#include "plugin_interface.h"
-#include "common.h"
-#include "socket.h"
+#include "olsr.h"
 
 //PUBLIC FUNCTIONS
 /**

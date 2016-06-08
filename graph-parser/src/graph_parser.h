@@ -1,4 +1,4 @@
-// Graph_Parser_lib.h
+/* Graph_Parser_lib.h*/
 
 
 #ifdef __cplusplus
@@ -29,8 +29,6 @@ public:
 private:
   GraphManager gm;
   BetweennessCentralityInterface *bci;
-  //BetweennessCentrality bc;
-  //BetweennessCentralityHeuristic bcc;
   bool heuristic;
 };
 
@@ -38,6 +36,7 @@ private:
 
 extern "C"{
 #endif
+
 
 typedef struct _id_bc_pair{
 	char* id;
@@ -47,7 +46,7 @@ typedef struct _id_bc_pair{
 
 typedef struct _map_id_bc_pair{
 	id_bc_pair *map;
-	ssize_t size;
+	size_t size;
 }map_id_bc_pair;
 
 typedef struct _id_degree_pair{
@@ -58,7 +57,7 @@ typedef struct _id_degree_pair{
 
 typedef struct _map_id_degree_pair{
 	id_degree_pair *map;
-	ssize_t size;
+	size_t size;
 	int n_edges;
 	char *originator;
 }map_id_degree_pair;

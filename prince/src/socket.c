@@ -46,7 +46,7 @@ _create_socket(char* host, int port)
  */
 int
 _telnet_receive(int sd, char **buffer){
-	//ALLOC finalBuffer ->> MUST FREE IT
+	/*ALLOC finalBuffer ->> MUST FREE IT */
 	int i=0;
 	int amntRecvd = 0;
 	char * page = (char*) malloc(SIZE_TO_READ);
@@ -103,7 +103,7 @@ _http_receive(int sd, char **buffer){
  */
 int
 _receive_data(int sd, char **buffer){
-	//ALLOC finalBuffer ->> MUST FREE IT
+	/*ALLOC finalBuffer ->> MUST FREE IT */
 
 	int i=0;
 	int amntRecvd = 0;
@@ -120,11 +120,11 @@ _receive_data(int sd, char **buffer){
 	char *body = strstr(page, "\r\n\r\n");
 	if(body) body+=4;
 
-	//check if we have received the full topology
+	/*check if we have received the full topology */
 	int r = check_header_clen(page, body);
 
 	*buffer=body;
-	//TODO: REALLOC IT AND FREE THE OLD ONE WITH HEADER
+	/*TODO: REALLOC IT AND FREE THE OLD ONE WITH HEADER */
 	return r;
 
 }

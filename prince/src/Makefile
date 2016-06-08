@@ -2,7 +2,7 @@ SRCS =  prince.c
 
 TARGET = prince
 OBJS = $(SRCS:.c=.o)
-CFLAGS = -g -fPIC
+CFLAGS = -ansi -g -fPIC
 CCFLAGS = --std=c++11 -g 
 LIBS = -L../../graph-parser/build/lib -lgraphparser -ldl
 BPATH = ../build/

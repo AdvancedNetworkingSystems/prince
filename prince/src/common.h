@@ -9,14 +9,15 @@
 #define SRC_COMMON_H_
 
 
-//INCLUDES
+/*INCLUDES */
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stddef.h>
 #include "../../graph-parser/src/graph_parser.h"
 
 
-//DEFINES
+/*DEFINES*/
 #define true 1
 #define false 0
 #define LINE_SIZE 64
