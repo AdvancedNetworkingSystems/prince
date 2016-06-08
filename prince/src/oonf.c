@@ -1,6 +1,4 @@
-#include "plugin_interface.h"
-#include "common.h"
-#include "socket.h"
+#include "oonf.h"
 
 
 int	_send_telnet_cmd(int sd, char* cmd);

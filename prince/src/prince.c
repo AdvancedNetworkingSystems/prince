@@ -23,11 +23,11 @@ main(int argc, char* argv[]){
 		read_config_file(ph, argv[1]);
 	ph->gp = new_graph_parser(ph->weights, ph->heuristic);
 	switch(ph->proto){
-	case 0: //olsr
+	case 0: /*olsr*/
 		json_type=0;
         handle = dlopen ("libprince_olsr.so", RTLD_LAZY);
 	break;
-	case 1: //oonf
+	case 1: /*oonf*/
         handle = dlopen ("libprince_oonf.so", RTLD_LAZY);
 	break;
 	}
@@ -84,15 +84,15 @@ compute_constants(struct prince_handler *ph){
 	map_id_degree_pair *m_degree = ph->degree_map;
 	map_id_bc_pair *m_bc = ph->bc_map;
 	struct timers t = ph->def_t;
-	int degrees=0;
-	for(int i=0; i<m_degree->size;i++){
+	int degrees=0, i;
+	for(i=0; i<m_degree->size;i++){
 		degrees+=m_degree->map[i].degree;
 	}
 	ph->c.R = m_degree->n_edges;
 	ph->c.O_H = degrees/t.h_timer;
 	ph->c.O_TC = m_degree->size*ph->c.R/t.tc_timer;
 	double sqrt_sum1=0, sqrt_sum2=0;
-	for(int i=0; i<m_degree->size; i++){
+	for(i=0; i<m_degree->size; i++){
 		sqrt_sum1+=sqrt(m_degree->map[i].degree * m_bc->map[i].bc);
 		sqrt_sum2+=sqrt(ph->c.R*m_bc->map[i].bc);
 	}
@@ -109,8 +109,8 @@ compute_constants(struct prince_handler *ph){
  */
 int
 compute_timers(struct prince_handler *ph){
-	int my_index=-1;
-	for(int i=0; i<ph->degree_map->size; i++){
+	int my_index=-1, i;
+	for(i=0; i<ph->degree_map->size; i++){
 		if(strcmp(ph->degree_map->map[i].id, ph->self_id)==0){
 			my_index=i;
 		}
@@ -148,7 +148,7 @@ read_config_file(struct prince_handler *ph, char *filepath){
 		}
 		}else if(strcmp(lb, "host" )==0){
 			ph->host=malloc(strlen(lb2)*sizeof(char));
-			strcpy(ph->host, lb2);//SHould i malloc it?
+			strcpy(ph->host, lb2);
 			params++;
 
 		}else if(strcmp(lb, "self_id")==0){
@@ -163,7 +163,7 @@ read_config_file(struct prince_handler *ph, char *filepath){
 			if(strcmp(lb2, "false")) ph->weights=0;
 		}
 	}
-	if(params<4) return 0; //check if the parametes are setted
+	if(params<4) return 0; /*check if the parametes are setted */
 	return 1;
 
 }
