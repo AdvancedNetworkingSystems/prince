@@ -146,11 +146,11 @@ int read_config_file(struct prince_handler *ph, char *filepath){
 			strcpy(ph->self_id, lb2);
 			params++;
 		}else if(strcmp(lb, "heuristic")==0){
-			if(strcmp(lb2, true)) ph->heuristic=1;
-			if(strcmp(lb2, false)) ph->heuristic=0;
+			if(strcmp(lb2, "true")) ph->heuristic=1;
+			if(strcmp(lb2, "false")) ph->heuristic=0;
 		}else if(strcmp(lb, "weights")==0){
-			if(strcmp(lb2, true)) ph->weights=1;
-			if(strcmp(lb2, false)) ph->weights=0;
+			if(strcmp(lb2, "true")) ph->weights=1;
+			if(strcmp(lb2, "false")) ph->weights=0;
 		}
 	}
 	if(params<4) return 0; //check if the parametes are setted
