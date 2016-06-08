@@ -8,12 +8,21 @@ using namespace std;
 /******************************
 * Public functions
 ******************************/
+BetweennessCentralityHeuristic::~BetweennessCentralityHeuristic(){
+	//destroy it
+}
+BetweennessCentralityHeuristic::BetweennessCentralityHeuristic(){
+
+}
+
+BetweennessCentralityHeuristic::BetweennessCentralityHeuristic(GraphManager gm): gm_(gm){
+	init();
+}
 
 void BetweennessCentralityHeuristic::init(GraphManager &gm){
-		gm_ = gm;
-		num_of_vertices_ = boost::num_vertices(gm_.g_);
-	    component_vec_ = ComponentVec(boost::num_edges(gm_.g_), -1);
-	    component_map_ = ComponentMap(component_vec_.begin(), gm_.e_index_pmap());
+	gm_=gm;
+	init();
+
 }
 
 
@@ -39,6 +48,11 @@ NameToDoubleMap const& BetweennessCentralityHeuristic::bc_score() const {
 
 NameToDoubleMap const& BetweennessCentralityHeuristic::bc_relative_score() const {
     return bc_relative_score_;
+}
+
+
+int const BetweennessCentralityHeuristic::num_of_vertices(){
+    return num_of_vertices_;
 }
 
 // AUTO RUN
@@ -132,7 +146,7 @@ void BetweennessCentralityHeuristic::CalculateBetweennessCentralityHeuristic() {
 #ifdef LOG
     BOOST_LOG_TRIVIAL(info) << "BETWEENNESS CENTRALITY HEURISTIC\n";
 #endif
-    initialize_betweenness_centrality_heuristic();
+    //initialize_betweenness_centrality_heuristic();
     calculate_bc_inter();
 
     for (int i = 0; i < num_of_bcc_; ++i) {
@@ -468,7 +482,7 @@ bool BetweennessCentralityHeuristic::verify_link_weight() {
 }
 
 // BETWEENNESS CENTRALITY - HEURISTIC
-void BetweennessCentralityHeuristic::initialize_betweenness_centrality_heuristic() {
+void BetweennessCentralityHeuristic::initialize_betweenness_centrality() {
     // Initialize bc_inter_ to be 0
     for (string id: all_art_points_id_) {
         bc_inter_[id] = 0;

@@ -14,7 +14,7 @@
 #include "utility.h"
 #include "sub_component.h"
 #include "graph_manager.h"
-#include "betweenness_centrality.h"
+#include "bc_interface.h"
 
 typedef std::vector<int> ComponentVec; // use int instead of edges_size_type because I want to set default value to be -1
 typedef boost::iterator_property_map<ComponentVec::iterator, EdgeIndexPMap> ComponentMap;
@@ -34,8 +34,13 @@ typedef struct {
     string type;
 } QueueElem;
 
-class BetweennessCentralityHeuristic : public BetweennessCentrality {
+class BetweennessCentralityHeuristic : public BetweennessCentralityInterface {
 public:
+
+	BetweennessCentralityHeuristic();
+	BetweennessCentralityHeuristic(GraphManager gm);
+	~BetweennessCentralityHeuristic();
+	int const num_of_vertices();
     void init(GraphManager &gm);
     void init();
 
@@ -74,6 +79,7 @@ public:
 
     // Public variables
     GraphManager gm_;
+
     typedef vector<SubComponent> Component_t;
     typedef vector<SubComponent>::iterator ComponentIter_t;
     Component_t BCCs;
@@ -93,7 +99,7 @@ private:
     bool verify_link_weight();
 
     // BETWEENNESS CENTRALITY HEURISTIC
-    void initialize_betweenness_centrality_heuristic();
+    void initialize_betweenness_centrality();
     void calculate_bc_inter();
     void finalize_betweenness_centrality_heuristic();
 
@@ -113,6 +119,9 @@ private:
     NameToDoubleMap bc_relative_score_;
     NameToDoubleMap bc_sum_art_points_; // summing all the bc score for articulation points
     NameToDoubleMap bc_inter_;
+    CentralityVec v_centrality_vec_;
+    CentralityPMap v_centrality_pmap_;
+    int num_of_vertices_ = -1;
 
 };
 
