@@ -9,6 +9,11 @@
 
 using namespace std;
 
+
+BetweennessCentrality::~BetweennessCentrality(){
+	//destroy it
+}
+
 BetweennessCentrality::BetweennessCentrality(){
 
 }
@@ -28,7 +33,8 @@ void BetweennessCentrality::init(){
 
 }
 // BETWEENNESS CENTRALITY - NORMAL CALCULATION
-void BetweennessCentrality::CalculateBetweennessCentrality(bool endpoints_inclusion) {
+void BetweennessCentrality::CalculateBetweennessCentrality() {
+	bool endpoints_inclusion = true;
     initialize_betweenness_centrality();
 
     if (gm_.weighted_graph()) { // calculate BC for weighted graph
@@ -88,6 +94,6 @@ void BetweennessCentrality::initialize_betweenness_centrality() {
     v_centrality_pmap_ = CentralityPMap(v_centrality_vec_.begin(), gm_.v_index_pmap());
 }
 
-int const BetweennessCentrality::num_of_vertices() const {
+int const BetweennessCentrality::num_of_vertices(){
     return num_of_vertices_;
 }
