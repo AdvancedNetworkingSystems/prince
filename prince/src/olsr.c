@@ -67,6 +67,7 @@ get_topology(routing_plugin *o){ //netjson & jsoninfo
 int
 push_timers(routing_plugin *o, struct timers t){
 	//TODO: push h and tc value to the daemon
+	printf("%f \t %f\n", t.h_timer, t.tc_timer);
 	return 0;
 }
 
