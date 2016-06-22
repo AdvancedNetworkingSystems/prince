@@ -20,7 +20,7 @@
 #define SIZE_TO_READ 1024
 
 
-//FUNCTIONS DECLARATION
+/*FUNCTIONS DECLARATION*/
 int _create_socket(char* destinazione, int porta);
 int _http_receive(int sd, char **buffer);
 int _telnet_receive(int sd, char **finalBuffer);

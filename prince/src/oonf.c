@@ -4,7 +4,7 @@
 int	_send_telnet_cmd(int sd, char* cmd);
 
 
-//PUBLIC FUNCTIONS
+/*PUBLIC FUNCTIONS*/
 /**
  * Initalize a new oonf plugin handler
  * @param host host address as a string
@@ -27,7 +27,7 @@ new_plugin(char* host, c_graph_parser *gp, int json_type){
  * @return 1 if success, 0 otherwise
  */
 int
-get_topology(routing_plugin *o){ //netjson
+get_topology(routing_plugin *o){
 	int sd = _create_socket(o->host, o->port);
 	char *req = "/netjsoninfo filter graph ipv6_0\n";
 	int sent = send(sd,req,strlen(req),0);
@@ -49,7 +49,7 @@ get_topology(routing_plugin *o){ //netjson
 int
 push_timers(routing_plugin *o, struct timers t){
 	int sd =_create_socket(o->host, o->port);
-	char cmd[100];
+	char cmd[85];
 	sprintf(cmd, "/config set olsrv2.tc_timer=%4.2f/config set interface.hello_timer=%4.2f/config commit", t.tc_timer, t.h_timer);
 	if(!_send_telnet_cmd(sd, cmd))
 		return 0;
@@ -69,7 +69,7 @@ delete_oonf_plugin(routing_plugin* o){
 }
 
 
-//PRIVATE FUNCTIONS
+/*PRIVATE FUNCTIONS */
 /**
  * Write command to socket
  * @param sd socket descriptor
@@ -78,9 +78,10 @@ delete_oonf_plugin(routing_plugin* o){
  */
 int
 _send_telnet_cmd(int sd, char* cmd){
-	//TODO: push commands to the daemon
+	/*TODO: push commands to the daemon*/
 	int i;
-	for(i=0;i+=write(sd, cmd, strlen(cmd));i<strlen(cmd));
+	write(sd, cmd, strlen(cmd));
+	/*for(i=0;i+=write(sd, cmd, 85);i<85);*/
 	return 1;
 
 }
