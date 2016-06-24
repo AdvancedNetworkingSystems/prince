@@ -28,9 +28,16 @@ new_plugin(char* host, c_graph_parser *gp, int json_type){
  */
 int
 get_topology(routing_plugin *o){
-	int sd = _create_socket(o->host, o->port);
+	int sd, sent;
+	if((sd = _create_socket(o->host, o->port))==0){
+		printf("Cannot connect to %s:%d", o->host, o->port);
+		return 0;
+	}
 	char *req = "/netjsoninfo filter graph ipv6_0\n";
-	int sent = send(sd,req,strlen(req),0);
+	if( (sent = send(sd,req,strlen(req),0))==-1){
+		printf("Cannot send to %s:%d", o->host, o->port);
+		return 0;
+	}
 	if(!_telnet_receive(sd, &(o->recv_buffer))){
 		return 0;
 	}

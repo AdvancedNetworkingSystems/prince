@@ -1,6 +1,6 @@
 #include "olsr.h"
 
-//PUBLIC FUNCTIONS
+/*PUBLIC FUNCTIONS*/
 /**
  * Initalize a new olsr plugin handler
  * @param host host address as a string
@@ -25,13 +25,13 @@ new_plugin(char* host, c_graph_parser *gp, int json_type){
  * @return 1 if success, 0 otherwise
  */
 int
-get_topology(routing_plugin *o){ //netjson & jsoninfo
+get_topology(routing_plugin *o){ /*netjson & jsoninfo*/
 	int sd = _create_socket(o->host, o->port);
 	char *req;
 	int sent;
 	switch(o->json_type){
 	case 1:
-		//netjson
+		/*netjson*/
 		req = "/NetworkGraph";
 		sent = write(sd,req,strlen(req));
 		if(!_receive_data(sd, &(o->recv_buffer)))
@@ -40,7 +40,7 @@ get_topology(routing_plugin *o){ //netjson & jsoninfo
 		break;
 
 	case 0:
-		//jsoninfo
+		/*jsoninfo*/
 		req = "/topology";
 		sent = write(sd,req,strlen(req));
 		if(!_receive_data(sd, &(o->recv_buffer)))
@@ -64,9 +64,9 @@ get_topology(routing_plugin *o){ //netjson & jsoninfo
  */
 int
 push_timers(routing_plugin *o, struct timers t){
-	//TODO: push h and tc value to the daemon
+	/*TODO: push h and tc value to the daemon*/
 	printf("%f \t %f\n", t.h_timer, t.tc_timer);
-	return 0;
+	return 1;
 }
 
 /**
