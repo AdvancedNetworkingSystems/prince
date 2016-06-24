@@ -1,8 +1,8 @@
-SRCS =  prince.c 
+SRCS =  prince.c lib/ini.c
 
 TARGET = prince
 OBJS = $(SRCS:.c=.o)
-CFLAGS = -ansi -g -fPIC
+CFLAGS = -ansi -g -fPIC -D_GNU_SOURCE
 CCFLAGS = --std=c++11 -g 
 LIBS = -L../../graph-parser/build/lib -lgraphparser -ldl
 BPATH = ../build/
