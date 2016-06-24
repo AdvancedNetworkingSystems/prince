@@ -41,16 +41,22 @@ main(int argc, char* argv[]){
 
 
 	ph->rp = new_plugin(ph->host, ph->gp, json_type);
-	if(!get_topology(ph->rp))
-		return 0;
 
-	graph_parser_calculate_bc(ph->gp);
-	graph_parser_compose_bc_map(ph->gp, ph->bc_map);
-	graph_parser_compose_degree_map(ph->gp, ph->degree_map);
-	compute_constants(ph);
-	compute_timers(ph);
 
-	push_timers(ph->rp, ph->opt_t);
+	while(true){
+		/*cycle each 'refresh' seconds*/
+		if(!get_topology(ph->rp))
+			continue;
+
+		graph_parser_calculate_bc(ph->gp);
+		graph_parser_compose_bc_map(ph->gp, ph->bc_map);
+		graph_parser_compose_degree_map(ph->gp, ph->degree_map);
+		if (!compute_timers(ph)) return 0;
+
+		if (!push_timers(ph->rp, ph->opt_t)) continue;
+
+		sleep(ph->refresh);
+	}
 
 	return 1;
 
@@ -109,6 +115,7 @@ compute_constants(struct prince_handler *ph){
  */
 int
 compute_timers(struct prince_handler *ph){
+	compute_constants(ph);
 	int my_index=-1, i;
 	for(i=0; i<ph->degree_map->size; i++){
 		if(strcmp(ph->degree_map->map[i].id, ph->self_id)==0){
@@ -122,48 +129,53 @@ compute_timers(struct prince_handler *ph){
 
 }
 
+static int
+handler(void* user, const char* section, const char* name,
+                   const char* value)
+{
+    struct prince_handler* pconfig = ( struct prince_handler*)user;
+
+    #define MATCH(s, n) strcmp(section, s) == 0 && strcmp(name, n) == 0
+    /*section :proto*/
+    if (MATCH("proto", "protocol")) {
+    	if(strcmp(value, "olsr")==0)	pconfig->proto = 0;
+    	else if(strcmp(value, "oonf")==0)	pconfig->proto = 1;
+    } else if (MATCH("proto", "host")) {
+        pconfig->host = strdup(value);
+    } else if (MATCH("proto", "port")) {
+        pconfig->port = atoi(value);
+    }else if (MATCH("proto", "self_id")) {
+        pconfig->self_id = strdup(value);
+    }else if (MATCH("proto", "refresh")) {
+        pconfig->refresh = atoi(value);
+    }
+    /*section :graph-parser*/
+    else if (MATCH("graph-parser", "heuristic")) {
+        pconfig->heuristic = atoi(value);
+    } else if (MATCH("graph-parser", "weights")) {
+        pconfig->weights = atoi(value);
+    }
+    /* unknown section/name, error */
+    else {
+        return 0;
+    }
+    return 1;
+}
 
 /**
- * Read the configuration from a file and load it in the prince handler struct
+ * Read the ini configuration and populate struct prince_handler
  * @param *ph pinter to the prince_handler object
  * @param *filepath path to the configuration file
  * @return 1 if success, 0 if fail
  */
 int
 read_config_file(struct prince_handler *ph, char *filepath){
-	FILE* config;
-	char lb[LINE_SIZE], lb2[LINE_SIZE];
-	int val;
-	config = fopen(filepath, "r");
-	int params=0;
 
-	while(fscanf(config, "%s %s\n", &lb, &lb2)>0){
-		if(strcmp(lb, "protocol" )==0){
-			if(strcmp(lb2, "olsr")==0){
-				ph->proto=0;
-				params++;
-			}else if(strcmp(lb2, "oonf")==0){
-				ph->proto=1;
-				params++;
-		}
-		}else if(strcmp(lb, "host" )==0){
-			ph->host=malloc(strlen(lb2)*sizeof(char));
-			strcpy(ph->host, lb2);
-			params++;
-
-		}else if(strcmp(lb, "self_id")==0){
-			ph->self_id=malloc(strlen(lb2)*sizeof(char));
-			strcpy(ph->self_id, lb2);
-			params++;
-		}else if(strcmp(lb, "heuristic")==0){
-			if(strcmp(lb2, "true")) ph->heuristic=1;
-			if(strcmp(lb2, "false")) ph->heuristic=0;
-		}else if(strcmp(lb, "weights")==0){
-			if(strcmp(lb2, "true")) ph->weights=1;
-			if(strcmp(lb2, "false")) ph->weights=0;
-		}
+	if (ini_parse(filepath, handler, ph) < 0) {
+	        printf("Can't load '%s'\n", filepath);
+	        return 0;
 	}
-	if(params<4) return 0; /*check if the parametes are setted */
+	printf("Config loaded from %s\n", filepath);
 	return 1;
 
 }
