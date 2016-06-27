@@ -123,8 +123,8 @@ _receive_data(int sd, char **buffer){
 	/*check if we have received the full topology */
 	int r = check_header_clen(page, body);
 
-	*buffer=body;
-	/*TODO: REALLOC IT AND FREE THE OLD ONE WITH HEADER */
+	*buffer=strdup(body);
+	free(page);
 	return r;
 
 }

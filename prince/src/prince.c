@@ -23,13 +23,13 @@ main(int argc, char* argv[]){
 		read_config_file(ph, argv[1]);
 	ph->gp = new_graph_parser(ph->weights, ph->heuristic);
 	switch(ph->proto){
-	case 0: /*olsr*/
-		json_type=0;
-        handle = dlopen ("libprince_olsr.so", RTLD_LAZY);
-	break;
-	case 1: /*oonf*/
-        handle = dlopen ("libprince_oonf.so", RTLD_LAZY);
-	break;
+		case 0: /*olsr*/
+			json_type=0;
+			handle = dlopen ("libprince_olsr.so", RTLD_LAZY);
+		break;
+		case 1: /*oonf*/
+			handle = dlopen ("libprince_oonf.so", RTLD_LAZY);
+		break;
 	}
 	if(!handle)
 		return 0;
@@ -40,23 +40,28 @@ main(int argc, char* argv[]){
 	delete_plugin = (void (*)(routing_plugin *o)) dlsym(handle, "delete_plugin");
 
 
-	ph->rp = new_plugin(ph->host, ph->gp, json_type);
 
 
-	while(true){
-		/*cycle each 'refresh' seconds*/
-		if(!get_topology(ph->rp))
-			continue;
+	/*cycle each 'refresh' seconds*/
+		ph->rp = new_plugin(ph->host, ph->gp, json_type);
+		if(!get_topology(ph->rp)){
+			/*delete_plugin(ph->rp);
+			continue;*/
+
+		}
 
 		graph_parser_calculate_bc(ph->gp);
 		graph_parser_compose_bc_map(ph->gp, ph->bc_map);
 		graph_parser_compose_degree_map(ph->gp, ph->degree_map);
 		if (!compute_timers(ph)) return 0;
 
-		if (!push_timers(ph->rp, ph->opt_t)) continue;
+		if (!push_timers(ph->rp, ph->opt_t)){
+			/*delete_plugin(ph->rp);
+			continue;*/
+		}
 
-		sleep(ph->refresh);
-	}
+		delete_plugin(ph->rp);
+	/*	sleep(ph->refresh);*/
 
 	return 1;
 

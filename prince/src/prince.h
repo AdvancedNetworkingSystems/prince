@@ -11,7 +11,6 @@
 #include <math.h>
 #include <dlfcn.h>
 #include "common.h"
-#include <unistd.h>
 #include "lib/ini.h"
 
 

@@ -34,7 +34,7 @@ routing_plugin_{
 	char *recv_buffer;
 	char *host;
 	short port;
-	int proto, json_type;
+	int json_type;
 	c_graph_parser *gp;
 
 }routing_plugin;
