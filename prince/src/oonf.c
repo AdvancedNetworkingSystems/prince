@@ -14,8 +14,7 @@ routing_plugin*
 new_plugin(char* host, c_graph_parser *gp, int json_type){
 	routing_plugin *o =(routing_plugin*) malloc(sizeof(routing_plugin));
 	o->port=2009;
-	o->host=(char*)malloc(strlen(host)*sizeof(char));
-	strcpy(o->host, host);
+	o->host=strdup(host);
 	o->gp = gp;
 	o->json_type=json_type;
 	return o;
@@ -60,6 +59,7 @@ push_timers(routing_plugin *o, struct timers t){
 	sprintf(cmd, "/config set olsrv2.tc_timer=%4.2f/config set interface.hello_timer=%4.2f/config commit", t.tc_timer, t.h_timer);
 	if(!_send_telnet_cmd(sd, cmd))
 		return 0;
+	printf("Pushed Timers\n");
 	return 1;
 }
 
@@ -68,7 +68,7 @@ push_timers(routing_plugin *o, struct timers t){
  * @param oonf plugin handler object
  */
 void
-delete_oonf_plugin(routing_plugin* o){
+delete_plugin(routing_plugin* o){
 	delete_graph_parser(o->gp);
 	free(o->host);
 	free(o->recv_buffer);
