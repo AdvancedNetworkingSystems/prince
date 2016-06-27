@@ -18,6 +18,7 @@
 
 #ifdef LOG
 #include <boost/log/trivial.hpp>
+#include <boost/log/utility/setup.hpp>
 #endif
 
 using namespace std;

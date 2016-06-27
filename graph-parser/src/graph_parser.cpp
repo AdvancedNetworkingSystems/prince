@@ -2,6 +2,10 @@
 
 
 graph_parser::graph_parser(bool weight, bool _heuristic): gm(weight), heuristic(_heuristic){
+#ifdef LOG
+    boost::log::add_console_log(std::cout, boost::log::keywords::format = ">> %Message%");
+	cout << "LOGGING ENABLED" << endl;
+#endif
 	if(heuristic) bci = new BetweennessCentralityHeuristic();
 	else bci = new BetweennessCentrality();
 };
@@ -117,9 +121,8 @@ extern "C" {
 		map->size=cppmap.size();
 		map->map = new id_bc_pair[map->size];
 		for(pair<string, double> item: cppmap){
-			map->map[i].id = new char[strlen(item.first.c_str())];
-			strcpy(map->map[i].id, item.first.c_str());
-			map->map[i].bc = item.second;
+			map->map[i].id = strdup(item.first.c_str());
+				map->map[i].bc = item.second;
 			i++;
 		}
 	  }
@@ -138,8 +141,7 @@ extern "C" {
 		map->n_edges = vc->get_n_edges();
 		map->map = new id_degree_pair[map->size];
 		for(pair<string, int> item: cppmap){
-			map->map[i].id = new char[strlen(item.first.c_str())];
-			strcpy(map->map[i].id, item.first.c_str());
+			map->map[i].id = strdup(item.first.c_str());
 			map->map[i].degree = item.second;
 			i++;
 		}
