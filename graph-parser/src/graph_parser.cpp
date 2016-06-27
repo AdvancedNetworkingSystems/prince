@@ -71,33 +71,48 @@ extern "C" {
 
 	  void
 	  graph_parser_parse_netjson(c_graph_parser* v, char *json){
-		  //TODO: Manage exceptions
-		  graph_parser *vc = (graph_parser*)v;
-		  std::istringstream ss(json);
-		  vc->_parse_netjson(ss);
+		  try{
+			  graph_parser *vc = (graph_parser*)v;
+			  std::istringstream ss(json);
+			  vc->_parse_netjson(ss);
+		  }catch(...){
+			  cout << "Error parsing jsoninfo";
+		  }
+
 	  }
 
 	  void
 	  graph_parser_parse_jsoninfo(c_graph_parser* v, char *json){
-		  //TODO: Manage exceptions
-		  graph_parser *vc = (graph_parser*)v;
-		  std:istringstream ss(json);
-		  vc->_parse_jsoninfo(ss);
+		  try{
+			  graph_parser *vc = (graph_parser*)v;
+			  std:istringstream ss(json);
+			  vc->_parse_jsoninfo(ss);
+		  }catch(...){
+			  cout << "Error parsing Netjson";
+		  }
+
 	  }
 
 	  void
 	  graph_parser_calculate_bc(c_graph_parser* v){
 		  //TODO: Manage exceptions
 		  graph_parser *vc = (graph_parser*)v;
-		  vc->calculate_bc();
+		  try{
+			  vc->calculate_bc();
+		  }catch(...){
+			  cout << "error calculating bc";
+		  }
 	  }
 
 	  void
 	  graph_parser_compose_bc_map(c_graph_parser* v, map_id_bc_pair * map){
 		graph_parser *vc = (graph_parser*)v;
 		vector<pair<string, double> > cppmap;
-		vc->compose_bc_map(cppmap);
-
+		try{
+			vc->compose_bc_map(cppmap);
+		}catch(...){
+			cout << "error composing bc map";
+		}
 		int i=0;
 		map->size=cppmap.size();
 		map->map = new id_bc_pair[map->size];
@@ -113,7 +128,11 @@ extern "C" {
 	  graph_parser_compose_degree_map(c_graph_parser* v, map_id_degree_pair * map){
 		graph_parser *vc = (graph_parser*)v;
 		vector<pair<string, int> > cppmap;
-		vc->compose_degree_map(cppmap);
+		try{
+			vc->compose_degree_map(cppmap);
+		}catch(...){
+			cout << "error composing degree map";
+		}
 		int i=0;
 		map->size=cppmap.size();
 		map->n_edges = vc->get_n_edges();
