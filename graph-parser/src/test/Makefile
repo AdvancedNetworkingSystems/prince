@@ -8,4 +8,4 @@ all: $(TARGETS)
 	$(CXX) $(CFLAGS) -o$@ $^  $(LIBS)
 	
 clean:
-	rm $(TARGETS) *-report.xml
+	rm $(TARGETS)
