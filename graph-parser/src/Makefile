@@ -8,8 +8,7 @@ TARGET = libgraphparser
 OBJS = $(SRCS:.cpp=.o)
 CXXFLAGS = -std=c++11 -fPIC -g
 LDFLAGS = -shared -Wl,-soname,$(TARGET).so
-
-BPATH = ../build
+BPATH = ../build/lib/
 
 
 # define the C object files
@@ -21,12 +20,15 @@ BPATH = ../build
 # with the .o suffix
 #
 
-log: $(OBJS)
-	$(CXX) $(CXXFLAGS) $(INCLUDES) $(LDFLAGS) -o $(BPATH)/lib/$(TARGET).so $(OBJS)  $(LIBS ) -DLOG -DBOOST_ALL_DYN_LINK -lboost_log -lpthread
-
-
 $(TARGET): $(OBJS)
-	$(CXX) $(CXXFLAGS) $(INCLUDES) $(LDFLAGS) -o $(BPATH)/lib/$(TARGET).so $(OBJS)  $(LIBS )
+	$(CXX) $(CXXFLAGS) $(INCLUDES) $(LDFLAGS) -o $(BPATH)$(TARGET).so $(OBJS)  $(LIBS )
+
+
+log: CXXFLAGS = -std=c++11 -fPIC -g -DLOG -DBOOST_LOG_DYN_LINK
+log: LIBS = -lboost_log_setup -lboost_log -lpthread 
+log: $(OBJS)
+	$(CXX) $(CXXFLAGS) $(INCLUDES) $(LDFLAGS) -o $(BPATH)$(TARGET).so $(OBJS)  $(LIBS )
+
 
 # this is a suffix replacement rule for building .o's from .c's
 # it uses automatic variables $<: the name of the prerequisite of
@@ -37,4 +39,4 @@ $(TARGET): $(OBJS)
 
 # remove object files and executable when user executes "make clean"
 clean:
-	$(RM) *.o $(TARGET).so
+	$(RM) *.o $(BPATH)$(TARGET).so

@@ -10,6 +10,7 @@ using namespace boost;
 using namespace boost::unit_test;
 
 #define FILENAME "../../input/olsr-netjson.json"
+#define JSONINFO "../../input/jsoninfo_topo.json"
 
 BOOST_AUTO_TEST_CASE(test_c_wrapper){
 	FILE *fd = fopen(FILENAME, "r");
@@ -48,15 +49,16 @@ BOOST_AUTO_TEST_CASE(degree_test_base){
 
 
 void generic_test_base(bool weight, bool heur){
-	ifstream ifs(FILENAME);
+	ifstream ifs(JSONINFO);
 	graph_parser gp(weight, heur);
 	vector<pair<string, double> > map;
-	gp._parse_netjson(ifs);
+	gp._parse_jsoninfo(ifs);
 	gp.calculate_bc();
 	gp.compose_bc_map(map);
 	for(auto id_bc_score_pair : map) {
 		if(strcmp(id_bc_score_pair.first.c_str(), "10.150.25.1")==0){
-			BOOST_CHECK_CLOSE(id_bc_score_pair.second, 0.715415, 0.01);
+			cout << id_bc_score_pair.second << endl;
+			BOOST_CHECK_CLOSE(id_bc_score_pair.second, 0.715391, 0.5);
 		}
 	}
 	BOOST_CHECK_EQUAL(map.size(), 24);
