@@ -123,39 +123,6 @@ int GraphManager::get_index_from_id(string s) {
         throw std::runtime_error("Vertex with id " + s + " is not found\n");
     }
 }
-//
-//// OUTPUTTING THE RESULT
-//void GraphManager::print() {
-//    cout << "\nGraph Manager:\n";
-//    outops::operator<<(cout, g_);
-//
-//    cout << "Is graph connected?\n";
-//    bool connected = graphext::is_connected(g_, v_index_pmap_);
-//    cout << "Connected = " << connected << endl;
-//
-//    cout << "Is this a weighted graph?\n";
-//    cout << "is weighted = " << weighted_graph_ << endl;
-//
-//    cout << "v_id_index_map:\n";
-//    outops::operator<< <int>(cout, v_id_index_map_);
-//}
-//
-//void GraphManager::print_v_index_pmap() {
-//    graphext::print_v_index_pmap(g_, v_index_pmap_);
-//}
-//
-//void GraphManager::print_e_index_pmap() {
-//    graphext::print_e_index_pmap(g_, e_index_pmap_);
-//}
-//
-//std::ostream& operator<<(std::ostream& os, const GraphManager& gm) {
-//    cout << "\nGraph Manager: " << endl;
-//    outops::operator<<(cout, gm.g_);
-//
-//    cout << "v_id_index_map:\n";
-//    outops::operator<< <int>(cout, gm.v_id_index_map());
-//    return os;
-//}
 
 // Private Functions
 void GraphManager::reset_v_id_vertex_map() {

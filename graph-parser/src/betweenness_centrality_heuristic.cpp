@@ -300,9 +300,9 @@ void BetweennessCentralityHeuristic::CreateSubComponents() {
         //cout << comp_index << " ";
 
         if (comp_index == -1) {
-            //cout << "ERROR: edge ";
+            cout << "ERROR: edge ";
             graphext::print_edge(gm_.g_, edge);
-            //cout << "not belonging to subcomponent\n";
+            cout << "not belonging to subcomponent\n";
         }
         else {
             Router r1 = gm_.g_[source];
