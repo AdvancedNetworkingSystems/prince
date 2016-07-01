@@ -32,7 +32,7 @@ get_topology(routing_plugin *o){
 		printf("Cannot connect to %s:%d", o->host, o->port);
 		return 0;
 	}
-	char *req = "/netjsoninfo filter graph ipv6_0\n";
+	char *req = "/netjsoninfo filter graph ipv6_0/quit\n";
 	if( (sent = send(sd,req,strlen(req),0))==-1){
 		printf("Cannot send to %s:%d", o->host, o->port);
 		return 0;
@@ -41,7 +41,6 @@ get_topology(routing_plugin *o){
 		return 0;
 	}
 	graph_parser_parse_netjson(o->gp, o->recv_buffer);
-
 	close(sd);
 	return 1;
 }
@@ -56,10 +55,13 @@ int
 push_timers(routing_plugin *o, struct timers t){
 	int sd =_create_socket(o->host, o->port);
 	char cmd[85];
-	sprintf(cmd, "/config set olsrv2.tc_timer=%4.2f/config set interface.hello_timer=%4.2f/config commit", t.tc_timer, t.h_timer);
-	if(!_send_telnet_cmd(sd, cmd))
+	sprintf(cmd, "/config set olsrv2.tc_timer=%4.2f/config set interface.h_timer=%4.2f/config commit/quit", t.tc_timer, t.h_timer);
+	if(!_send_telnet_cmd(sd, cmd)){
+		close(sd);
 		return 0;
-	printf("Pushed Timers\n");
+	}
+	printf("Pushed Timers %4.2f  %4.2f\n", t.tc_timer, t.h_timer);
+	close(sd);
 	return 1;
 }
 
