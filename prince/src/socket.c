@@ -58,6 +58,7 @@ _telnet_receive(int sd, char **buffer){
 		}
 	}
 	if(!i) return 0;
+	page[i]='\0';
 	*buffer=page;
 	return 1;
 
@@ -122,7 +123,7 @@ _receive_data(int sd, char **buffer){
 
 	/*check if we have received the full topology */
 	int r = check_header_clen(page, body);
-
+	if(!r) printf("Lenght of buffer don't match	\n");
 	*buffer=strdup(body);
 	free(page);
 	return r;

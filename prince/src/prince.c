@@ -21,7 +21,6 @@ main(int argc, char* argv[]){
 
 	if(argc>1)
 		read_config_file(ph, argv[1]);
-	ph->gp = new_graph_parser(ph->weights, ph->heuristic);
 	switch(ph->proto){
 		case 0: /*olsr*/
 			json_type=0;
@@ -43,26 +42,29 @@ main(int argc, char* argv[]){
 
 
 	/*cycle each 'refresh' seconds*/
+	while(true){
+		ph->gp = new_graph_parser(ph->weights, ph->heuristic);
 		ph->rp = new_plugin(ph->host, ph->gp, json_type);
 		if(!get_topology(ph->rp)){
-			/*delete_plugin(ph->rp);
-			continue;*/
+			delete_plugin(ph->rp);
+			return 0;
 
 		}
+
 
 		graph_parser_calculate_bc(ph->gp);
 		graph_parser_compose_bc_map(ph->gp, ph->bc_map);
 		graph_parser_compose_degree_map(ph->gp, ph->degree_map);
-		if (!compute_timers(ph)) return 0;
+		if (!compute_timers(ph))
+			return 0;
 
 		if (!push_timers(ph->rp, ph->opt_t)){
-			/*delete_plugin(ph->rp);
-			continue;*/
+			delete_plugin(ph->rp);
+			return 0;
 		}
-
 		delete_plugin(ph->rp);
-	/*	sleep(ph->refresh);*/
-
+		sleep(ph->refresh);
+	}
 	return 1;
 
 }
