@@ -11,6 +11,8 @@
 #include "common.h"
 #include "plugin_interface.h"
 #include "socket.h"
+#include "parser.h"
+
 
 
 
