@@ -40,7 +40,8 @@ get_topology(routing_plugin *o){
 	if(!_telnet_receive(sd, &(o->recv_buffer))){
 		return 0;
 	}
-	graph_parser_parse_netjson(o->gp, o->recv_buffer);
+	struct topo *t = parse_netjson(o->recv_buffer);
+	//graph_parser_parse_netjson(o->gp, o->recv_buffer);
 	close(sd);
 	return 1;
 }
@@ -55,7 +56,7 @@ int
 push_timers(routing_plugin *o, struct timers t){
 	int sd =_create_socket(o->host, o->port);
 	char cmd[85];
-	sprintf(cmd, "/config set olsrv2.tc_timer=%4.2f/config set interface.h_timer=%4.2f/config commit/quit", t.tc_timer, t.h_timer);
+	sprintf(cmd, "/config set olsrv2.tc_interval=%4.2f/config set interface.hello_interval=%4.2f/config commit/quit", t.tc_timer, t.h_timer);
 	if(!_send_telnet_cmd(sd, cmd)){
 		close(sd);
 		return 0;

@@ -13,7 +13,6 @@
 #include "common.h"
 #include "lib/ini.h"
 
-
 struct constants{
 	double O_H, O_TC, sq_lambda_H, sq_lambda_TC, R;
 };
