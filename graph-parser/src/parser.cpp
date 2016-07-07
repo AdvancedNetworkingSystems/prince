@@ -4,6 +4,27 @@
 
 #include "parser.h"
 
+
+
+ void parse_simplegraph(struct topology *topo,  GraphManager &gm){
+	 struct node *punt;
+	 for(punt=topo->first; punt!=0; punt=punt->next){
+		 struct neighbor* neigh;
+		 for(neigh=punt->neighbor_list; neigh!=0; neigh=neigh->next){
+			 string source = punt->id;
+			 string target = neigh->id->id;
+			 double cost = neigh->weight;
+
+			 GraphManager::VertexProperties vp1 = GraphManager::VertexProperties(source, source);
+			 GraphManager::VertexProperties vp2 = GraphManager::VertexProperties(target, target);
+			 GraphManager::EdgeProperties ep = GraphManager::EdgeProperties(cost);
+			 gm.AddEdge(vp1, vp2, ep);
+			 //cout << source << " " << target << " " << cost << endl;
+		 }
+	 }
+
+ }
+
  void parse_netjson(std::basic_istream<char> & istream, GraphManager &gm){
 	boost::property_tree::ptree pt;
 	boost::property_tree::read_json(istream, pt);

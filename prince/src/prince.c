@@ -15,56 +15,38 @@ void (*delete_plugin)(routing_plugin* o);
 
 int
 main(int argc, char* argv[]){
-	struct prince_handler *ph= new_prince_handler();
-	void *handle;
-	int json_type;
-
-	if(argc>1)
-		read_config_file(ph, argv[1]);
-	switch(ph->proto){
-		case 0: /*olsr*/
-			json_type=0;
-			handle = dlopen ("libprince_olsr.so", RTLD_LAZY);
-		break;
-		case 1: /*oonf*/
-			handle = dlopen ("libprince_oonf.so", RTLD_LAZY);
-		break;
-	}
-	if(!handle)
-		return 0;
-
-	new_plugin = (routing_plugin* (*)(char* host, c_graph_parser *gp, int json_type)) dlsym(handle, "new_plugin");
-	get_topology = (int (*)(routing_plugin *o)) dlsym(handle, "get_topology");
-	push_timers = (int (*)(routing_plugin *o, struct timers t)) dlsym(handle, "push_timers");
-	delete_plugin = (void (*)(routing_plugin *o)) dlsym(handle, "delete_plugin");
-
-
+	struct prince_handler *ph= new_prince_handler(argv[1]);
 
 
 	/*cycle each 'refresh' seconds*/
 	while(true){
 		ph->gp = new_graph_parser(ph->weights, ph->heuristic);
-		ph->rp = new_plugin(ph->host, ph->gp, json_type);
+		ph->rp = new_plugin(ph->host, ph->gp, ph->json_type);
 		if(!get_topology(ph->rp)){
-			delete_plugin(ph->rp);
+			delete_prince_handler(ph);
 			return 0;
 
 		}
-
-
+		if(ph->self_id)
+				strcpy(ph->self_id, ph->rp->self_id);
+		else
+			ph->self_id = strdup(ph->rp->self_id);
 		graph_parser_calculate_bc(ph->gp);
-		graph_parser_compose_bc_map(ph->gp, ph->bc_map);
-		graph_parser_compose_degree_map(ph->gp, ph->degree_map);
-		if (!compute_timers(ph))
+		graph_parser_compose_degree_bc_map(ph->gp, ph->bc_degree_map);
+
+		if (!compute_timers(ph)){
+			delete_prince_handler(ph);
 			return 0;
+		}
 
 		if (!push_timers(ph->rp, ph->opt_t)){
-			delete_plugin(ph->rp);
+			delete_prince_handler(ph);
 			return 0;
 		}
 		delete_plugin(ph->rp);
-		sleep(ph->refresh);
+		/*break;*/sleep(ph->refresh);
 	}
+	delete_prince_handler(ph);
 	return 1;
 
 }
@@ -75,16 +57,49 @@ main(int argc, char* argv[]){
  * @return pointer to prince handler
  */
 struct prince_handler*
-new_prince_handler(){
+new_prince_handler(char * conf_file){
 	struct prince_handler* ph = (struct prince_handler*) malloc(sizeof(struct prince_handler));
 	ph->def_t.h_timer=2.0;
 	ph->def_t.tc_timer=5.0;
-	ph->degree_map = (map_id_degree_pair *) malloc(sizeof(map_id_degree_pair));
-	ph->bc_map = (map_id_bc_pair *) malloc(sizeof(map_id_bc_pair));
+	ph->bc_degree_map = (map_id_degree_bc *) malloc(sizeof(map_id_degree_bc));
 	ph->weights=0;
 	ph->heuristic=1;
+
+	read_config_file(ph, conf_file);
+
+	switch(ph->proto){
+		case 0: /*olsr*/
+			ph->json_type=0;
+			ph->plugin_handle = dlopen ("libprince_olsr.so", RTLD_LAZY);
+		break;
+		case 1: /*oonf*/
+			ph->plugin_handle = dlopen ("libprince_oonf.so", RTLD_LAZY);
+		break;
+	}
+	if(!ph->plugin_handle)
+		return 0;
+
+	new_plugin = (routing_plugin* (*)(char* host, c_graph_parser *gp, int json_type)) dlsym(ph->plugin_handle, "new_plugin");
+	get_topology = (int (*)(routing_plugin *o)) dlsym(ph->plugin_handle, "get_topology");
+	push_timers = (int (*)(routing_plugin *o, struct timers t)) dlsym(ph->plugin_handle, "push_timers");
+	delete_plugin = (void (*)(routing_plugin *o)) dlsym(ph->plugin_handle, "delete_plugin");
+
+
+
+
+
 	return ph;
 }
+
+void delete_prince_handler(struct prince_handler* ph){
+	bc_degree_map_delete(ph->bc_degree_map);
+	dlclose(ph->plugin_handle);
+	free(ph->self_id);
+	free(ph->host);
+	free(ph);
+
+}
+
 
 /**
  * Compute the constants needded for the timer calculation
@@ -94,20 +109,19 @@ new_prince_handler(){
  */
 int
 compute_constants(struct prince_handler *ph){
-	map_id_degree_pair *m_degree = ph->degree_map;
-	map_id_bc_pair *m_bc = ph->bc_map;
+	map_id_degree_bc *m_degree_bc = ph->bc_degree_map;
 	struct timers t = ph->def_t;
 	int degrees=0, i;
-	for(i=0; i<m_degree->size;i++){
-		degrees+=m_degree->map[i].degree;
+	for(i=0; i<m_degree_bc->size;i++){
+		degrees+=m_degree_bc->map[i].degree;
 	}
-	ph->c.R = m_degree->n_edges;
+	ph->c.R = m_degree_bc->n_edges;
 	ph->c.O_H = degrees/t.h_timer;
-	ph->c.O_TC = m_degree->size*ph->c.R/t.tc_timer;
+	ph->c.O_TC = m_degree_bc->size*ph->c.R/t.tc_timer;
 	double sqrt_sum1=0, sqrt_sum2=0;
-	for(i=0; i<m_degree->size; i++){
-		sqrt_sum1+=sqrt(m_degree->map[i].degree * m_bc->map[i].bc);
-		sqrt_sum2+=sqrt(ph->c.R*m_bc->map[i].bc);
+	for(i=0; i<m_degree_bc->size; i++){
+		sqrt_sum1+=sqrt(m_degree_bc->map[i].degree * m_degree_bc->map[i].bc);
+		sqrt_sum2+=sqrt(ph->c.R*m_degree_bc->map[i].bc);
 	}
 	ph->c.sq_lambda_H = sqrt_sum1/ph->c.O_H;
 	ph->c.sq_lambda_TC = sqrt_sum2/ph->c.O_TC;
@@ -124,14 +138,14 @@ int
 compute_timers(struct prince_handler *ph){
 	compute_constants(ph);
 	int my_index=-1, i;
-	for(i=0; i<ph->degree_map->size; i++){
-		if(strcmp(ph->degree_map->map[i].id, ph->self_id)==0){
+	for(i=0; i<ph->bc_degree_map->size; i++){
+		if(strcmp(ph->bc_degree_map->map[i].id, ph->self_id)==0){
 			my_index=i;
 		}
 	}
 	if(my_index==-1) return 0;
-	ph->opt_t.h_timer = sqrt(ph->degree_map->map[my_index].degree / ph->bc_map->map[my_index].bc) * ph->c.sq_lambda_H;
-	ph->opt_t.tc_timer = sqrt(ph->c.R/ph->bc_map->map[my_index].bc)*ph->c.sq_lambda_TC;
+	ph->opt_t.h_timer = sqrt(ph->bc_degree_map->map[my_index].degree / ph->bc_degree_map->map[my_index].bc) * ph->c.sq_lambda_H;
+	ph->opt_t.tc_timer = sqrt(ph->c.R/ph->bc_degree_map->map[my_index].bc)*ph->c.sq_lambda_TC;
 	return 1;
 
 }
@@ -182,6 +196,7 @@ read_config_file(struct prince_handler *ph, char *filepath){
 	        printf("Can't load '%s'\n", filepath);
 	        return 0;
 	}
+
 	printf("Config loaded from %s\n", filepath);
 	return 1;
 

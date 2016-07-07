@@ -32,6 +32,7 @@ struct timers{
 typedef struct
 routing_plugin_{
 	char *recv_buffer;
+	char *self_id;
 	char *host;
 	short port;
 	int json_type;
