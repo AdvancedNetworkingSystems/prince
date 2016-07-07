@@ -35,14 +35,24 @@ get_topology(routing_plugin *o){
 	char *req = "/netjsoninfo filter graph ipv6_0/quit\n";
 	if( (sent = send(sd,req,strlen(req),0))==-1){
 		printf("Cannot send to %s:%d", o->host, o->port);
+		close(sd);
 		return 0;
 	}
 	if(!_telnet_receive(sd, &(o->recv_buffer))){
+		printf("cannot receive \n");
+		close(sd);
 		return 0;
 	}
-	struct topo *t = parse_netjson(o->recv_buffer);
-	//graph_parser_parse_netjson(o->gp, o->recv_buffer);
+	struct topology *t = parse_netjson(o->recv_buffer);
+	if(!t){
+		printf("can't parse netjson\n %s \n", o->recv_buffer);
+		close(sd);
+		return 0;
+	}
+	graph_parser_parse_simplegraph(o->gp, t);
+	o->self_id=strdup(t-> self_id);
 	close(sd);
+	destroy_topo(t);
 	return 1;
 }
 
@@ -55,12 +65,11 @@ get_topology(routing_plugin *o){
 int
 push_timers(routing_plugin *o, struct timers t){
 	int sd =_create_socket(o->host, o->port);
-	char cmd[85];
+	char cmd[96];
 	sprintf(cmd, "/config set olsrv2.tc_interval=%4.2f/config set interface.hello_interval=%4.2f/config commit/quit", t.tc_timer, t.h_timer);
-	if(!_send_telnet_cmd(sd, cmd)){
-		close(sd);
-		return 0;
-	}
+
+	write(sd, cmd, strlen(cmd));
+
 	printf("Pushed Timers %4.2f  %4.2f\n", t.tc_timer, t.h_timer);
 	close(sd);
 	return 1;
@@ -75,6 +84,7 @@ delete_plugin(routing_plugin* o){
 	delete_graph_parser(o->gp);
 	free(o->host);
 	free(o->recv_buffer);
+	free(o->self_id);
 	free(o);
 }
 
@@ -88,9 +98,8 @@ delete_plugin(routing_plugin* o){
  */
 int
 _send_telnet_cmd(int sd, char* cmd){
-	/*TODO: push commands to the daemon*/
+	/*TODO: manage the write and check the response*/
 	int i;
-	write(sd, cmd, strlen(cmd));
 	/*for(i=0;i+=write(sd, cmd, 85);i<85);*/
 	return 1;
 

@@ -10,22 +10,17 @@ graph_parser::graph_parser(bool weight, bool _heuristic): gm(weight), heuristic(
 	else bci = new BetweennessCentrality();
 };
 
-/**
- * Parse netjson from istream
- * @param &istream  stream containing the buffered netjson
- */
-void
-graph_parser::_parse_netjson(std::basic_istream<char> &istream){
-  parse_netjson(istream, gm);
-}
 
+graph_parser::~graph_parser(){
+	delete bci;
+}
 /**
- * Parse jsoninfo from istream
- * @param &istream  stream containing the buffered jsoninfo
+ * Parse simple graph from struct topology
+ * @param struct topology *topo   struct containing an adjacency list representation of the topology
  */
 void
-graph_parser::_parse_jsoninfo(std::basic_istream<char> &istream){
-  parse_jsoninfo(istream, gm);
+graph_parser::_parse_simplegraph(struct topology *topo){
+  parse_simplegraph(topo, gm);
 }
 
 /**
@@ -74,23 +69,10 @@ extern "C" {
 	  }
 
 	  void
-	  graph_parser_parse_netjson(c_graph_parser* v, char *json){
+	  graph_parser_parse_simplegraph(c_graph_parser* v, struct topology *topo){
 		  try{
 			  graph_parser *vc = (graph_parser*)v;
-			  std::istringstream ss(json);
-			  vc->_parse_netjson(ss);
-		  }catch(...){
-			  cout << "Error parsing jsoninfo";
-		  }
-
-	  }
-
-	  void
-	  graph_parser_parse_jsoninfo(c_graph_parser* v, char *json){
-		  try{
-			  graph_parser *vc = (graph_parser*)v;
-			  std:istringstream ss(json);
-			  vc->_parse_jsoninfo(ss);
+			  vc->_parse_simplegraph(topo);
 		  }catch(...){
 			  cout << "Error parsing Netjson";
 		  }
@@ -99,7 +81,6 @@ extern "C" {
 
 	  void
 	  graph_parser_calculate_bc(c_graph_parser* v){
-		  //TODO: Manage exceptions
 		  graph_parser *vc = (graph_parser*)v;
 		  try{
 			  vc->calculate_bc();
@@ -108,44 +89,40 @@ extern "C" {
 		  }
 	  }
 
-	  void
-	  graph_parser_compose_bc_map(c_graph_parser* v, map_id_bc_pair * map){
-		graph_parser *vc = (graph_parser*)v;
-		vector<pair<string, double> > cppmap;
+	  int
+	  graph_parser_compose_degree_bc_map(c_graph_parser* v, map_id_degree_bc * map){
+
 		try{
-			vc->compose_bc_map(cppmap);
-		}catch(...){
-			cout << "error composing bc map";
-		}
-		int i=0;
-		map->size=cppmap.size();
-		map->map = new id_bc_pair[map->size];
-		for(pair<string, double> item: cppmap){
-			map->map[i].id = strdup(item.first.c_str());
-				map->map[i].bc = item.second;
-			i++;
-		}
+			graph_parser *vc = (graph_parser*)v;
+			int i=0;
+			vector<pair<string, int> > cpp_degree_map;
+			vector<pair<string, double> > cpp_bc_map;
+			vc->compose_degree_map(cpp_degree_map);
+			vc->compose_bc_map(cpp_bc_map);
+			map->size=cpp_degree_map.size();
+			map->map = (id_degree_bc *) malloc(sizeof(_id_degree_bc)*map->size);
+			map->n_edges = vc->get_n_edges();
+
+			for(i=0;i<map->size;i++){
+				if(cpp_degree_map[i].first.compare(cpp_bc_map[i].first)==0){
+					map->map[i].id = strdup(cpp_degree_map[i].first.c_str());
+					map->map[i].bc = cpp_bc_map[i].second;
+					map->map[i].degree = cpp_degree_map[i].second;
+				}else{
+					throw 0;
+				}
+			}
+			return 1;
+
+
+		  }catch(...){
+			  cout << "error composing bc degree map";
+			  return 0;
+		  }
+		  return 0;
+
 	  }
 
-	  void
-	  graph_parser_compose_degree_map(c_graph_parser* v, map_id_degree_pair * map){
-		graph_parser *vc = (graph_parser*)v;
-		vector<pair<string, int> > cppmap;
-		try{
-			vc->compose_degree_map(cppmap);
-		}catch(...){
-			cout << "error composing degree map";
-		}
-		int i=0;
-		map->size=cppmap.size();
-		map->n_edges = vc->get_n_edges();
-		map->map = new id_degree_pair[map->size];
-		for(pair<string, int> item: cppmap){
-			map->map[i].id = strdup(item.first.c_str());
-			map->map[i].degree = item.second;
-			i++;
-		}
-	  }
 
 	  void
 	  delete_graph_parser(c_graph_parser* v) {

@@ -1,8 +1,20 @@
 #include "parser.h"
 
+
+void
+bc_degree_map_delete(map_id_degree_bc * map){
+	int i;
+	for(i=0; i<map->size; i++){
+		free(map->map[i].id);
+	}
+	free(map->map);
+	free(map);
+}
+
+
 int
 parse_jsoninfo(char *buffer){
-	struct topology *c_topo= init_topo(1);
+	struct topology *c_topo= _init_topo(1);
 	return 1;
 }
 
@@ -20,7 +32,7 @@ add_node(struct topology * topo, const char *id){
 struct node*
 find_node(struct topology *topo,const char *id){
 	struct node *punt;
-	for(punt=topo->first; punt->next!=0; punt=punt->next){
+	for(punt=topo->first; punt!=0; punt=punt->next){
 		if(strcmp(punt->id, id)==0){
 			return punt;
 		}
@@ -46,7 +58,7 @@ add_neigh(struct topology *topo, const char *source, const char *id, const doubl
 }
 
 
-struct topology * init_topo(int type){
+struct topology * _init_topo(int type){
 	struct topology *topo = malloc(sizeof(struct topology));
 	if(type==0){
 		topo->id_lenght=39;
@@ -57,12 +69,33 @@ struct topology * init_topo(int type){
 	return topo;
 }
 
+void destroy_topo(struct topology *topo){
+	struct node *n_temp, *punt=topo->first;
+	while(punt){
+		struct neighbor *n=punt->neighbor_list;
+			while(n){
+				struct neighbor *temp=n->next;
+				free(n);
+				n=temp;
+			}
+			free(punt->id);
+			n_temp=punt->next;
+			free(punt);
+			punt=n_temp;
+		}
+	free(topo->protocol);
+	free(topo->self_id);
+	free(topo);
+	}
+
+
 struct topology *
 parse_netjson(char* buffer){
 	enum json_type type;
 
-	struct topology *c_topo= init_topo(0);
+	struct topology *c_topo= _init_topo(0);
 	json_object *topo = json_tokener_parse(buffer);
+	if(!topo) return 0;
 	json_object_object_foreach(topo, key, val) {
 		if(strcmp(key, "protocol")==0)
 			c_topo->protocol=strdup(json_object_get_string(val));
@@ -78,7 +111,7 @@ parse_netjson(char* buffer){
 				json_object *elem =json_object_array_get_idx(array,i);
 				json_object_object_foreach(elem, key, val){
 					if(strcmp(key, "id")==0){
-						add_node(c_topo, strdup(json_object_get_string(val)));
+						add_node(c_topo, json_object_get_string(val));
 					}
 
 				}
@@ -93,10 +126,10 @@ parse_netjson(char* buffer){
 			json_object_object_get_ex(topo, key, &jarray);
 			int arraylen = json_object_array_length(jarray);
 			for(i=0; i<arraylen; i++){
+				const char *source=0, *target=0;
+				double cost=0;
 				json_object *elem =json_object_array_get_idx(jarray,i);
 				json_object_object_foreach(elem, key, val) {
-					const char *source, *target;
-					double cost;
 					if(strcmp(key, "source")==0){
 						source=json_object_get_string(val);
 					}
@@ -106,11 +139,21 @@ parse_netjson(char* buffer){
 					if(strcmp(key, "cost")==0){
 						cost=json_object_get_double(val);
 					}
-					add_neigh(c_topo, source, target, cost);
+					if(source && target && cost){
+						printf("   %s %s %f\n", source, target, cost);
+						if(!add_neigh(c_topo, source, target, cost)){
+							printf("error\n");
+							return 0;
+						}
+
+						source = target =0;
+						cost =0;
+					}
 				}
 
 			}
 		}
 	}
+	json_object_put(topo);
 	return c_topo;
 }

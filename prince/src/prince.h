@@ -12,6 +12,7 @@
 #include <dlfcn.h>
 #include "common.h"
 #include "lib/ini.h"
+#include "parser.h"
 
 struct constants{
 	double O_H, O_TC, sq_lambda_H, sq_lambda_TC, R;
@@ -23,10 +24,10 @@ struct prince_handler{
 	struct constants c;
 	char *self_id, *host;
 	c_graph_parser *gp;
-	map_id_bc_pair *bc_map;
-	map_id_degree_pair *degree_map;
+	map_id_degree_bc *bc_degree_map;
 	routing_plugin *rp;
-	int proto, heuristic, weights, port, refresh;
+	int proto, heuristic, weights, port, refresh, json_type;
+	void *plugin_handle;
 };
 
 

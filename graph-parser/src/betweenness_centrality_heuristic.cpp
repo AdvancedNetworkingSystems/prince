@@ -9,7 +9,6 @@ using namespace std;
 * Public functions
 ******************************/
 BetweennessCentralityHeuristic::~BetweennessCentralityHeuristic(){
-	//destroy it
 }
 BetweennessCentralityHeuristic::BetweennessCentralityHeuristic(){
 

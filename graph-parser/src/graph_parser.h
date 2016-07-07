@@ -1,6 +1,6 @@
 /* Graph_Parser_lib.h*/
 
-
+#include "../../prince/src/parser.h"
 #ifdef __cplusplus
 #include <cstdlib>
 #include <iostream>
@@ -17,13 +17,13 @@ class graph_parser
 public:
 
 	graph_parser(bool weight, bool _heuristic);
-	void _parse_netjson(std::basic_istream<char> &istream);
+	~graph_parser();
 	void calculate_bc();
 	void compose_bc_map(vector<pair<string, double> > & map);
 	void compose_degree_map(vector<pair<string, int> > &map);
-	void _parse_jsoninfo(std::basic_istream<char> &istream);
+	void _parse_simplegraph(struct topology *topo);
+
 	int get_n_edges();
-	string get_originator();
 
 
 private:
@@ -38,40 +38,13 @@ extern "C"{
 #endif
 
 
-typedef struct _id_bc_pair{
-	char* id;
-	double bc;
-
-}id_bc_pair;
-
-typedef struct _map_id_bc_pair{
-	id_bc_pair *map;
-	size_t size;
-}map_id_bc_pair;
-
-typedef struct _id_degree_pair{
-	char* id;
-	int degree;
-
-}id_degree_pair;
-
-typedef struct _map_id_degree_pair{
-	id_degree_pair *map;
-	size_t size;
-	int n_edges;
-	char *originator;
-}map_id_degree_pair;
-
 
 typedef void c_graph_parser;
 
 c_graph_parser* new_graph_parser(int weight, int heuristic);
-
-void graph_parser_parse_netjson(c_graph_parser* v, char *json);
+void graph_parser_parse_simplegraph(c_graph_parser* v, struct topology *topo);
 void graph_parser_calculate_bc(c_graph_parser* v);
-void graph_parser_compose_bc_map(c_graph_parser* v, map_id_bc_pair *map);
-void graph_parser_compose_degree_map(c_graph_parser* v, map_id_degree_pair * map);
-void graph_parser_parse_jsoninfo(c_graph_parser* v, char *json);
+int graph_parser_compose_degree_bc_map(c_graph_parser* v, map_id_degree_bc *map);
 void delete_graph_parser(c_graph_parser* v);
 
 #ifdef __cplusplus

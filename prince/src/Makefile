@@ -12,11 +12,11 @@ all: $(TARGET) libprince_olsr.so libprince_oonf.so
 $(TARGET) : $(OBJS)
 	$(CXX) $(CCFLAGS) -o $(BPATH)$(TARGET) $(OBJS) $(LIBS)
 
-libprince_olsr.so : olsr.o socket.o
-	$(CC)  -shared -o  $(BPATH)$@  olsr.o socket.o
+libprince_olsr.so : olsr.o socket.o parser.o
+	$(CC)  -shared -o  $(BPATH)$@  olsr.o socket.o parser.o
 
-libprince_oonf.so : oonf.o socket.o
-	$(CC)  -shared -o  $(BPATH)$@  oonf.o socket.o
+libprince_oonf.so : oonf.o socket.o parser.o
+	$(CC)  -shared -o  $(BPATH)$@  oonf.o socket.o parser.o
 
 .c.o:
 	$(CC) $(CFLAGS) -c $< -o $@
@@ -24,3 +24,4 @@ libprince_oonf.so : oonf.o socket.o
 clean:
 	$(RM) *.o *.so $(TARGET)
 	$(RM) $(BPATH)*.o *.so $(BPATH)$(TARGET)
+	$(RM) lib/*.o

@@ -12,6 +12,23 @@
 #include <stdio.h>
 #include <string.h>
 
+/* bc degree structures definition*/
+typedef struct _id_degree_bc{
+	char* id;
+	double bc;
+	int degree;
+
+}id_degree_bc;
+
+typedef struct _map_id_degree_bc{
+	id_degree_bc *map;
+	size_t size;
+	int n_edges;
+}map_id_degree_bc;
+
+
+
+/* topology structures definition*/
 struct topology{
 	int id_lenght;
 	char *protocol;
@@ -34,12 +51,13 @@ struct neighbor{
 };
 
 
-int parse_netjson(char* buffer);
+struct topology * parse_netjson(char* buffer);
 int add_node(struct topology * topo, const char *id);
-struct topology * init_topo(int type);
+struct topology * _init_topo(int type);
 int add_neigh(struct topology *topo, const char *source, const char *id, const double weight);
 
 struct node* find_node(struct topology *topo, const char *id);
+void bc_degree_map_delete(map_id_degree_bc * map);
 
 
 #endif /* SRC_PARSER_H_ */
