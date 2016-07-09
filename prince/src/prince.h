@@ -38,7 +38,37 @@ int compute_constants(struct prince_handler *ph);
 int compute_timers(struct prince_handler *ph);
 void delete_prince_handler(struct prince_handler*);
 int read_config_file(struct prince_handler *ph, char *filepath);
-static int handler(void* user, const char* section, const char* name, const char* value);
+
+static int handler(void* user, const char* section, const char* name, const char* value)
+{
+    struct prince_handler* pconfig = ( struct prince_handler*)user;
+
+    #define MATCH(s, n) strcmp(section, s) == 0 && strcmp(name, n) == 0
+    /*section :proto*/
+    if (MATCH("proto", "protocol")) {
+    	if(strcmp(value, "olsr")==0)	pconfig->proto = 0;
+    	else if(strcmp(value, "oonf")==0)	pconfig->proto = 1;
+    } else if (MATCH("proto", "host")) {
+        pconfig->host = strdup(value);
+    } else if (MATCH("proto", "port")) {
+        pconfig->port = atoi(value);
+    }else if (MATCH("proto", "self_id")) {
+        pconfig->self_id = strdup(value);
+    }else if (MATCH("proto", "refresh")) {
+        pconfig->refresh = atoi(value);
+    }
+    /*section :graph-parser*/
+    else if (MATCH("graph-parser", "heuristic")) {
+        pconfig->heuristic = atoi(value);
+    } else if (MATCH("graph-parser", "weights")) {
+        pconfig->weights = atoi(value);
+    }
+    /* unknown section/name, error */
+    else {
+        return 0;
+    }
+    return 1;
+}
 
 #endif /* SRC_PRINCE_H_ */
 

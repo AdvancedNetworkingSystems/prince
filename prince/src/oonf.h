@@ -9,14 +9,12 @@
 #define SRC_OONF_H_
 
 #include "common.h"
-#include "plugin_interface.h"
 #include "socket.h"
 #include "parser.h"
 
+/*inehrit methods from here */
+#include "plugin_interface.h"
 
-
-
-int _send_telnet_cmd(int sd, char* cmd);
 
 
 #endif /* SRC_OONF_H_ */
