@@ -87,20 +87,3 @@ delete_plugin(routing_plugin* o){
 	free(o->self_id);
 	free(o);
 }
-
-
-/*PRIVATE FUNCTIONS */
-/**
- * Write command to socket
- * @param sd socket descriptor
- * @param *cmd command string
- * @return 1 if success, 0 otherwise
- */
-int
-_send_telnet_cmd(int sd, char* cmd){
-	/*TODO: manage the write and check the response*/
-	int i;
-	/*for(i=0;i+=write(sd, cmd, 85);i<85);*/
-	return 1;
-
-}

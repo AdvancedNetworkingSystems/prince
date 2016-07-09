@@ -12,7 +12,11 @@ int (*get_topology)(routing_plugin *o);
 int (*push_timers)(routing_plugin *o, struct timers t);
 void (*delete_plugin)(routing_plugin* o);
 
-
+/**
+ * Main routine of Prince. Collect topology, parse it, calculate bc and timers, push them back.
+ * @param argv[1] <- config filename
+ * @return 1 on success, 0 on error
+ */
 int
 main(int argc, char* argv[]){
 	struct prince_handler *ph= new_prince_handler(argv[1]);
@@ -20,11 +24,12 @@ main(int argc, char* argv[]){
 
 	/*cycle each 'refresh' seconds*/
 	while(true){
+		sleep(ph->refresh);
 		ph->gp = new_graph_parser(ph->weights, ph->heuristic);
 		ph->rp = new_plugin(ph->host, ph->gp, ph->json_type);
 		if(!get_topology(ph->rp)){
-			delete_prince_handler(ph);
-			return 0;
+			printf("Error getting topology");
+			continue;
 
 		}
 		if(ph->self_id)
@@ -36,17 +41,15 @@ main(int argc, char* argv[]){
 
 		if (!compute_timers(ph)){
 			delete_prince_handler(ph);
-			return 0;
+			continue;
 		}
 
 		if (!push_timers(ph->rp, ph->opt_t)){
 			delete_prince_handler(ph);
-			return 0;
+			continue;
 		}
-		delete_plugin(ph->rp);
-		/*break;*/sleep(ph->refresh);
+		delete_prince_handler(ph);
 	}
-	delete_prince_handler(ph);
 	return 1;
 
 }
@@ -90,8 +93,12 @@ new_prince_handler(char * conf_file){
 
 	return ph;
 }
-
+/**
+ * Delete a Prince handler and free all the memory
+ * @param struct prince_handler* pointer to the prince_handler struct.
+ */
 void delete_prince_handler(struct prince_handler* ph){
+	delete_plugin(ph->rp);
 	bc_degree_map_delete(ph->bc_degree_map);
 	dlclose(ph->plugin_handle);
 	free(ph->self_id);
@@ -150,38 +157,6 @@ compute_timers(struct prince_handler *ph){
 
 }
 
-static int
-handler(void* user, const char* section, const char* name,
-                   const char* value)
-{
-    struct prince_handler* pconfig = ( struct prince_handler*)user;
-
-    #define MATCH(s, n) strcmp(section, s) == 0 && strcmp(name, n) == 0
-    /*section :proto*/
-    if (MATCH("proto", "protocol")) {
-    	if(strcmp(value, "olsr")==0)	pconfig->proto = 0;
-    	else if(strcmp(value, "oonf")==0)	pconfig->proto = 1;
-    } else if (MATCH("proto", "host")) {
-        pconfig->host = strdup(value);
-    } else if (MATCH("proto", "port")) {
-        pconfig->port = atoi(value);
-    }else if (MATCH("proto", "self_id")) {
-        pconfig->self_id = strdup(value);
-    }else if (MATCH("proto", "refresh")) {
-        pconfig->refresh = atoi(value);
-    }
-    /*section :graph-parser*/
-    else if (MATCH("graph-parser", "heuristic")) {
-        pconfig->heuristic = atoi(value);
-    } else if (MATCH("graph-parser", "weights")) {
-        pconfig->weights = atoi(value);
-    }
-    /* unknown section/name, error */
-    else {
-        return 0;
-    }
-    return 1;
-}
 
 /**
  * Read the ini configuration and populate struct prince_handler

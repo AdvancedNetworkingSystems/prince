@@ -1,6 +1,9 @@
 #include "parser.h"
 
-
+/**
+ * Delete a bc_degree map data structure
+ * @param map_id_degree_bc*  pointer to the data structure
+ */
 void
 bc_degree_map_delete(map_id_degree_bc * map){
 	int i;
@@ -12,59 +15,15 @@ bc_degree_map_delete(map_id_degree_bc * map){
 }
 
 
-int
-parse_jsoninfo(char *buffer){
-	struct topology *c_topo= _init_topo(1);
-	return 1;
-}
 
-int
-add_node(struct topology * topo, const char *id){
-	struct node *temp = topo->first;
-	topo->first=malloc(sizeof(struct node));
-	topo->first->next=temp;
-	topo->first->id=strdup(id);
-	topo->first->neighbor_list=0;
-	return 1;
-}
-
-
-struct node*
-find_node(struct topology *topo,const char *id){
-	struct node *punt;
-	for(punt=topo->first; punt!=0; punt=punt->next){
-		if(strcmp(punt->id, id)==0){
-			return punt;
-		}
-	}
-	return 0;
-}
-
-int
-add_neigh(struct topology *topo, const char *source, const char *id, const double weight){
-	struct neighbor *temp;
-	struct node* n;
-	if((n=find_node(topo, source))==0)
-		return 0;
-
-	temp=n->neighbor_list;
-	n->neighbor_list=malloc(sizeof(struct neighbor));
-	if((n->neighbor_list->id=find_node(topo, id))==0)
-		return 0;
-	n->neighbor_list->weight=weight;
-	n->neighbor_list->next=temp;
-	return 1;
-
-}
-
-
-struct topology * _init_topo(int type){
+/**
+ * Initialize the topology data structure
+ * @param int number of chars of the id (39 ipv6, 15 ipv4)
+ * @return pointer to the topology
+ */
+struct topology * _init_topo(int lenght){
 	struct topology *topo = malloc(sizeof(struct topology));
-	if(type==0){
-		topo->id_lenght=39;
-	}else if(type ==1){
-		topo->id_lenght=15;
-	}
+	topo->id_lenght=lenght;
 	topo->first=0;
 	return topo;
 }
@@ -89,11 +48,92 @@ void destroy_topo(struct topology *topo){
 	}
 
 
+
+
+/**
+ * Add a node to the topology data structure
+ * @param struct topology*  pointer to the topology data structure
+ * @param const char* string containing the id of the new node
+ * @return 1 on success, 0 otherwise
+ */
+int
+add_node(struct topology * topo, const char *id){
+	struct node *temp = topo->first;
+	topo->first=malloc(sizeof(struct node));
+	topo->first->next=temp;
+	topo->first->id=strdup(id);
+	topo->first->neighbor_list=0;
+	return 1;
+}
+
+/**
+ * Find a node in the topology data structure
+ * @param struct topology*  pointer to the topology data structure
+ * @param const char* string containing the id of the searched node
+ * @return pointer to the node on success, 0 otherwise
+ */
+struct node*
+find_node(struct topology *topo,const char *id){
+	struct node *punt;
+	for(punt=topo->first; punt!=0; punt=punt->next){
+		if(strcmp(punt->id, id)==0){
+			return punt;
+		}
+	}
+	return 0;
+}
+
+
+
+/**
+ * Add a neighbor to the node
+ * @param struct topology*  pointer to the topology data structure
+ * @param const char* string containing the id of the source node
+ * @param const char* string containing the id of the target node
+ * @param const double  cost of the edge
+ * @return 1 on success, 0 otherwise
+ */
+int
+add_neigh(struct topology *topo, const char *source, const char *id, const double weight){
+	struct neighbor *temp;
+	struct node* n;
+	if((n=find_node(topo, source))==0)
+		return 0;
+
+	temp=n->neighbor_list;
+	n->neighbor_list=malloc(sizeof(struct neighbor));
+	if((n->neighbor_list->id=find_node(topo, id))==0)
+		return 0;
+	n->neighbor_list->weight=weight;
+	n->neighbor_list->next=temp;
+	return 1;
+
+}
+
+
+
+
+/**
+ * Parse jsoninfo format
+ * @param char* buffer containing the serialized json
+ */
+int
+parse_jsoninfo(char *buffer){
+	struct topology *c_topo= _init_topo(15);
+	return 1;
+}
+
+
+/**
+ * Parse NetJson format
+ * @param char* buffer containing the serialized json
+ * @return representation of the graph as "struct topology*" type
+ */
 struct topology *
 parse_netjson(char* buffer){
 	enum json_type type;
 
-	struct topology *c_topo= _init_topo(0);
+	struct topology *c_topo= _init_topo(39);
 	json_object *topo = json_tokener_parse(buffer);
 	if(!topo) return 0;
 	json_object_object_foreach(topo, key, val) {
