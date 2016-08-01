@@ -38,8 +38,8 @@ main(int argc, char* argv[]){
 		graph_parser_calculate_bc(ph->gp);
 		clock_t end = clock();
 		graph_parser_compose_degree_bc_map(ph->gp, ph->bc_degree_map);
-		float exec_time = (float)(end - start) / CLOCKS_PER_SEC;
-		printf("Calculation time: %fs\n", exec_time);
+		ph->opt_t.exec_time = (double)(end - start) / CLOCKS_PER_SEC;
+		printf("Calculation time: %fs\n", ph->opt_t.exec_time);
 		if (!compute_timers(ph)){
 			delete_prince_handler(ph);
 			continue;
