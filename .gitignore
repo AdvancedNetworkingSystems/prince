@@ -19,3 +19,4 @@ graph-parser/build
 *.lss
 *.map
 *.sym
+*.pyc

@@ -10,7 +10,7 @@
 #include <boost/foreach.hpp>
 #include "common.h"
 #include "graph_manager.h"
-
+#include "../../prince/src/parser.h"
 void parse_simplegraph(struct topology *topo,  GraphManager &gm);
 void parse_netjson(std::basic_istream<char> & istream, GraphManager & gm);
 void parse_jsoninfo(std::basic_istream<char> & istream, GraphManager &gm);

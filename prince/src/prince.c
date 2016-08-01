@@ -23,7 +23,7 @@ main(int argc, char* argv[]){
 
 
 	/*cycle each 'refresh' seconds*/
-	while(true){
+	do{
 		sleep(ph->refresh);
 		ph->gp = new_graph_parser(ph->weights, ph->heuristic);
 		ph->rp = new_plugin(ph->host, ph->gp, ph->json_type);
@@ -32,9 +32,7 @@ main(int argc, char* argv[]){
 			continue;
 
 		}
-		if(ph->self_id)
-				strcpy(ph->self_id, ph->rp->self_id);
-		else
+		if(!ph->self_id)
 			ph->self_id = strdup(ph->rp->self_id);
 		graph_parser_calculate_bc(ph->gp);
 		graph_parser_compose_degree_bc_map(ph->gp, ph->bc_degree_map);
@@ -48,8 +46,8 @@ main(int argc, char* argv[]){
 			delete_prince_handler(ph);
 			continue;
 		}
-		delete_prince_handler(ph);
-	}
+	}while(ph->refresh);
+	delete_prince_handler(ph);
 	return 1;
 
 }
