@@ -9,11 +9,11 @@ from graph_generator import Gen
 
 class PrinceTestOONF:
     def genG(self, type, cs, N):
-        T=int(N*1.5)
-        E=N*2
+        T=int(N*1.2)
+        E=N*1.8
         ge = Gen()
         if type == 0:
-            ge.genCNGraph(N,T,E,S=2)
+            ge.genCNGraph(N,T,E,S=10)
         if type == 1:
             ge.genGraph("PLAW", N)
         if type == 2:
@@ -33,7 +33,7 @@ class PrinceTestOONF:
         hello_py = tc_py = 0;
         #search for the timer we are calculating (the 'router_id' one)
         for node in ctv.node_list:
-        	if node == self.netjson['router_id']:
+            if node == self.netjson['router_id']:
         		hello_py = ctv.Hi[node]
         		tc_py = ctv.TCi[node]
         return hello_py, tc_py
@@ -83,4 +83,4 @@ class PrinceTestOONF:
                             exit(0)
 
 p = PrinceTestOONF()
-p.test(1, 50, 14)
+p.test(0, 100, 14)
