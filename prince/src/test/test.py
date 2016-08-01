@@ -70,12 +70,14 @@ class PrinceTestOONF:
                     if toks:
                         tc_cpp = float(toks[0])
                         hello_cpp = float(toks[1])
+                        exec_time = float(toks[2])
                         p_tc = abs(tc_cpp - self.tc_py)/((tc_cpp+ self.tc_py)/2)*100
                         p_h = abs(hello_cpp - self.h_py)/((hello_cpp+ self.h_py)/2)*100
                         print "node: " + str(self.netjson['router_id'])
                         print "       " + "C++  " + "Python" + "              " + "Percent"
                         print "tc:    " + repr(tc_cpp) + "   " + repr(self.tc_py) + " " +  str(p_tc)
                         print "hello: " + repr(hello_cpp) + "   " + repr(self.h_py) + " " + str(p_h)
+                        print "exec: " + str(exec_time)
                         cs.close()
                         iter = iter -1
                         if (p_tc > 1) or (p_h > 1):
@@ -83,4 +85,4 @@ class PrinceTestOONF:
                             exit(0)
 
 p = PrinceTestOONF()
-p.test(0, 100, 14)
+p.test(0, 20, 14)
