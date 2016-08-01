@@ -30,7 +30,9 @@ class Gen:
         Netjson['version'] = 'poprouting custom'
         Netjson['revision'] = '0.11.3'
         Netjson['metric'] = 'ff_dat_metric'
-        Netjson['router_id'] = graph.nodes()[1]
+        node = int(random.random()*1000) % len(graph.nodes())
+        #node = 20
+        Netjson['router_id'] = graph.nodes()[node]
         Netjson['nodes'] = []
         for node in graph.nodes():
             n = {}
@@ -141,7 +143,7 @@ class Gen:
                 G = nx.configuration_model(z)
                 G = nx.Graph(G)
                 G.remove_edges_from(G.selfloop_edges())
-                mainC = nx.connected_component_subgraphs(G).next()
+                mainC = list(nx.connected_component_subgraphs(G))[0]
                 if len(mainC.nodes()) >= numNodes*0.9:
                     loop = False
                     break
