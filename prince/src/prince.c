@@ -32,7 +32,7 @@ main(int argc, char* argv[]){
 			continue;
 
 		}
-		if(!ph->self_id)
+		if(ph->rp->self_id)
 			ph->self_id = strdup(ph->rp->self_id);
 		graph_parser_calculate_bc(ph->gp);
 		graph_parser_compose_degree_bc_map(ph->gp, ph->bc_degree_map);
@@ -41,7 +41,7 @@ main(int argc, char* argv[]){
 			delete_prince_handler(ph);
 			continue;
 		}
-
+		printf("\nId of the node we are computing is: %s\n", ph->self_id);
 		if (!push_timers(ph->rp, ph->opt_t)){
 			delete_prince_handler(ph);
 			continue;

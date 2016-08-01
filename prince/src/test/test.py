@@ -8,9 +8,29 @@ from poprouting import ComputeTheoreticalValues
 from graph_generator import Gen
 
 class PrinceTestOONF:
+    def genG(self, type, cs, N):
+        T=int(N*1.5)
+        E=N*2
+        ge = Gen()
+        if type == 0:
+            ge.genCNGraph(N,T,E,S=2)
+        if type == 1:
+            ge.genGraph("PLAW", N)
+        if type == 2:
+            ge.genMeshGraph(N, 23)
+        self.graph = ge.graph
+        self.netjson =  ge.composeNetJson(self.graph)
+        self.json_netjson = json.dumps(self.netjson)
+        self.h_py, self.tc_py = self.calculateTimers()
+        print ("sending graph")
+        print cs.send(self.json_netjson)
+        cs.close()
+
+
     def calculateTimers(self):
         #compute the timers values using the poprouting python lib
         ctv = ComputeTheoreticalValues(graph = self.graph)
+        hello_py = tc_py = 0;
         #search for the timer we are calculating (the 'router_id' one)
         for node in ctv.node_list:
         	if node == self.netjson['router_id']:
@@ -18,7 +38,7 @@ class PrinceTestOONF:
         		tc_py = ctv.TCi[node]
         return hello_py, tc_py
 
-    def test(self, type):
+    def test(self, type, N, iter):
         ''' type = 0    CN
             type = 1    PLAW
             type = 2    MESH
@@ -34,29 +54,14 @@ class PrinceTestOONF:
         p=re.compile(r"\d*\.\d+")
         #subprocess.Popen("../../build/prince ../../input/test.ini", shell=True)
         tc_cpp = 0
-        while not tc_cpp:
+        while iter:
             #accept connections
             (cs, address) = serversocket.accept()
             data = cs.recv(1024).decode("utf-8")
             #simulate the oonf's netjson command to get the topology
             if data.strip() == "/netjsoninfo filter graph ipv6_0/quit":
-                N=100
-                T=150
-                E=250
-                ge = Gen()
-                if type == 0:
-                    ge.genCN(N,T,E,S=4)
-                if type == 1:
-                    ge.genGraph("PLAW", N)
-                if type == 2:
-                    ge.genMeshGraph(N, 23)
-                self.graph = ge.graph
-                self.netjson =  ge.composeNetJson(self.graph)
-                self.json_netjson = json.dumps(self.netjson)
-                h_py, tc_py = self.calculateTimers()
-                print ("sending graph")
-                print cs.send(self.json_netjson)
-                cs.close()
+                #generate the graph, calculate timers(python) and push topology to prince
+                self.genG(type, cs, N)
 
             else:
                 #search for the timers' values using the regex
@@ -65,13 +70,17 @@ class PrinceTestOONF:
                     if toks:
                         tc_cpp = float(toks[0])
                         hello_cpp = float(toks[1])
-                        p_tc = abs(tc_cpp - tc_py)/((tc_cpp+ tc_py)/2)*100
-                        p_h = abs(hello_cpp - h_py)/((hello_cpp+ h_py)/2)*100
+                        p_tc = abs(tc_cpp - self.tc_py)/((tc_cpp+ self.tc_py)/2)*100
+                        p_h = abs(hello_cpp - self.h_py)/((hello_cpp+ self.h_py)/2)*100
                         print "node: " + str(self.netjson['router_id'])
                         print "       " + "C++  " + "Python" + "              " + "Percent"
-                        print "tc:    " + repr(tc_cpp) + "   " + repr(tc_py) + " " +  str(p_tc)
-                        print "hello: " + repr(hello_cpp) + "   " + repr(h_py) + " " + str(p_h)
+                        print "tc:    " + repr(tc_cpp) + "   " + repr(self.tc_py) + " " +  str(p_tc)
+                        print "hello: " + repr(hello_cpp) + "   " + repr(self.h_py) + " " + str(p_h)
                         cs.close()
-                        tc_cpp = 0
+                        iter = iter -1
+                        if (p_tc > 1) or (p_h > 1):
+                            print "Failed test"
+                            exit(0)
+
 p = PrinceTestOONF()
-p.test(2)
+p.test(1, 50, 14)
