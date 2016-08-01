@@ -66,6 +66,7 @@ class ComputeTheoreticalValues():
         self.Hi = {}
         self.TCi = {}
         for node in self.node_list:
+            # print str(node) + "  " + str(self.bet_dict[node])
             self.Hi[node] = \
                     math.sqrt(self.deg_dict[node]/self.bet_dict[node])*self.sq_lambda_H
             self.TCi[node] = \

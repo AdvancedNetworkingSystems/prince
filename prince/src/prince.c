@@ -5,7 +5,7 @@
  *      Author: gabriel
  */
 #include "prince.h"
-
+#include "time.h"
 
 routing_plugin* (*new_plugin)(char* host, c_graph_parser *gp, int json_type);
 int (*get_topology)(routing_plugin *o);
@@ -34,9 +34,12 @@ main(int argc, char* argv[]){
 		}
 		if(ph->rp->self_id)
 			ph->self_id = strdup(ph->rp->self_id);
+		clock_t start = clock();
 		graph_parser_calculate_bc(ph->gp);
+		clock_t end = clock();
 		graph_parser_compose_degree_bc_map(ph->gp, ph->bc_degree_map);
-
+		float exec_time = (float)(end - start) / CLOCKS_PER_SEC;
+		printf("Calculation time: %fs\n", exec_time);
 		if (!compute_timers(ph)){
 			delete_prince_handler(ph);
 			continue;
@@ -119,6 +122,7 @@ compute_constants(struct prince_handler *ph){
 	int degrees=0, i;
 	for(i=0; i<m_degree_bc->size;i++){
 		degrees+=m_degree_bc->map[i].degree;
+		/*printf("%s %f\n", m_degree_bc->map[i].id, m_degree_bc->map[i].bc);*/
 	}
 	ph->c.R = m_degree_bc->n_edges;
 	ph->c.O_H = degrees/t.h_timer;
