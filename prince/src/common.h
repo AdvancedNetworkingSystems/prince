@@ -26,6 +26,7 @@
 struct timers{
 	double h_timer;
 	double tc_timer;
+	double exec_time;
 };
 
 
