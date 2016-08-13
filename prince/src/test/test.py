@@ -4,8 +4,10 @@ import networkx as nx
 import subprocess
 import random
 import json
+import numpy as np
 from poprouting import ComputeTheoreticalValues
 from graph_generator import Gen
+import matplotlib.pyplot as plt
 
 class PrinceTestOONF:
     def genG(self, type, cs, N):
@@ -13,7 +15,7 @@ class PrinceTestOONF:
         E=N*1.8
         ge = Gen()
         if type == 0:
-            ge.genCNGraph(N,T,E,S=10)
+            ge.genCNGraph(N)
         if type == 1:
             ge.genGraph("PLAW", N)
         if type == 2:
@@ -54,6 +56,9 @@ class PrinceTestOONF:
         p=re.compile(r"\d*\.\d+")
         #subprocess.Popen("../../build/prince ../../input/test.ini", shell=True)
         tc_cpp = 0
+        executions = []
+        hs = []
+        tcs = []
         while iter:
             #accept connections
             (cs, address) = serversocket.accept()
@@ -73,16 +78,43 @@ class PrinceTestOONF:
                         exec_time = float(toks[2])
                         p_tc = abs(tc_cpp - self.tc_py)/((tc_cpp+ self.tc_py)/2)*100
                         p_h = abs(hello_cpp - self.h_py)/((hello_cpp+ self.h_py)/2)*100
+                        hs.append(p_h)
+                        tcs.append(p_tc)
                         print "node: " + str(self.netjson['router_id'])
                         print "       " + "C++  " + "Python" + "              " + "Percent"
                         print "tc:    " + repr(tc_cpp) + "   " + repr(self.tc_py) + " " +  str(p_tc)
                         print "hello: " + repr(hello_cpp) + "   " + repr(self.h_py) + " " + str(p_h)
-                        print "exec: " + str(exec_time)
+                        executions.append(exec_time)
                         cs.close()
                         iter = iter -1
-                        if (p_tc > 1) or (p_h > 1):
-                            print "Failed test"
-                            exit(0)
+        measures = {}
+        measures['exec_mean'] = np.mean(executions)
+        measures['exec_var'] = np.std(executions)
+        measures['h_mean'] = np.mean(hs)
+        measures['tc_mean'] = np.mean(tcs)
+        measures['h_var'] = np.std(hs)
+        measures['tc_var'] = np.std(tcs)
+        print "Average execution time with " + str(N) +" nodes is " + str(measures['exec_mean']) + "s   variance: " + str(measures['exec_var'] )
+        print "Average tc difference is " + str(measures['tc_mean']) + " variance: " + str(measures['tc_var'] )
+        print "Average h difference is " + str(measures['h_mean']) + " variance: " + str(measures['h_var'] )
+        return measures
+
 
 p = PrinceTestOONF()
-p.test(0, 20, 14)
+measures_cn = []
+measures_plaw = []
+
+x = []
+for i in range(5,16):
+    size = 10*i
+    measures_cn.append(p.test(0, size, 2)['exec_mean'])
+    measures_plaw.append(p.test(1, size, 2)['exec_mean'])
+    x.append(size)
+
+plt.plot(x, measures_cn)
+plt.plot(x, measures_plaw)
+
+plt.xlabel('size of graph (nodes)')
+plt.ylabel('execution time (s)')
+
+plt.show()
