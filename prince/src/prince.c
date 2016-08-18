@@ -7,7 +7,7 @@
 #include "prince.h"
 #include "time.h"
 
-routing_plugin* (*new_plugin)(char* host, c_graph_parser *gp, int json_type);
+routing_plugin* (*new_plugin)(char* host, int port, c_graph_parser *gp, int json_type);
 int (*get_topology)(routing_plugin *o);
 int (*push_timers)(routing_plugin *o, struct timers t);
 void (*delete_plugin)(routing_plugin* o);
@@ -26,7 +26,7 @@ main(int argc, char* argv[]){
 	do{
 		sleep(ph->refresh);
 		ph->gp = new_graph_parser(ph->weights, ph->heuristic);
-		ph->rp = new_plugin(ph->host, ph->gp, ph->json_type);
+		ph->rp = new_plugin(ph->host, ph->port, ph->gp, ph->json_type);
 		if(!get_topology(ph->rp)){
 			printf("Error getting topology");
 			continue;

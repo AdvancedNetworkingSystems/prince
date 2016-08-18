@@ -8,9 +8,9 @@
  * @return pointer to olsr plugin handler
  */
 routing_plugin*
-new_plugin(char* host, c_graph_parser *gp, int json_type){
+new_plugin(char* host, int port, c_graph_parser *gp, int json_type){
 	routing_plugin *o = (routing_plugin *) malloc(sizeof(routing_plugin));
-	o->port=9090;
+	o->port=port;
 	o->host=strdup(host);
 	o->gp = gp;
 	o->json_type=json_type;
