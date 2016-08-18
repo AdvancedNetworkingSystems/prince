@@ -54,7 +54,7 @@ class ComputeTheoreticalValues():
         print "H:", [h[1] for h in sorted(self.Hi.items(), key=lambda x:x[1])]
         print "TC:", \
             [t[1] for t in sorted(self.TCi.items(), key=lambda x:x[1])]
-        vv =  sorted([[self.deg_dict[node]/self.Hi[node], self.bet_dict[node], \
+        vv =  sorted([[self.deg_dict[node]/self.Hi[node], self.bet_dict[node],
                             self.deg_dict[node], self.Hi[node], self.TCi[node]] for node in self.node_list], key=lambda x:-x[0])
         for v in vv:
                 print v
@@ -68,21 +68,21 @@ class ComputeTheoreticalValues():
         for node in self.node_list:
             # print str(node) + "  " + str(self.bet_dict[node])
             self.Hi[node] = \
-                    math.sqrt(self.deg_dict[node]/self.bet_dict[node])*self.sq_lambda_H
+                    math.sqrt(self.deg_dict[node] / self.bet_dict[node]) * self.sq_lambda_H
             self.TCi[node] = \
-                math.sqrt(self.R/self.bet_dict[node])*self.sq_lambda_TC
+                math.sqrt(self.R / self.bet_dict[node]) * self.sq_lambda_TC
 
     def compute_average_load(self, pop=True):
         O_h = 0
         O_tc = 0
         if pop:
             for node in self.node_list:
-                O_h += self.deg_dict[node]/self.Hi[node]
-                O_tc += self.R/self.TCi[node]
+                O_h += self.deg_dict[node] / self.Hi[node]
+                O_tc += self.R / self.TCi[node]
         else:
             for node in self.node_list:
-                O_h += self.deg_dict[node]/self.cH
-                O_tc += self.R/self.cTC
+                O_h += self.deg_dict[node] / self.cH
+                O_tc += self.R / self.cTC
         return round(O_h, self.decimal_values), \
             round(O_tc, self.decimal_values)
 
@@ -94,11 +94,11 @@ class ComputeTheoreticalValues():
                 if self.deg_dict[node] == 1:
                     continue
             if pop:
-                L_h += self.Hi[node]*self.bet_dict[node]
-                L_tc += self.TCi[node]*self.bet_dict[node]
+                L_h += self.Hi[node] * self.bet_dict[node]
+                L_tc += self.TCi[node] * self.bet_dict[node]
             else:
-                L_h += self.cH*self.bet_dict[node]
-                L_tc += self.cTC*self.bet_dict[node]
+                L_h += self.cH * self.bet_dict[node]
+                L_tc += self.cTC * self.bet_dict[node]
         return round(L_h, self.decimal_values), \
             round(L_tc, self.decimal_values)
 
@@ -110,6 +110,6 @@ class ComputeTheoreticalValues():
         loss = self.compute_average_loss(pop=True), \
             self.compute_average_loss(pop=False)
 
-        print "Load pop/standard", load[0][0]/load[1][0], load[0][1]/load[1][1]
-        print "Loss pop/standard", 1-loss[0][0]/loss[1][0], \
-            1-loss[0][1]/loss[1][1]
+        print "Load pop/standard", load[0][0] / load[1][0], load[0][1] / load[1][1]
+        print "Loss pop/standard", 1 - loss[0][0] / loss[1][0], \
+            1 - loss[0][1] / loss[1][1]
