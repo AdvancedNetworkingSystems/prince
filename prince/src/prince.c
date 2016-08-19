@@ -70,6 +70,7 @@ main(int argc, char* argv[]){
 			delete_prince_handler(ph);
 			continue;
 		}
+		delete_plugin(ph->rp);
 	}while(ph->refresh);
 	delete_prince_handler(ph);
 	return 1;
@@ -108,11 +109,6 @@ new_prince_handler(char * conf_file){
 	get_topology = (int (*)(routing_plugin *o)) dlsym(ph->plugin_handle, "get_topology");
 	push_timers = (int (*)(routing_plugin *o, struct timers t)) dlsym(ph->plugin_handle, "push_timers");
 	delete_plugin = (void (*)(routing_plugin *o)) dlsym(ph->plugin_handle, "delete_plugin");
-
-
-
-
-
 	return ph;
 }
 /**
@@ -126,7 +122,6 @@ void delete_prince_handler(struct prince_handler* ph){
 	free(ph->self_id);
 	free(ph->host);
 	free(ph);
-
 }
 
 
@@ -177,7 +172,6 @@ compute_timers(struct prince_handler *ph){
 	ph->opt_t.h_timer = sqrt(ph->bc_degree_map->map[my_index].degree / ph->bc_degree_map->map[my_index].bc) * ph->c.sq_lambda_H;
 	ph->opt_t.tc_timer = sqrt(ph->c.R/ph->bc_degree_map->map[my_index].bc)*ph->c.sq_lambda_TC;
 	return 1;
-
 }
 
 
@@ -197,5 +191,4 @@ read_config_file(struct prince_handler *ph, char *filepath){
 
 	printf("Config loaded from %s\n", filepath);
 	return 1;
-
 }
