@@ -1,4 +1,25 @@
 /*
+Copyright (c) 2016 Gabriele Gemmi <gabriel@autistici.org>
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+*/
+/*
  * prince.c
  *
  *  Created on: 12 mag 2016
@@ -7,7 +28,7 @@
 #include "prince.h"
 #include "time.h"
 
-routing_plugin* (*new_plugin)(char* host, c_graph_parser *gp, int json_type);
+routing_plugin* (*new_plugin)(char* host, int port, c_graph_parser *gp, int json_type);
 int (*get_topology)(routing_plugin *o);
 int (*push_timers)(routing_plugin *o, struct timers t);
 void (*delete_plugin)(routing_plugin* o);
@@ -26,7 +47,7 @@ main(int argc, char* argv[]){
 	do{
 		sleep(ph->refresh);
 		ph->gp = new_graph_parser(ph->weights, ph->heuristic);
-		ph->rp = new_plugin(ph->host, ph->gp, ph->json_type);
+		ph->rp = new_plugin(ph->host, ph->port, ph->gp, ph->json_type);
 		if(!get_topology(ph->rp)){
 			printf("Error getting topology");
 			continue;
@@ -49,6 +70,7 @@ main(int argc, char* argv[]){
 			delete_prince_handler(ph);
 			continue;
 		}
+		delete_plugin(ph->rp);
 	}while(ph->refresh);
 	delete_prince_handler(ph);
 	return 1;
@@ -87,11 +109,6 @@ new_prince_handler(char * conf_file){
 	get_topology = (int (*)(routing_plugin *o)) dlsym(ph->plugin_handle, "get_topology");
 	push_timers = (int (*)(routing_plugin *o, struct timers t)) dlsym(ph->plugin_handle, "push_timers");
 	delete_plugin = (void (*)(routing_plugin *o)) dlsym(ph->plugin_handle, "delete_plugin");
-
-
-
-
-
 	return ph;
 }
 /**
@@ -105,7 +122,6 @@ void delete_prince_handler(struct prince_handler* ph){
 	free(ph->self_id);
 	free(ph->host);
 	free(ph);
-
 }
 
 
@@ -156,7 +172,6 @@ compute_timers(struct prince_handler *ph){
 	ph->opt_t.h_timer = sqrt(ph->bc_degree_map->map[my_index].degree / ph->bc_degree_map->map[my_index].bc) * ph->c.sq_lambda_H;
 	ph->opt_t.tc_timer = sqrt(ph->c.R/ph->bc_degree_map->map[my_index].bc)*ph->c.sq_lambda_TC;
 	return 1;
-
 }
 
 
@@ -176,5 +191,4 @@ read_config_file(struct prince_handler *ph, char *filepath){
 
 	printf("Config loaded from %s\n", filepath);
 	return 1;
-
 }
