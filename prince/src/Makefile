@@ -4,7 +4,7 @@ TARGET = prince
 OBJS = $(SRCS:.c=.o)
 CFLAGS = -ansi -g -fPIC -D_GNU_SOURCE -DBOOST_LOG_DYN_LINK
 CCFLAGS = --std=c++11 -g 
-LIBS = -L../../graph-parser/build/lib -lgraphparser -ldl -lboost_log -lboost_log_setup -ljson-c
+LIBS = -L../../graph-parser/build/lib -lgraphparser -ldl -ljson-c
 BPATH = ../build/
 
 all: $(TARGET) libprince_olsr.so libprince_oonf.so

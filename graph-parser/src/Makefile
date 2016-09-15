@@ -24,8 +24,8 @@ $(TARGET): $(OBJS)
 	$(CXX) $(CXXFLAGS) $(INCLUDES) $(LDFLAGS) -o $(BPATH)$(TARGET).so $(OBJS)  $(LIBS )
 
 
-log: CXXFLAGS = -std=c++11 -fPIC -g -DLOG -DBOOST_LOG_DYN_LINK
-log: LIBS = -lboost_log_setup -lboost_log -lpthread 
+log: CXXFLAGS = -std=c++11 -fPIC -g
+log: LIBS = -lpthread 
 log: $(OBJS)
 	$(CXX) $(CXXFLAGS) $(INCLUDES) $(LDFLAGS) -o $(BPATH)$(TARGET).so $(OBJS)  $(LIBS )
 
