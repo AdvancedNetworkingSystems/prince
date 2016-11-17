@@ -3,6 +3,7 @@
 .dep/
 .project
 .settings/
+nbproject/
 
 prince/build
 graph-parser/build
