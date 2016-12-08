@@ -1,0 +1,39 @@
+
+# define the C source files
+SRCS = graph_parser.c
+TARGET = libgraphparser
+OBJS = $(SRCS:.cpp=.o)
+CXXFLAGS = -fPIC -g
+LDFLAGS = -shared -Wl,-soname,$(TARGET).so
+BPATH = ../build/lib/
+
+
+# define the C object files
+#
+# This uses Suffix Replacement within a macro:
+#   $(name:string1=string2)
+#         For each word in 'name' replace 'string1' with 'string2'
+# Below we are replacing the suffix .c of all words in the macro SRCS
+# with the .o suffix
+#
+
+$(TARGET): $(OBJS)
+	$(CC) $(CXXFLAGS) $(INCLUDES) $(LDFLAGS) -o $(BPATH)$(TARGET).so $(OBJS)  $(LIBS )
+
+
+log: CXXFLAGS = -fPIC -g
+log: LIBS = -lpthread 
+log: $(OBJS)
+	$(CC) $(CXXFLAGS) $(INCLUDES) $(LDFLAGS) -o $(BPATH)$(TARGET).so $(OBJS)  $(LIBS )
+
+
+# this is a suffix replacement rule for building .o's from .c's
+# it uses automatic variables $<: the name of the prerequisite of
+# the rule(a .c file) and $@: the name of the target of the rule (a .o file)
+# (see the gnu make manual section about automatic variables)
+.cpp.o:
+	$(CC) $(CFLAGS) $(INCLUDES) $(CXXFLAGS) -c $<  -o $@
+
+# remove object files and executable when user executes "make clean"
+clean:
+	$(RM) *.o $(BPATH)$(TARGET).so

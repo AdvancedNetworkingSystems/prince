@@ -1,4 +1,6 @@
 all:
+	mkdir -p  graph-parser/build/lib
+	mkdir -p prince/build/
 	$(MAKE) -C graph-parser/src
 	$(MAKE) -C prince/src
 
