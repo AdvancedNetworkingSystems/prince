@@ -6,7 +6,7 @@
 
 /* 
  * File:   graph.h
- * Author: principale
+ * Author: mb03
  *
  * Created on December 7, 2016, 3:48 PM
  */
@@ -15,15 +15,20 @@
 #define GRAPH_H
 
 #include "list.h" 
-
+#include <stdbool.h>
 #ifdef __cplusplus
 extern "C" {
 #endif
     
+    
     struct node_graph {
-        struct queue neighbours;
+        struct list neighbours;
         const char * name;
-        
+        int index;
+        int link;
+        int low_link;
+        bool on_stack;
+        int bcc_id;
     }; 
     struct edge_graph {
         struct node_graph * to;
@@ -31,7 +36,7 @@ extern "C" {
         
     }; 
     struct graph {
-        struct queue nodes;
+        struct list nodes;
     };
     
     void init_graph(struct graph * g);
@@ -42,7 +47,7 @@ extern "C" {
     void init_node_graph(struct node_graph * n,const char * name);
     void init_edge_graph(struct edge_graph * e);
     void init_edge_graph_params(struct edge_graph * e,struct node_graph * to,double value);
-
+    
     
 #ifdef __cplusplus
 }

@@ -1,2 +1,2 @@
 compile:
-	gcc -o list.out -g graph/list.c graph/graph.c
+	gcc -g algorithms.c graph/list.c graph/graph.c

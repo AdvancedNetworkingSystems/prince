@@ -6,24 +6,25 @@
 #include "graph.h"
 
 void init_graph(struct graph * g){
-    init_queue(&(g->nodes));
+    init_list(&(g->nodes));
 }
 
 struct node_graph * add_node_graph(struct graph * g, const char * name){//uniqueness check not performed
     struct node_graph * n=(struct node_graph*)malloc(sizeof(struct node_graph));
     init_node_graph(n,name);
-    enqueue_queue(&(g->nodes),(void*)n);
+    enqueue_list(&(g->nodes),(void*)n);
     return n;
 }
 
 void add_edge_graph(struct graph * g, const char * name_from, const char * name_to, double value){
     struct node_graph *from=0,*to=0,*current =0;
-    struct node_queue * n=g->nodes.head;
+    struct node_list * n=g->nodes.head;
     while(n!=0 && (from==0 || to==0)){ //if there are no more nodes or we have found both edge ends
         current=(struct node_graph *)n->content;
-        if(strcmp(current->name,name_from)==0){
+        if(from==0 && strcmp(current->name,name_from)==0){
             from=current;
-        }else if(strcmp(current->name,name_to)==0){
+        }
+        if(to==0 && strcmp(current->name,name_to)==0){
             to=current;
         }
         n=n->next;
@@ -37,16 +38,16 @@ void add_edge_graph(struct graph * g, const char * name_from, const char * name_
     if(from!=0 && to!=0){
         struct edge_graph * e=(struct edge_graph*)malloc(sizeof(struct edge_graph));
         init_edge_graph_params(e,to,value);
-        enqueue_queue(&(from->neighbours),(void*)e);
+        enqueue_list(&(from->neighbours),(void*)e);
         
     }
 }
 
 void print_graph(struct graph * g){
-    struct node_queue * nq=g->nodes.head;
+    struct node_list * nq=g->nodes.head;
     while(nq!=0){
         struct node_graph * ng=(struct node_graph*)nq->content;
-        struct node_queue * nqi=ng->neighbours.head;
+        struct node_list * nqi=ng->neighbours.head;
         printf("%s [",ng->name);
         while(nqi!=0){
             struct edge_graph * eg=(struct edge_graph*)nqi->content;
@@ -60,7 +61,12 @@ void print_graph(struct graph * g){
 
 void init_node_graph(struct node_graph * n,const char * name){
     n->name=name;
-    init_queue(&(n->neighbours));
+    n->index=-1;
+    n->link=-1;
+    n->low_link=-1;
+    n->on_stack=false;
+    n->bcc_id=-1;
+    init_list(&(n->neighbours));
 }
 
 void init_edge_graph(struct edge_graph * e){
@@ -70,12 +76,4 @@ void init_edge_graph(struct edge_graph * e){
 void init_edge_graph_params(struct edge_graph * e,struct node_graph * to,double value){
     e->to=to;
     e->value=value;
-}
-int main(){
-    struct graph g;
-    init_graph(&g);
-    add_edge_graph(&g,"a","b",1);
-    add_edge_graph(&g,"b","a",1.5);
-    add_edge_graph(&g,"b","c",2);
-    print_graph(&g);
 }

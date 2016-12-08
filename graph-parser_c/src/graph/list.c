@@ -6,13 +6,13 @@
 
 #include "list.h"
 
-void init_queue( struct queue * q){
+void init_list( struct list * q){
     q->head=0;
     q->tail=0;
     q->size=0;
 }
-void enqueue_queue(struct queue * q,void * item){
-    struct  node_queue * n=(struct node_queue*)malloc(sizeof(struct node_queue));
+void enqueue_list(struct list * q,void * item){
+    struct  node_list * n=(struct node_list*)malloc(sizeof(struct node_list));
     n->content=item;
     if(q->head==0){
         n->prev=0;
@@ -28,10 +28,10 @@ void enqueue_queue(struct queue * q,void * item){
         q->size++;
     }
 }
-void * dequeue_queue(struct queue * q){
+void * dequeue_list(struct list * q){
     void * ret_val=0;
     if(q->head!=0){
-        struct node_queue * to_remove=q->head;
+        struct node_list * to_remove=q->head;
         ret_val=q->head->content;
         if(q->head->next==0){
             q->head=0;
@@ -46,16 +46,33 @@ void * dequeue_queue(struct queue * q){
     
     return ret_val;
 }
-void print_queue(struct queue * q){
-    struct node_queue * n=q->head;
+
+void * pop_list(struct list * q){
+    void * ret_val=0;
+    if(q->tail!=0){
+        struct node_list * to_remove=q->tail;
+        ret_val=to_remove->content;
+        q->tail=to_remove->prev;
+        if(q->tail!=0){
+            q->tail->next=0;
+        }else{
+            q->head=0;
+        }
+        free(to_remove);
+        q->size--; 
+    }
+    return ret_val;
+}
+void print_list(struct list * q){
+    struct node_list * n=q->head;
     while(n!=0){
         printf("%p ",n);
         n=n->next;
-        
     }
+    printf("\n");
 }
 
-int is_empty_queue(struct queue * q){
+int is_empty_list(struct list * q){
     return q->head==0;
 }
 
@@ -68,7 +85,7 @@ void enqueue_priority_queue(struct priority_queue * q,void * item, double val){
     struct  node_priority_queue * n=(struct node_priority_queue*)malloc(sizeof(struct node_priority_queue));
     n->content=item;
     n->value=val;
-    if(q->head==0){ //if priority queue is empty
+    if(q->head==0){ //if priority list is empty
         n->prev=0;
         n->next=0;
         q->head=n;

@@ -5,8 +5,8 @@
  */
 
 /* 
- * File:   queue.h
- * Author: principale
+ * File:   list.h
+ * Author: mb03
  *
  * Created on December 6, 2016, 6:41 PM
  */
@@ -22,16 +22,16 @@ extern "C" {
 #endif
     
     
-    struct node_queue {
+    struct node_list {
         void * content;
-        struct node_queue * next;
-        struct node_queue * prev;
+        struct node_list * next;
+        struct node_list * prev;
     };
     
     
-    struct queue {
-        struct node_queue * head;
-        struct node_queue * tail;
+    struct list {
+        struct node_list * head;
+        struct node_list * tail;
         int size;
     };
     
@@ -48,11 +48,12 @@ extern "C" {
         int size;
     };
     
-    void init_queue(struct queue * q);
-    void enqueue_queue(struct queue * q,void * item);
-    void * dequeue_queue(struct queue * q);
-    void print_queue(struct queue * q);
-    int is_empty_queue(struct queue * q);
+    void init_list(struct list * q);
+    void enqueue_list(struct list * q,void * item);
+    void * dequeue_list(struct list * q);
+    void * pop_list(struct list * q);
+    void print_list(struct list * q);
+    int is_empty_list(struct list * q);
     
     void init_priority_queue(struct priority_queue * q);
     void enqueue_priority_queue(struct priority_queue * q,void * item, double val);
