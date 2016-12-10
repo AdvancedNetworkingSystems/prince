@@ -31,6 +31,8 @@ void add_edge_graph(struct graph * g, const char * name_from, const char * name_
     }
     if(from==0){
         from=add_node_graph(g,name_from);
+        if(strcmp(name_from,name_to)==0)
+            to=from;
     }     
     if(to==0){
         to=add_node_graph(g,name_to);
@@ -48,7 +50,7 @@ void print_graph(struct graph * g){
     while(nq!=0){
         struct node_graph * ng=(struct node_graph*)nq->content;
         struct node_list * nqi=ng->neighbours.head;
-        printf("%s [",ng->name);
+        printf("%s (%d) [",ng->name,ng->index);
         while(nqi!=0){
             struct edge_graph * eg=(struct edge_graph*)nqi->content;
             printf(" (%s , %f) ",eg->to->name,eg->value);
@@ -61,11 +63,14 @@ void print_graph(struct graph * g){
 
 void init_node_graph(struct node_graph * n,const char * name){
     n->name=name;
+    
     n->index=-1;
-    n->link=-1;
     n->low_link=-1;
     n->on_stack=false;
     n->bcc_id=-1;
+    
+    n->caller=0;
+    n->iterator=0;
     init_list(&(n->neighbours));
 }
 
@@ -76,4 +81,19 @@ void init_edge_graph(struct edge_graph * e){
 void init_edge_graph_params(struct edge_graph * e,struct node_graph * to,double value){
     e->to=to;
     e->value=value;
+}
+
+void reset_graph(struct graph * g){
+    struct node_list * nq=g->nodes.head;
+    while(nq!=0){
+        struct node_graph * ng=(struct node_graph*)nq->content;
+        ng->index=-1;
+        ng->low_link=-1;
+        ng->on_stack=false;
+        ng->bcc_id=-1;
+        
+        ng->caller=0;
+        ng->iterator=0;
+        nq=nq->next;
+    }
 }

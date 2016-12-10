@@ -46,6 +46,14 @@ void * dequeue_list(struct list * q){
     
     return ret_val;
 }
+void * peek_last_list(struct list * q){
+    void * ret_val=0;
+    if(q->tail!=0){
+        ret_val=q->tail->content;
+    }
+    return ret_val;
+}
+
 
 void * pop_list(struct list * q){
     void * ret_val=0;

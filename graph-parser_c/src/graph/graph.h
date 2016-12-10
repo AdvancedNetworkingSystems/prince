@@ -24,11 +24,14 @@ extern "C" {
     struct node_graph {
         struct list neighbours;
         const char * name;
+        //for recursive version
         int index;
-        int link;
         int low_link;
         bool on_stack;
         int bcc_id;
+        //for iterative version
+        struct node_graph * caller;
+        struct node_list * iterator;
     }; 
     struct edge_graph {
         struct node_graph * to;
@@ -43,11 +46,12 @@ extern "C" {
     struct node_graph * add_node_graph(struct graph * g, const char * name);
     void add_edge_graph(struct graph * g, const char * name_from, const char * name_to, double value);
     void print_graph(struct graph * g);
+    void reset_graph(struct graph * g);
     
     void init_node_graph(struct node_graph * n,const char * name);
     void init_edge_graph(struct edge_graph * e);
     void init_edge_graph_params(struct edge_graph * e,struct node_graph * to,double value);
-    
+
     
 #ifdef __cplusplus
 }
