@@ -11,7 +11,7 @@ void init_graph(struct graph * g){
 
 struct node_graph * add_node_graph(struct graph * g, const char * name){//uniqueness check not performed
     struct node_graph * n=(struct node_graph*)malloc(sizeof(struct node_graph));
-    init_node_graph(n,name);
+    init_node_graph(n,name,g->nodes.size);
     enqueue_list(&(g->nodes),(void*)n);
     return n;
 }
@@ -61,9 +61,9 @@ void print_graph(struct graph * g){
     }
 }
 
-void init_node_graph(struct node_graph * n,const char * name){
+void init_node_graph(struct node_graph * n,const char * name,int id){
     n->name=name;
-    
+    init_list(&(n->neighbours));
     n->index=-1;
     n->low_link=-1;
     n->on_stack=false;
@@ -71,7 +71,9 @@ void init_node_graph(struct node_graph * n,const char * name){
     
     n->caller=0;
     n->iterator=0;
-    init_list(&(n->neighbours));
+    
+    n->id=id;
+    
 }
 
 void init_edge_graph(struct edge_graph * e){

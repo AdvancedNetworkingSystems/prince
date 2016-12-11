@@ -4,8 +4,10 @@
  * and open the template in the editor.
  */
 #include "graph/graph.h"
-
+#include <limits.h>
 //pseudocode from https://en.wikipedia.org/wiki/Tarjan's_strongly_connected_components_algorithm
+
+const int INFINITY=INT_MAX;
 
 void strongconnect(struct node_graph* v,int * index, struct list * s,int * bcc_id);  
 void DFS_iter(struct node_graph* i,int * index,struct list * s);
@@ -64,7 +66,7 @@ void strongconnect(struct node_graph* v,int * index, struct list * s,int * bcc_i
             }
         }while(w!=v);
         if(!empty){
-            printf(" \n",(*bcc_id));
+            printf(" \n");
             (*bcc_id)++;
         }
     }
@@ -138,10 +140,77 @@ void DFS_iter(struct node_graph* u,int * index,struct list * s){
     }
 }
 
+//http://algo.uni-konstanz.de/publications/b-vspbc-08.pdf
+//file:///home/principale/Desktop/res_pro/brandes.png //TODO: remove
 
+//reset list when initializing
+//modify item in priority queue !!!!!!!!
+betweeness_brandes(struct graph * g){
+    struct priority_queue q;
+    struct list S;
+    init_priority_queue(&q);
+    init_list(&S);
+    int node_num=g->nodes.size;
+    double * dist=malloc(node_num*sizeof(double));
+    struct list * pred=malloc(node_num*sizeof( struct list));
+    int * sigma=malloc(node_num*sizeof(int));
+    bool * delta=malloc(node_num*sizeof(bool));
+    double * ret_val=malloc(node_num*sizeof(double));
+    struct node_list * n;
+    int i;
+    for(n =g->nodes.head;n!=0;n=n->next){
+        struct node_graph* s=(struct node_graph*) n->content;
+        for( i =0;i<node_num;i++){
+            init_list(pred +i);
+            dist[i]=INFINITY;
+            sigma[i]=0;
+        }
+        dist[s->id]=0;
+        delta[s->id]=1;
+        insert_priority_queue(&q,(void*)s,0);
+        while(!is_empty_priority_queue(&q)){
+            struct node_graph* v=(struct node_graph*)dequeue_priority_queue(&q);
+            enqueue_list(&S,v);
+            if(s->neighbours.size>0){
+                struct node_list * edge_iterator=s->neighbours.head;
+                for(edge_iterator=s->neighbours.head;n!=0;n=n->next){
+                    struct edge_graph * edge=(struct edge_graph*)edge_iterator->content;
+                    struct node_graph * w=edge->to;
+                    double weight=edge->value;
+                    if(dist[w->id]>(dist[v->id]+weight)){
+                        dist[w->id]=dist[v->id]+weight;
+                        //do magic
+                        delta[w->id]=0;
+                        init_list(pred +w->id);
+                    }
+                    if(dist[w->id]==(dist[v->id]+weight)){
+                        sigma[w->id]+=  sigma[v->id];
+                        enqueue_list( pred+w->id,v);
+                    }
+                }
+            }
+        }
+        for( i =0;i<node_num;i++){
+            delta[i]=0;
+        }
+        while(!is_empty_list(&S)){
+            struct node_graph * w=(struct node_graph * )pop_list(&S);
+            struct node_list * node_iterator;
+            for(node_iterator =pred[w->id].head;node_iterator!=0;node_iterator=node_iterator->next){
+                struct node_graph * v=(struct node_graph*)node_iterator->content;
+                delta[v->id]+= ((delta[v->id]/ delta[w->id])*(1+delta[w->id]));
+            }
+            if(w!=s){
+                ret_val[w->id]+=delta[w->id];
+            }
+        }
+    }
+}
+
+/*
 
 main(){
-     printf("\nSCCs in zeroth graph \n");
+    printf("\nSCCs in zeroth graph \n");
     struct graph g0;
     init_graph(&g0);
     add_edge_graph(&g0,"a","b",1);
@@ -250,4 +319,4 @@ main(){
     tarjan_iter(&g5);
     
     return 0;
-}
+}*/

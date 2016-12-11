@@ -32,6 +32,8 @@ extern "C" {
         //for iterative version
         struct node_graph * caller;
         struct node_list * iterator;
+        //for brandes
+        int id;
     }; 
     struct edge_graph {
         struct node_graph * to;
@@ -48,7 +50,7 @@ extern "C" {
     void print_graph(struct graph * g);
     void reset_graph(struct graph * g);
     
-    void init_node_graph(struct node_graph * n,const char * name);
+    void init_node_graph(struct node_graph * n,const char * name, int id);
     void init_edge_graph(struct edge_graph * e);
     void init_edge_graph_params(struct edge_graph * e,struct node_graph * to,double value);
 

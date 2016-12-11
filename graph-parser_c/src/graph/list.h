@@ -57,7 +57,8 @@ extern "C" {
     int is_empty_list(struct list * q);
     
     void init_priority_queue(struct priority_queue * q);
-    void enqueue_priority_queue(struct priority_queue * q,void * item, double val);
+    void insert_priority_queue(struct priority_queue * q,void * item, double val);
+    void insert_or_update_priority_queue(struct priority_queue * q,void * item, double val);
     void * dequeue_priority_queue(struct priority_queue * q);
     void print_priority_queue(struct priority_queue * q);
     int is_empty_priority_queue(struct priority_queue * q);
