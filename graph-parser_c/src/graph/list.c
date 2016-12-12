@@ -79,6 +79,17 @@ void print_list(struct list * q){
     }
     printf("\n");
 }
+void clear_list(struct list * q){
+    struct node_list * n=q->head;
+    while(n!=0){
+        struct node_list * tmp=n;
+        n=n->next;
+        free(tmp);
+    }
+    q->head=0;
+    q->tail=0;
+    q->size=0;
+}
 
 int is_empty_list(struct list * q){
     return q->head==0;
@@ -129,36 +140,6 @@ void insert_priority_queue(struct priority_queue * q,void * item, double val){
 }
 
 
-int main(){
-    srand(0);
-    struct priority_queue q;
-    init_priority_queue(&q);
-    int n=1;
-    int i=0;
-    
-    for(i=0;i<10000;i++){
-        int res=rand()%3;
-        double x = (float)rand()/(float)(RAND_MAX/25);
-        if(res==0){
-            int * p=malloc(sizeof(int));
-            int s1,s2;
-            s1=q.size;
-            insert_or_update_priority_queue(&q,p,x);
-            s2=q.size;
-            
-            if(s2-s1>1 || s2-s1<0){
-                // printf("Exiting\n");
-                //exit(0);
-            }
-        }else if(res==1){
-            insert_or_update_priority_queue(&q,&n,x);
-        }else{
-            dequeue_priority_queue(&q);
-        }
-    }
-}
-
-//TODO: at any time: check queue, order and size
 void insert_or_update_priority_queue(struct priority_queue * q,void * item, double val){
     if(q->head==0){ //if priority list is empty
         struct  node_priority_queue * n=(struct node_priority_queue*)malloc(sizeof(struct node_priority_queue));

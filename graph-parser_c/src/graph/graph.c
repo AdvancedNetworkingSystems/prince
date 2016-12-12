@@ -99,3 +99,23 @@ void reset_graph(struct graph * g){
         nq=nq->next;
     }
 }
+
+void free_graph(struct graph * g){
+    struct node_list * nq=g->nodes.head;
+    while(nq!=0){
+        struct node_list * nq_tmp=nq;
+        struct node_graph * ng=(struct node_graph*)nq->content;
+        struct node_list * eq=(struct node_list*)ng->neighbours.head;
+        struct node_list * eq_tmp;
+        while(eq!=0){
+            eq_tmp=eq;
+            eq=eq->next;
+            struct edge_graph *e=(struct edge_graph*)eq->content;
+            free(eq_tmp);
+        }
+        nq=nq->next;
+        free(ng);
+        free(nq_tmp);
+    }
+    free(g);
+}

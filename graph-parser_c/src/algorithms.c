@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-#include "graph/graph.h"
+#include "algorithms.h"
 #include <limits.h>
 //pseudocode from https://en.wikipedia.org/wiki/Tarjan's_strongly_connected_components_algorithm
 
@@ -73,7 +73,7 @@ void strongconnect(struct node_graph* v,int * index, struct list * s,int * bcc_i
 }
 
 
-tarjan_iter(struct graph * g){
+void tarjan_iter(struct graph * g){
     struct node_list * n =g->nodes.head;
     int index=0;
     struct list s;
@@ -143,103 +143,133 @@ void DFS_iter(struct node_graph* u,int * index,struct list * s){
 //http://algo.uni-konstanz.de/publications/b-vspbc-08.pdf
 //file:///home/principale/Desktop/res_pro/brandes.png //TODO: remove
 
-//reset list when initializing
-//modify item in priority queue !!!!!!!!
-betweeness_brandes(struct graph * g){
+void betweeness_brandes(struct graph * g){
     struct priority_queue q;
     struct list S;
+    init_priority_queue(&q);
     init_priority_queue(&q);
     init_list(&S);
     int node_num=g->nodes.size;
     double * dist=malloc(node_num*sizeof(double));
     struct list * pred=malloc(node_num*sizeof( struct list));
     int * sigma=malloc(node_num*sizeof(int));
-    bool * delta=malloc(node_num*sizeof(bool));
+    double * delta=malloc(node_num*sizeof(double));
     double * ret_val=malloc(node_num*sizeof(double));
-    struct node_list * n;
     int i;
-    for(n =g->nodes.head;n!=0;n=n->next){
+    for( i =0;i<node_num;i++){
+        ret_val[i]=0;
+        init_list(pred +i);
+    }
+    struct node_list * n=0;
+    for(n=g->nodes.head;n!=0; n=n->next){
         struct node_graph* s=(struct node_graph*) n->content;
         for( i =0;i<node_num;i++){
-            init_list(pred +i);
+            clear_list(pred +i);
             dist[i]=INFINITY;
             sigma[i]=0;
+            delta[i]=0;
         }
         dist[s->id]=0;
-        delta[s->id]=1;
+        sigma[s->id]=1;
         insert_priority_queue(&q,(void*)s,0);
+        
         while(!is_empty_priority_queue(&q)){
             struct node_graph* v=(struct node_graph*)dequeue_priority_queue(&q);
             enqueue_list(&S,v);
             if(s->neighbours.size>0){
+                // printf("here %s\n",s->name);
                 struct node_list * edge_iterator=s->neighbours.head;
-                for(edge_iterator=s->neighbours.head;n!=0;n=n->next){
+                for(edge_iterator=s->neighbours.head;edge_iterator!=0;edge_iterator=edge_iterator->next){
                     struct edge_graph * edge=(struct edge_graph*)edge_iterator->content;
                     struct node_graph * w=edge->to;
                     double weight=edge->value;
                     if(dist[w->id]>(dist[v->id]+weight)){
                         dist[w->id]=dist[v->id]+weight;
-                        //do magic
-                        delta[w->id]=0;
-                        init_list(pred +w->id);
+                        // printf("here pushing %s\n",w->name);
+                        insert_or_update_priority_queue(&q,w,dist[w->id]);
+                        sigma[w->id]=0;
+                        clear_list(pred +w->id);
                     }
+                    // printf("here  not computing %s %f %f\n",w->name,dist[w->id],dist[v->id]+weight);
                     if(dist[w->id]==(dist[v->id]+weight)){
-                        sigma[w->id]+=  sigma[v->id];
+                        //  printf("here computing %s\n",w->name);
+                        sigma[w->id]= sigma[w->id]+ sigma[v->id];
                         enqueue_list( pred+w->id,v);
                     }
                 }
             }
         }
-        for( i =0;i<node_num;i++){
-            delta[i]=0;
-        }
+        printf("HERE %p %d\n",s,S.size);
+        //    for( i =0;i<node_num;i++){
+        
+        //  }
         while(!is_empty_list(&S)){
             struct node_graph * w=(struct node_graph * )pop_list(&S);
+            // printf("=========== pop %p %d (%d)\n",s,S.size,pred[w->id].size);
             struct node_list * node_iterator;
+            //printf("# %d \n",pred[w->id].size);
+            printf("The following nodes has a value, ");
             for(node_iterator =pred[w->id].head;node_iterator!=0;node_iterator=node_iterator->next){
                 struct node_graph * v=(struct node_graph*)node_iterator->content;
-                delta[v->id]+= ((delta[v->id]/ delta[w->id])*(1+delta[w->id]));
+                delta[v->id]= delta[v->id]+((sigma[v->id]/ sigma[w->id])*(1+delta[w->id]));
+                // printf("@> %d %d %f\n",v->id,w->id,delta[v->id]);
+                printf("%d, ",v->id);
             }
+            printf("\n");
+            if(w!=s)
+                printf(" We set %d\n",w->id);
             if(w!=s){
-                ret_val[w->id]+=delta[w->id];
+                //  printf("%f %f %f=>",ret_val[w->id],delta[w->id],ret_val[w->id]+delta[w->id]);
+                //printf("=> %d %f\n",w->id,delta[w->id]);
+                ret_val[w->id]=ret_val[w->id]+delta[w->id];
+                //printf("§§ %f %f\n",ret_val[w->id],delta[w->id]);
             }
         }
     }
+    for(n=g->nodes.head;n!=0; n=n->next){
+        printf("%s : %f\n",((struct node_graph*)n->content)->name,ret_val[((struct node_graph*)n->content)->id]);
+    }
+    free(dist);
+    free(pred);
+    free(sigma);
+    free(delta);
 }
 
-/*
 
+/*
 main(){
-    printf("\nSCCs in zeroth graph \n");
+    // printf("\nSCCs in zeroth graph \n");
     struct graph g0;
     init_graph(&g0);
-    add_edge_graph(&g0,"a","b",1);
+    add_edge_graph(&g0,"a","b",0.4);
     
-    add_edge_graph(&g0,"b","c",1);
+    add_edge_graph(&g0,"b","c",2);
     
-    add_edge_graph(&g0,"c","a",1);
+    add_edge_graph(&g0,"c","a",1.1);
     
-    add_edge_graph(&g0,"d","b",1);
-    add_edge_graph(&g0,"d","c",1);
+    add_edge_graph(&g0,"d","b",3);
+    add_edge_graph(&g0,"d","c",0.7);
     add_edge_graph(&g0,"d","e",1);
     
-    add_edge_graph(&g0,"e","d",1);
-    add_edge_graph(&g0,"e","f",1);
+    add_edge_graph(&g0,"e","d",1.5);
+    add_edge_graph(&g0,"e","f",0.1);
     
-    add_edge_graph(&g0,"f","c",1);
-    add_edge_graph(&g0,"f","g",1);
+    add_edge_graph(&g0,"f","c",2.3);
+    add_edge_graph(&g0,"f","g",1.8);
     
-    add_edge_graph(&g0,"g","f",1);
+    add_edge_graph(&g0,"g","f",2.4);
     
-    add_edge_graph(&g0,"h","g",1);
-    add_edge_graph(&g0,"h","e",1);
-    add_edge_graph(&g0,"h","h",1);
-    tarjan_rec(&g0);
-    printf("===============\n");
-    reset_graph(&g0);
-    tarjan_iter(&g0);
+    add_edge_graph(&g0,"h","g",2.6);
+    add_edge_graph(&g0,"h","e",2.1);
+    add_edge_graph(&g0,"h","h",0.5);
+    // tarjan_rec(&g0);
+    // printf("===============\n");
+    // reset_graph(&g0);
+    // tarjan_iter(&g0);
+    //betweeness_brandes(&g0);
+    //exit(0);
     
-    printf("\nSCCs in first graph \n");
+    //printf("\nSCCs in first graph \n");
     struct graph g1;
     init_graph(&g1);
     add_edge_graph(&g1,"1","0",1);
@@ -247,23 +277,25 @@ main(){
     add_edge_graph(&g1,"2","1",1);
     add_edge_graph(&g1,"0","3",1);
     add_edge_graph(&g1,"3","4",1);
-    tarjan_rec(&g1);
-    printf("===============\n");
-    reset_graph(&g1);
-    tarjan_iter(&g1);
+    //tarjan_rec(&g1);
+    //printf("===============\n");
+    //reset_graph(&g1);
+    //tarjan_iter(&g1);
+    betweeness_brandes(&g1);
     
-    printf("\nSCCs in second graph \n");
+    // printf("\nSCCs in second graph \n");
     struct graph g2;
     init_graph(&g2);
     add_edge_graph(&g2,"0","1",1);
     add_edge_graph(&g2,"1","2",1);
     add_edge_graph(&g2,"2","3",1);
-    tarjan_rec(&g2);
-    printf("===============\n");
-    reset_graph(&g2);
-    tarjan_iter(&g2);
+    //tarjan_rec(&g2);
+    //printf("===============\n");
+    // reset_graph(&g2);
+    //tarjan_iter(&g2);
+    betweeness_brandes(&g2);
     
-    printf("\nSCCs in third graph \n");
+    // printf("\nSCCs in third graph \n");
     struct graph g3;
     init_graph(&g3);
     add_edge_graph(&g3,"0","1",1);
@@ -274,12 +306,13 @@ main(){
     add_edge_graph(&g3,"1","6",1);
     add_edge_graph(&g3,"3","5",1);
     add_edge_graph(&g3,"4","5",1);
-    tarjan_rec(&g3);
-    printf("===============\n");
-    reset_graph(&g3);
-    tarjan_iter(&g3);
+    //tarjan_rec(&g3);
+    //printf("===============\n");
+    //reset_graph(&g3);
+    //tarjan_iter(&g3);
+    betweeness_brandes(&g3);
     
-    printf("\nSCCs in fourth graph \n");
+    //printf("\nSCCs in fourth graph \n");
     struct graph g4;
     init_graph(&g4);
     add_edge_graph(&g4,"0","1",1); 
@@ -299,12 +332,13 @@ main(){
     add_edge_graph(&g4,"7","9",1);
     add_edge_graph(&g4,"8","9",1);
     add_edge_graph(&g4,"9","8",1);
-    tarjan_rec(&g4);
-    printf("===============\n");
-    reset_graph(&g4);
-    tarjan_iter(&g4);
+    //tarjan_rec(&g4);
+    //printf("===============\n");
+    // reset_graph(&g4);
+    // tarjan_iter(&g4);
+    betweeness_brandes(&g4);
     
-    printf("\nSCCs in fifth graph \n");
+    // printf("\nSCCs in fifth graph \n");
     struct graph g5;
     init_graph(&g5);
     add_edge_graph(&g5,"0","1",1);
@@ -313,10 +347,10 @@ main(){
     add_edge_graph(&g5,"2","4",1);
     add_edge_graph(&g5,"3","0",1);
     add_edge_graph(&g5,"4","2",1);
-    tarjan_rec(&g5);
-    printf("===============\n");
-    reset_graph(&g5);
-    tarjan_iter(&g5);
-    
+    //tarjan_rec(&g5);
+    //printf("===============\n");
+    //reset_graph(&g5);
+    //tarjan_iter(&g5);
+    betweeness_brandes(&g5);
     return 0;
 }*/

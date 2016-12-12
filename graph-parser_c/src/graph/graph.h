@@ -49,11 +49,12 @@ extern "C" {
     void add_edge_graph(struct graph * g, const char * name_from, const char * name_to, double value);
     void print_graph(struct graph * g);
     void reset_graph(struct graph * g);
+    void free_graph(struct graph * g);
     
     void init_node_graph(struct node_graph * n,const char * name, int id);
     void init_edge_graph(struct edge_graph * e);
     void init_edge_graph_params(struct edge_graph * e,struct node_graph * to,double value);
-
+    
     
 #ifdef __cplusplus
 }

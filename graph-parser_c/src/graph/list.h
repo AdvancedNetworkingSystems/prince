@@ -54,6 +54,7 @@ extern "C" {
     void * peek_last_list(struct list * q);
     void * pop_list(struct list * q);
     void print_list(struct list * q);
+    void clear_list(struct list * q);
     int is_empty_list(struct list * q);
     
     void init_priority_queue(struct priority_queue * q);
@@ -62,7 +63,6 @@ extern "C" {
     void * dequeue_priority_queue(struct priority_queue * q);
     void print_priority_queue(struct priority_queue * q);
     int is_empty_priority_queue(struct priority_queue * q);
-    
     
 #ifdef __cplusplus
 }
