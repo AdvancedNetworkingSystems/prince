@@ -41,7 +41,11 @@ void add_edge_graph(struct graph * g, const char * name_from, const char * name_
         struct edge_graph * e=(struct edge_graph*)malloc(sizeof(struct edge_graph));
         init_edge_graph_params(e,to,value);
         enqueue_list(&(from->neighbours),(void*)e);
-        
+        /*if(birectional){ // TODO: remove, check data formats in case they allow bidirectional edges
+            struct edge_graph * e_r=(struct edge_graph*)malloc(sizeof(struct edge_graph));
+            init_edge_graph_params(e_r,from,value);
+            enqueue_list(&(to->neighbours),(void*)e_r);
+        }*/
     }
 }
 

@@ -73,11 +73,12 @@ void * pop_list(struct list * q){
 }
 void print_list(struct list * q){
     struct node_list * n=q->head;
+    printf("[");
     while(n!=0){
         printf("%p ",n);
         n=n->next;
     }
-    printf("\n");
+    printf("]\n");
 }
 void clear_list(struct list * q){
     struct node_list * n=q->head;
@@ -231,11 +232,12 @@ void * dequeue_priority_queue(struct priority_queue * q){
 }
 void print_priority_queue(struct priority_queue * q){
     struct node_priority_queue * n=q->head;
+    printf("[");
     while(n!=0){
         printf("%f ",n->value);
         n=n->next;
     } 
-    printf("\n");
+    printf("]\n");
 }
 
 int is_empty_priority_queue(struct priority_queue * q){

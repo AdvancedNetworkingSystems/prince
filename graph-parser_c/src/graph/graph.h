@@ -33,7 +33,7 @@ extern "C" {
         struct node_graph * caller;
         struct node_list * iterator;
         //for brandes
-        int id;
+        int id; //will be replaced by index
     }; 
     struct edge_graph {
         struct node_graph * to;

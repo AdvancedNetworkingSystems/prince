@@ -21,10 +21,14 @@ extern "C" {
 #endif
 struct graph;
 
+struct connected_component{
+    struct list *nodes;
+    int id;
+};
 
-void tarjan_rec(struct graph * g);
-void tarjan_iter(struct graph * g);
-void betweeness_brandes(struct graph * g);
+struct list*  tarjan_rec(struct graph * g);
+struct list*  tarjan_iter(struct graph * g);
+double * betweeness_brandes(struct graph * g);
 
 
 #ifdef __cplusplus

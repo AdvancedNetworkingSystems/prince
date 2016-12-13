@@ -9,15 +9,18 @@
 
 const int INFINITY=INT_MAX;
 
-void strongconnect(struct node_graph* v,int * index, struct list * s,int * bcc_id);  
-void DFS_iter(struct node_graph* i,int * index,struct list * s);
+void strongconnect(struct node_graph* v,int * index, struct list * s,int * bcc_id,struct list* connected_components);  
+void DFS_iter(struct node_graph* u,int * index,struct list * s,int *bcc_id,struct list* connected_components);
+
 inline int min(int a, int b){
     if(a<b)
         return a;
     return b;
 }
 
-void tarjan_rec(struct graph * g){
+struct list*  tarjan_rec(struct graph * g){
+    struct list * connected_components=( struct list * )malloc(sizeof( struct list ));
+    init_list(connected_components);
     struct list s;
     init_list(&s);
     
@@ -28,14 +31,14 @@ void tarjan_rec(struct graph * g){
     while(n!=0){
         struct node_graph* ng=(struct node_graph*) n->content;
         if(ng->index<0){
-            strongconnect(ng,&index,&s,&bcc_id);
+            strongconnect(ng,&index,&s,&bcc_id,connected_components);
         }
         n=n->next;
     }
-    
+    return connected_components;
 }
 
-void strongconnect(struct node_graph* v,int * index, struct list * s,int * bcc_id){
+void strongconnect(struct node_graph* v,int * index, struct list * s,int * bcc_id,struct list* connected_components){
     v->index=*index;
     v->low_link=*index;
     (*index)++;
@@ -45,7 +48,7 @@ void strongconnect(struct node_graph* v,int * index, struct list * s,int * bcc_i
     while(nq!=0){
         struct node_graph * w=((struct edge_graph*)nq->content)->to;
         if(w->index<0){
-            strongconnect(w,index,s,bcc_id);
+            strongconnect(w,index,s,bcc_id,connected_components);
             v->low_link=min(v->low_link,w->low_link);
         }else if(w->on_stack){
             v->low_link=min(v->low_link,w->index);
@@ -55,48 +58,57 @@ void strongconnect(struct node_graph* v,int * index, struct list * s,int * bcc_i
     
     if(v->low_link==v->index){
         struct node_graph *w=0;
-        bool empty=true;
+        struct list * cc_list=( struct list * )malloc(sizeof( struct list ));
+        init_list(cc_list);
         do{
             w= (struct node_graph *) pop_list(s);
             w->on_stack=false;
             if(w->bcc_id<0){//To avoid renaming
-                empty=false;
+                enqueue_list(cc_list,w);
                 w->bcc_id=*bcc_id;
-                printf("%s ",w->name);
             }
         }while(w!=v);
-        if(!empty){
-            printf(" \n");
+        if(cc_list->size>0){
+            struct connected_component * connected=( struct connected_component * )malloc(sizeof( struct connected_component ));
+            connected->nodes=cc_list;
+            connected->id=*bcc_id;
+            enqueue_list(connected_components,connected);
             (*bcc_id)++;
+        }else{
+            free(cc_list);
         }
     }
 }
 
 
-void tarjan_iter(struct graph * g){
+struct list*  tarjan_iter(struct graph * g){
+    struct list * connected_components=( struct list * )malloc(sizeof( struct list ));
+    init_list(connected_components);
     struct node_list * n =g->nodes.head;
     int index=0;
+    int bcc_id=0;
     struct list s;
     init_list(&s);
     while(n!=0){
         struct node_graph* ng=(struct node_graph*) n->content;
         if(ng->index<0){
-            DFS_iter(ng,&index,&s);
+            DFS_iter(ng,&index,&s,&bcc_id,connected_components);
         }
         n=n->next;
     }
+    return connected_components;
 }
 
 //https://www.researchgate.net/profile/Oscar_Karnalim/publication/303959022_Improving_Scalability_of_Java_Archive_Search_Engine_through_Recursion_Conversion_And_Multithreading/links/57c929ed08aefc4af350b37d.pdf?origin=publication_detail
 //http://stackoverflow.com/questions/2292223/iterative-version-of-a-recursive-algorithm-is-slower
-void DFS_iter(struct node_graph* u,int * index,struct list * s){
+void DFS_iter(struct node_graph* u,int * index,struct list * s,int *bcc_id,struct list* connected_components){
     u->index=*index;
     u->low_link=*index;
     (*index)++;
     u->iterator=u->neighbours.head;
     u->caller=0;
     u->on_stack=true,
-            enqueue_list(s,(void*)u);
+    enqueue_list(s,(void*)u);
     struct node_graph* last=u;
     while(true){
         if(last->iterator!=0){
@@ -116,18 +128,26 @@ void DFS_iter(struct node_graph* u,int * index,struct list * s){
             }
         }else{
             if(last->index==last->low_link){
+                struct list * cc_list=( struct list * )malloc(sizeof( struct list ));
+                init_list(cc_list);
                 struct node_graph* top=0;
-                bool printed=false;
                 do{
                     top =(struct node_graph*)pop_list(s);
                     if(top!=0){
-                        printed=true;
-                        top->on_stack=false;
-                        printf("%s ",top->name);                      
+                        enqueue_list(cc_list,top);
+                        top->on_stack=false;                    
                     }
                 }while(top!=0 && top->index!=last->index);
-                if(printed)
-                    printf("\n");
+                if(cc_list->size>0){
+                    struct connected_component * connected=( struct connected_component * )malloc(sizeof( struct connected_component ));
+                    connected->nodes=cc_list;
+                    connected->id=*bcc_id;
+                    enqueue_list(connected_components,connected);
+                    (*bcc_id)++;
+                }else{
+                    free(cc_list);
+                }
+                
             }
             struct node_graph *new_last=last->caller;
             if(new_last!=0){
@@ -141,9 +161,8 @@ void DFS_iter(struct node_graph* u,int * index,struct list * s){
 }
 
 //http://algo.uni-konstanz.de/publications/b-vspbc-08.pdf
-//file:///home/principale/Desktop/res_pro/brandes.png //TODO: remove
 
-void betweeness_brandes(struct graph * g){
+double * betweeness_brandes(struct graph * g){
     struct priority_queue q;
     struct list S;
     init_priority_queue(&q);
@@ -161,10 +180,12 @@ void betweeness_brandes(struct graph * g){
         init_list(pred +i);
     }
     struct node_list * n=0;
+    
     for(n=g->nodes.head;n!=0; n=n->next){
         struct node_graph* s=(struct node_graph*) n->content;
         for( i =0;i<node_num;i++){
             clear_list(pred +i);
+            struct list * tmp=pred +i;
             dist[i]=INFINITY;
             sigma[i]=0;
             delta[i]=0;
@@ -176,53 +197,46 @@ void betweeness_brandes(struct graph * g){
         while(!is_empty_priority_queue(&q)){
             struct node_graph* v=(struct node_graph*)dequeue_priority_queue(&q);
             enqueue_list(&S,v);
-            if(s->neighbours.size>0){
-                // printf("here %s\n",s->name);
-                struct node_list * edge_iterator=s->neighbours.head;
-                for(edge_iterator=s->neighbours.head;edge_iterator!=0;edge_iterator=edge_iterator->next){
+            if(v->neighbours.size>0){
+                struct node_list * edge_iterator;
+                for(edge_iterator=v->neighbours.head;edge_iterator!=0;edge_iterator=edge_iterator->next){
                     struct edge_graph * edge=(struct edge_graph*)edge_iterator->content;
                     struct node_graph * w=edge->to;
                     double weight=edge->value;
                     if(dist[w->id]>(dist[v->id]+weight)){
                         dist[w->id]=dist[v->id]+weight;
-                        // printf("here pushing %s\n",w->name);
                         insert_or_update_priority_queue(&q,w,dist[w->id]);
                         sigma[w->id]=0;
                         clear_list(pred +w->id);
-                    }
-                    // printf("here  not computing %s %f %f\n",w->name,dist[w->id],dist[v->id]+weight);
-                    if(dist[w->id]==(dist[v->id]+weight)){
-                        //  printf("here computing %s\n",w->name);
+                    }if(dist[w->id]==(dist[v->id]+weight)){
                         sigma[w->id]= sigma[w->id]+ sigma[v->id];
                         enqueue_list( pred+w->id,v);
                     }
                 }
             }
         }
-        printf("HERE %p %d\n",s,S.size);
-        //    for( i =0;i<node_num;i++){
-        
-        //  }
-        while(!is_empty_list(&S)){
-            struct node_graph * w=(struct node_graph * )pop_list(&S);
-            // printf("=========== pop %p %d (%d)\n",s,S.size,pred[w->id].size);
-            struct node_list * node_iterator;
-            //printf("# %d \n",pred[w->id].size);
-            printf("The following nodes has a value, ");
-            for(node_iterator =pred[w->id].head;node_iterator!=0;node_iterator=node_iterator->next){
-                struct node_graph * v=(struct node_graph*)node_iterator->content;
-                delta[v->id]= delta[v->id]+((sigma[v->id]/ sigma[w->id])*(1+delta[w->id]));
-                // printf("@> %d %d %f\n",v->id,w->id,delta[v->id]);
-                printf("%d, ",v->id);
+        if(false){//TODO: remove
+            for( i =0;i<node_num;i++){
+                struct list * tmp=pred+i;
+                struct node_list * n_t;;
+                printf("%s: [",s->name);
+                for(n_t=tmp->head;n_t!=0;n_t=n_t->next){
+                    struct node_graph * w=(struct node_graph *)n_t->content;
+                    printf("%s ,",w->name);
+                }
+                printf("],");
             }
             printf("\n");
-            if(w!=s)
-                printf(" We set %d\n",w->id);
+        }
+        while(!is_empty_list(&S)){
+            struct node_graph * w=(struct node_graph * )pop_list(&S);
+            struct node_list * node_iterator;
+            for(node_iterator =pred[w->id].head;node_iterator!=0;node_iterator=node_iterator->next){
+                struct node_graph * v=(struct node_graph*)node_iterator->content;
+                delta[v->id]= delta[v->id]+((((double)sigma[v->id])/ ((double)sigma[w->id]))*(1+delta[w->id]));
+            }
             if(w!=s){
-                //  printf("%f %f %f=>",ret_val[w->id],delta[w->id],ret_val[w->id]+delta[w->id]);
-                //printf("=> %d %f\n",w->id,delta[w->id]);
                 ret_val[w->id]=ret_val[w->id]+delta[w->id];
-                //printf("§§ %f %f\n",ret_val[w->id],delta[w->id]);
             }
         }
     }
@@ -233,124 +247,27 @@ void betweeness_brandes(struct graph * g){
     free(pred);
     free(sigma);
     free(delta);
+    return ret_val;
 }
 
-
-/*
-main(){
-    // printf("\nSCCs in zeroth graph \n");
-    struct graph g0;
-    init_graph(&g0);
-    add_edge_graph(&g0,"a","b",0.4);
-    
-    add_edge_graph(&g0,"b","c",2);
-    
-    add_edge_graph(&g0,"c","a",1.1);
-    
-    add_edge_graph(&g0,"d","b",3);
-    add_edge_graph(&g0,"d","c",0.7);
-    add_edge_graph(&g0,"d","e",1);
-    
-    add_edge_graph(&g0,"e","d",1.5);
-    add_edge_graph(&g0,"e","f",0.1);
-    
-    add_edge_graph(&g0,"f","c",2.3);
-    add_edge_graph(&g0,"f","g",1.8);
-    
-    add_edge_graph(&g0,"g","f",2.4);
-    
-    add_edge_graph(&g0,"h","g",2.6);
-    add_edge_graph(&g0,"h","e",2.1);
-    add_edge_graph(&g0,"h","h",0.5);
-    // tarjan_rec(&g0);
-    // printf("===============\n");
-    // reset_graph(&g0);
-    // tarjan_iter(&g0);
-    //betweeness_brandes(&g0);
-    //exit(0);
-    
-    //printf("\nSCCs in first graph \n");
-    struct graph g1;
-    init_graph(&g1);
-    add_edge_graph(&g1,"1","0",1);
-    add_edge_graph(&g1,"0","2",1);
-    add_edge_graph(&g1,"2","1",1);
-    add_edge_graph(&g1,"0","3",1);
-    add_edge_graph(&g1,"3","4",1);
-    //tarjan_rec(&g1);
-    //printf("===============\n");
-    //reset_graph(&g1);
-    //tarjan_iter(&g1);
-    betweeness_brandes(&g1);
-    
-    // printf("\nSCCs in second graph \n");
-    struct graph g2;
-    init_graph(&g2);
-    add_edge_graph(&g2,"0","1",1);
-    add_edge_graph(&g2,"1","2",1);
-    add_edge_graph(&g2,"2","3",1);
-    //tarjan_rec(&g2);
-    //printf("===============\n");
-    // reset_graph(&g2);
-    //tarjan_iter(&g2);
-    betweeness_brandes(&g2);
-    
-    // printf("\nSCCs in third graph \n");
-    struct graph g3;
-    init_graph(&g3);
-    add_edge_graph(&g3,"0","1",1);
-    add_edge_graph(&g3,"1","2",1);
-    add_edge_graph(&g3,"2","0",1);
-    add_edge_graph(&g3,"1","3",1);
-    add_edge_graph(&g3,"1","4",1);
-    add_edge_graph(&g3,"1","6",1);
-    add_edge_graph(&g3,"3","5",1);
-    add_edge_graph(&g3,"4","5",1);
-    //tarjan_rec(&g3);
-    //printf("===============\n");
-    //reset_graph(&g3);
-    //tarjan_iter(&g3);
-    betweeness_brandes(&g3);
-    
-    //printf("\nSCCs in fourth graph \n");
-    struct graph g4;
-    init_graph(&g4);
-    add_edge_graph(&g4,"0","1",1); 
-    add_edge_graph(&g4,"0","3",1);
-    add_edge_graph(&g4,"1","2",1); 
-    add_edge_graph(&g4,"1","4",1);
-    add_edge_graph(&g4,"2","0",1); 
-    add_edge_graph(&g4,"2","6",1);
-    add_edge_graph(&g4,"3","2",1);
-    add_edge_graph(&g4,"4","5",1); 
-    add_edge_graph(&g4,"4","6",1);
-    add_edge_graph(&g4,"5","6",1); 
-    add_edge_graph(&g4,"5","7",1); 
-    add_edge_graph(&g4,"5","8",1); 
-    add_edge_graph(&g4,"5","9",1);
-    add_edge_graph(&g4,"6","4",1);
-    add_edge_graph(&g4,"7","9",1);
-    add_edge_graph(&g4,"8","9",1);
-    add_edge_graph(&g4,"9","8",1);
-    //tarjan_rec(&g4);
-    //printf("===============\n");
-    // reset_graph(&g4);
-    // tarjan_iter(&g4);
-    betweeness_brandes(&g4);
-    
-    // printf("\nSCCs in fifth graph \n");
-    struct graph g5;
-    init_graph(&g5);
-    add_edge_graph(&g5,"0","1",1);
-    add_edge_graph(&g5,"1","2",1);
-    add_edge_graph(&g5,"2","3",1);
-    add_edge_graph(&g5,"2","4",1);
-    add_edge_graph(&g5,"3","0",1);
-    add_edge_graph(&g5,"4","2",1);
-    //tarjan_rec(&g5);
-    //printf("===============\n");
-    //reset_graph(&g5);
-    //tarjan_iter(&g5);
-    betweeness_brandes(&g5);
-    return 0;
-}*/
+void main(){
+    struct graph g;
+    init_graph(&g);
+    add_edge_graph(&g,"0","2",8);
+    add_edge_graph(&g,"1","0",7);
+    add_edge_graph(&g,"1","2",3);
+    add_edge_graph(&g,"1","3",3);
+    add_edge_graph(&g,"2","0",7);
+    add_edge_graph(&g,"2","1",6);
+    add_edge_graph(&g,"2","3",10);
+    add_edge_graph(&g,"2","4",1);
+    add_edge_graph(&g,"3","0",4);
+    add_edge_graph(&g,"3","1",2);
+    add_edge_graph(&g,"3","2",9);
+    add_edge_graph(&g,"3","4",1);
+    add_edge_graph(&g,"4","0",10);
+    add_edge_graph(&g,"4","1",5);
+    add_edge_graph(&g,"4","2",8);
+    betweeness_brandes(&g);
+    //0: 0.08333333333333333, 1: 0.25, 2: 0.25, 3: 0.125, 4: 0.041666666666666664
+}
