@@ -16,7 +16,7 @@ struct node_graph * add_node_graph(struct graph * g, const char * name){//unique
     return n;
 }
 
-void add_edge_graph(struct graph * g, const char * name_from, const char * name_to, double value){
+void add_edge_graph(struct graph * g, const char * name_from, const char * name_to, double value, bool directed){
     struct node_graph *from=0,*to=0,*current =0;
     struct node_list * n=g->nodes.head;
     while(n!=0 && (from==0 || to==0)){ //if there are no more nodes or we have found both edge ends
@@ -41,14 +41,50 @@ void add_edge_graph(struct graph * g, const char * name_from, const char * name_
         struct edge_graph * e=(struct edge_graph*)malloc(sizeof(struct edge_graph));
         init_edge_graph_params(e,to,value);
         enqueue_list(&(from->neighbours),(void*)e);
-        /*if(birectional){ // TODO: remove, check data formats in case they allow bidirectional edges
+        if(!directed){ 
             struct edge_graph * e_r=(struct edge_graph*)malloc(sizeof(struct edge_graph));
             init_edge_graph_params(e_r,from,value);
             enqueue_list(&(to->neighbours),(void*)e_r);
-        }*/
+        }
     }
 }
-
+void add_edge_graph_return_node_indexes(struct graph * g, const char * name_from, const char * name_to, double value, bool directed,int  * nodefrom, int * nodeto){
+    struct node_graph *from=0,*to=0,*current =0;
+    struct node_list * n=g->nodes.head;
+    while(n!=0 && (from==0 || to==0)){ //if there are no more nodes or we have found both edge ends
+        current=(struct node_graph *)n->content;
+        if(from==0 && strcmp(current->name,name_from)==0){
+            from=current;
+        }
+        if(to==0 && strcmp(current->name,name_to)==0){
+            to=current;
+        }
+        n=n->next;
+    }
+    if(from==0){
+        from=add_node_graph(g,name_from);
+        if(strcmp(name_from,name_to)==0)
+            to=from;
+    }     
+    if(to==0){
+        to=add_node_graph(g,name_to);
+    }
+    if(from!=0 && to!=0){
+        if(nodefrom!=0)
+            (*nodefrom)=from->id;
+        if(nodeto!=0)
+            (*nodeto)=to->id;
+        struct edge_graph * e=(struct edge_graph*)malloc(sizeof(struct edge_graph));
+        init_edge_graph_params(e,to,value);
+        enqueue_list(&(from->neighbours),(void*)e);
+        if(!directed){ 
+            struct edge_graph * e_r=(struct edge_graph*)malloc(sizeof(struct edge_graph));
+            init_edge_graph_params(e_r,from,value);
+            enqueue_list(&(to->neighbours),(void*)e_r);
+        }
+    } 
+    
+}
 void print_graph(struct graph * g){
     struct node_list * nq=g->nodes.head;
     while(nq!=0){
@@ -73,8 +109,8 @@ void init_node_graph(struct node_graph * n,const char * name,int id){
     n->on_stack=false;
     n->bcc_id=-1;
     
-    n->caller=0;
-    n->iterator=0;
+    // n->caller=0;
+    // n->iterator=0;
     
     n->id=id;
     
@@ -98,8 +134,8 @@ void reset_graph(struct graph * g){
         ng->on_stack=false;
         ng->bcc_id=-1;
         
-        ng->caller=0;
-        ng->iterator=0;
+        //ng->caller=0;
+        // ng->iterator=0;
         nq=nq->next;
     }
 }
@@ -113,13 +149,14 @@ void free_graph(struct graph * g){
         struct node_list * eq_tmp;
         while(eq!=0){
             eq_tmp=eq;
-            eq=eq->next;
             struct edge_graph *e=(struct edge_graph*)eq->content;
+            eq=eq->next;
             free(eq_tmp);
+            free(e);
         }
         nq=nq->next;
         free(ng);
         free(nq_tmp);
     }
-    free(g);
+    //free(g);
 }

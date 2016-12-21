@@ -30,8 +30,8 @@ extern "C" {
         bool on_stack;
         int bcc_id;
         //for iterative version
-        struct node_graph * caller;
-        struct node_list * iterator;
+        // struct node_graph * caller;
+        //struct node_list * iterator;
         //for brandes
         int id; //will be replaced by index
     }; 
@@ -46,7 +46,8 @@ extern "C" {
     
     void init_graph(struct graph * g);
     struct node_graph * add_node_graph(struct graph * g, const char * name);
-    void add_edge_graph(struct graph * g, const char * name_from, const char * name_to, double value);
+    void add_edge_graph(struct graph * g, const char * name_from, const char * name_to, double value, bool directed);
+    void add_edge_graph_return_node_indexes(struct graph * g, const char * name_from, const char * name_to, double value, bool directed,int  * nodefrom, int * nodeto);
     void print_graph(struct graph * g);
     void reset_graph(struct graph * g);
     void free_graph(struct graph * g);

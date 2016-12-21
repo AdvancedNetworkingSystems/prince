@@ -22,12 +22,16 @@ extern "C" {
 struct graph;
 
 struct connected_component{
-    struct list *nodes;
-    int id;
+    struct graph g;
+    int * mapping;
+    int map_size;
+    struct node_graph * cutpoint;
 };
 
-struct list*  tarjan_rec(struct graph * g);
-struct list*  tarjan_iter(struct graph * g);
+struct list*  tarjan_rec_dir(struct graph * g);
+struct list*  tarjan_iter_dir(struct graph * g);
+struct list*  tarjan_rec_undir(struct graph * g, bool * is_articulation_point);
+struct list*  tarjan_iter_undir(struct graph * g);
 double * betweeness_brandes(struct graph * g);
 
 
