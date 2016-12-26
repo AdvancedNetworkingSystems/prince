@@ -1,6 +1,5 @@
 test_c:
-	#gcc -g -L/usr/local/lib test/main_c.c algorithms.c graph/list.c graph/graph.c -ljson-c
-	gcc -g algorithms.c graph/list.c graph/graph.c
+	gcc -g algorithms.c graph/list.c graph/graph.c graph_parser.c
 
 compile:
-	gcc -g algorithms.c graph/list.c graph/graph.c
+	gcc -g algorithms.c graph/list.c graph/graph.c graph_parser.c

@@ -30,12 +30,8 @@ struct connected_component{
     int cutpoint_index;
 };
 
-struct list*  tarjan_rec_dir(struct graph * g);
-struct list*  tarjan_iter_dir(struct graph * g);
-struct list*  tarjan_rec_undir(struct graph * g, bool * is_articulation_point);
-struct list*  tarjan_iter_undir(struct graph * g);
 double * betweeness_brandes(struct graph * g, bool endpoints,int ** traffic_matrix);
-
+double * betwenness_heuristic(struct graph * g);
 
 
 #ifdef __cplusplus

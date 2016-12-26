@@ -71,9 +71,9 @@ void add_edge_graph_return_node_indexes(struct graph * g, const char * name_from
     }
     if(from!=0 && to!=0){
         if(nodefrom!=0)
-            (*nodefrom)=from->id;
+            (*nodefrom)=from->node_graph_id;
         if(nodeto!=0)
-            (*nodeto)=to->id;
+            (*nodeto)=to->node_graph_id;
         struct edge_graph * e=(struct edge_graph*)malloc(sizeof(struct edge_graph));
         init_edge_graph_params(e,to,value);
         enqueue_list(&(from->neighbours),(void*)e);
@@ -90,7 +90,7 @@ void print_graph(struct graph * g){
     while(nq!=0){
         struct node_graph * ng=(struct node_graph*)nq->content;
         struct node_list * nqi=ng->neighbours.head;
-        printf("%s (%d) [",ng->name,ng->index);
+        printf("%s (%d) [",ng->name,ng->node_graph_id);
         while(nqi!=0){
             struct edge_graph * eg=(struct edge_graph*)nqi->content;
             printf(" (%s , %f) ",eg->to->name,eg->value);
@@ -101,18 +101,14 @@ void print_graph(struct graph * g){
     }
 }
 
-void init_node_graph(struct node_graph * n,const char * name,int id){
+void init_node_graph(struct node_graph * n,const char * name,int node_graph_id){
     n->name=name;
     init_list(&(n->neighbours));
-    n->index=-1;
+   /* n->index=-1;
     n->low_link=-1;
     n->on_stack=false;
-    n->bcc_id=-1;
-    
-    // n->caller=0;
-    // n->iterator=0;
-    
-    n->id=id;
+    n->bcc_id=-1;*/
+    n->node_graph_id=node_graph_id;
     
 }
 
@@ -123,21 +119,6 @@ void init_edge_graph(struct edge_graph * e){
 void init_edge_graph_params(struct edge_graph * e,struct node_graph * to,double value){
     e->to=to;
     e->value=value;
-}
-
-void reset_graph(struct graph * g){
-    struct node_list * nq=g->nodes.head;
-    while(nq!=0){
-        struct node_graph * ng=(struct node_graph*)nq->content;
-        ng->index=-1;
-        ng->low_link=-1;
-        ng->on_stack=false;
-        ng->bcc_id=-1;
-        
-        //ng->caller=0;
-        // ng->iterator=0;
-        nq=nq->next;
-    }
 }
 
 void free_graph(struct graph * g){
@@ -158,5 +139,4 @@ void free_graph(struct graph * g){
         free(ng);
         free(nq_tmp);
     }
-    //free(g);
 }
