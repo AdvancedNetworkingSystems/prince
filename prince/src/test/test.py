@@ -52,8 +52,8 @@ class PrinceTestOONF:
         self.netjson = ge.composeNetJson(self.graph)
         self.json_netjson = json.dumps(self.netjson)
         self.h_py, self.tc_py = self.calculateTimers()
-        print ("sending graph")
-        print cs.send(self.json_netjson)
+        # print ("sending graph")
+        cs.send(self.json_netjson)
         cs.close()
 
     '''
@@ -88,7 +88,7 @@ class PrinceTestOONF:
         '''
         serversocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         serversocket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-        serversocket.bind(('localhost', 2010))
+        serversocket.bind(('0.0.0.0', 2010))
         serversocket.listen(5)
         # regular expression to catch the timers' values
         p = re.compile(r"\d*\.\d+")
@@ -122,10 +122,10 @@ class PrinceTestOONF:
                         hs.append(p_h)
                         tcs.append(p_tc)
                         executions.append(exec_time)
-                        print "node: " + str(self.netjson['router_id'])
-                        print "       " + "C++  " + "Python" + "              " + "Percent"
-                        print "tc:    " + repr(tc_cpp) + "   " + repr(self.tc_py) + " " + str(p_tc)
-                        print "hello: " + repr(hello_cpp) + "   " + repr(self.h_py) + " " + str(p_h)
+                        # print "node: " + str(self.netjson['router_id'])
+                        # print "       " + "C++  " + "Python" + "              " + "Percent"
+                        # print "tc:    " + repr(tc_cpp) + "   " + repr(self.tc_py) + " " + str(p_tc)
+                        # print "hello: " + repr(hello_cpp) + "   " + repr(self.h_py) + " " + str(p_h)
                         cs.close()
                         iter = iter - 1
         measures = {}
@@ -135,9 +135,9 @@ class PrinceTestOONF:
         measures['tc_mean'] = np.mean(tcs)
         measures['h_var'] = np.std(hs)
         measures['tc_var'] = np.std(tcs)
-        print "Average execution time with " + str(N) + " nodes is " + str(measures['exec_mean']) + "s   variance: " + str(measures['exec_var'])
-        print "Average tc difference is " + str(measures['tc_mean']) + " variance: " + str(measures['tc_var'])
-        print "Average h difference is " + str(measures['h_mean']) + " variance: " + str(measures['h_var'])
+        # print "Average execution time with " + str(N) + " nodes is " + str(measures['exec_mean']) + "s   variance: " + str(measures['exec_var'])
+        # print "Average tc difference is " + str(measures['tc_mean']) + " variance: " + str(measures['tc_var'])
+        # print "Average h difference is " + str(measures['h_mean']) + " variance: " + str(measures['h_var'])
         return measures
     '''
     Run a test with the heuristic
@@ -155,7 +155,7 @@ class PrinceTestOONF:
         '''
         serversocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         serversocket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-        serversocket.bind(('localhost', 2009))
+        serversocket.bind(('0.0.0.0', 2009))
         serversocket.listen(5)
         # regular expression to catch the timers' values
         p = re.compile(r"\d*\.\d+")
@@ -184,10 +184,10 @@ class PrinceTestOONF:
                         p_h = abs(hello_cpp - self.h_py) / ((hello_cpp + self.h_py) / 2) * 100
                         hs.append(p_h)
                         tcs.append(p_tc)
-                        print "node: " + str(self.netjson['router_id'])
-                        print "       " + "C++  " + "Python" + "              " + "Percent"
-                        print "tc:    " + repr(tc_cpp) + "   " + repr(self.tc_py) + " " + str(p_tc)
-                        print "hello: " + repr(hello_cpp) + "   " + repr(self.h_py) + " " + str(p_h)
+                        # print "node: " + str(self.netjson['router_id'])
+                        # print "       " + "C++  " + "Python" + "              " + "Percent"
+                        # print "tc:    " + repr(tc_cpp) + "   " + repr(self.tc_py) + " " + str(p_tc)
+                        # print "hello: " + repr(hello_cpp) + "   " + repr(self.h_py) + " " + str(p_h)
                         executions.append(exec_time)
                         cs.close()
                         iter = iter - 1
@@ -198,9 +198,9 @@ class PrinceTestOONF:
         measures['tc_mean'] = np.mean(tcs)
         measures['h_var'] = np.std(hs)
         measures['tc_var'] = np.std(tcs)
-        print "Average execution time with " + str(N) + " nodes is " + str(measures['exec_mean']) + "s   variance: " + str(measures['exec_var'])
-        print "Average tc difference is " + str(measures['tc_mean']) + " variance: " + str(measures['tc_var'])
-        print "Average h difference is " + str(measures['h_mean']) + " variance: " + str(measures['h_var'])
+        # print "Average execution time with " + str(N) + " nodes is " + str(measures['exec_mean']) + "s   variance: " + str(measures['exec_var'])
+        # print "Average tc difference is " + str(measures['tc_mean']) + " variance: " + str(measures['tc_var'])
+        # print "Average h difference is " + str(measures['h_mean']) + " variance: " + str(measures['h_var'])
         return measures
 
 
@@ -211,28 +211,29 @@ measures_plaw = []
 measures_plaw_noh_var = []
 measures_plaw_var = []
 x = []
-sample = 20
-max = 500
+sample = 10
+max = 200
 # run prince w & w/o heuristic
-proc_noh = subprocess.Popen("exec ../../build/prince ../../input/test_noh.ini", shell=True)
-proc = subprocess.Popen("exec ../../build/prince ../../input/test.ini", shell=True)
+# proc_noh = subprocess.Popen("exec ../../build/prince ../../input/test_noh.ini", shell=True)
+# proc = subprocess.Popen("exec ../../build/prince ../../input/test.ini", shell=True)
 
 # cycle till the max values
 for i in range(1, (max / sample) + 1):
     size = sample * i
     # run tests with and w/o heuristic
-    t = p.test(1, size, 5)
-    tnoh = p.test_noh(1, size, 5)
+    t = p.test(0, size, 5)
+    # tnoh = p.test_noh(0, size, 5)
     # append the values in lists to plot them
-    measures_plaw_noh.append(tnoh['exec_mean'])
-    measures_plaw_noh_var.append(tnoh['exec_var'])
+    # measures_plaw_noh.append(tnoh['exec_mean'])
+    # measures_plaw_noh_var.append(tnoh['exec_var'])
     measures_plaw.append(t['exec_mean'])
     measures_plaw_var.append(t['exec_var'])
     x.append(size)
+    print str(t['exec_mean']) + "  "+ str(t['exec_var'])  # + "  "  + str(tnoh['exec_mean']) + "  "+ str(tnoh['exec_var'])
 
 # plot the values and the error bars with pyplot
-plt.errorbar(x, measures_plaw_noh, yerr=measures_plaw_noh_var)
-plt.errorbar(x, measures_plaw, yerr=measures_plaw_var)
-plt.xlabel('size of graph (nodes)')
-plt.ylabel('execution time (s)')
-plt.show()
+#plt.errorbar(x, measures_plaw_noh, yerr=measures_plaw_noh_var)
+#plt.errorbar(x, measures_plaw, yerr=measures_plaw_var)
+#plt.xlabel('size of graph (nodes)')
+#plt.ylabel('execution time (s)')
+#plt.show()
