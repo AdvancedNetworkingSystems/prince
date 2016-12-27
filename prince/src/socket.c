@@ -71,13 +71,16 @@ _telnet_receive(int sd, char **buffer){
 	int i=0;
 	int amntRecvd = 0;
 	char * page = (char*) malloc(SIZE_TO_READ);
+	printf("C1\n");
 	while((amntRecvd = recv(sd, page+i, SIZE_TO_READ, 0)) >0){
 		i+=amntRecvd;
+		printf("C2\n");
 		if(!(page=realloc(page, i+SIZE_TO_READ))){
 			free(page);
 			return 0;
 		}
 	}
+	printf("C3\n");
 	if(!i) return 0;
 	page[i]='\0';
 	*buffer=page;

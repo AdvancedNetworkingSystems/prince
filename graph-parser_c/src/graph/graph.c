@@ -102,7 +102,7 @@ void print_graph(struct graph * g){
 }
 
 void init_node_graph(struct node_graph * n,const char * name,int node_graph_id){
-    n->name=name;
+    n->name=strdup((const char *)name);
     init_list(&(n->neighbours));
    /* n->index=-1;
     n->low_link=-1;
@@ -136,6 +136,7 @@ void free_graph(struct graph * g){
             free(e);
         }
         nq=nq->next;
+        free(ng->name);
         free(ng);
         free(nq_tmp);
     }

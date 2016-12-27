@@ -44,14 +44,15 @@ int graph_parser_compose_degree_bc_map(c_graph_parser* v, map_id_degree_bc *map)
     struct graph_parser * gp=(struct graph_parser *)v;
     map->size=gp->g.nodes.size;
     map->map = (struct _id_degree_bc *) malloc(sizeof(struct _id_degree_bc)*gp->g.nodes.size);
-    map->n_edges = -1; //Todo: add counting
+    map->n_edges = 0; //Todo: add counting
     struct node_list *  nl;
     int i=0;
     for(nl=gp->g.nodes.head;nl!=0;nl=nl->next){
         struct node_graph * ng=(struct node_graph*)nl->content;
         map->map[i].id = (char*)ng->name ;
         map->map[i].bc = gp->bc[ng->node_graph_id];
-        map->map[i].degree = -1;//Todo: add counting
+        map->n_edges+=ng->neighbours.size;
+        map->map[i].degree = ng->neighbours.size;
         i++;
     }
     return 1;

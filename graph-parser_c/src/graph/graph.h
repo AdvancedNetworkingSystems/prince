@@ -16,6 +16,7 @@
 
 #include "list.h" 
 #include <stdbool.h>
+#include <string.h>
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -23,7 +24,7 @@ extern "C" {
     
     struct node_graph {
         struct list neighbours;
-        const char * name;
+        char * name;
         //for recursive version
        // int index;
         //int low_link;

@@ -5,6 +5,7 @@
 .settings/
 nbproject/
 *.out
+.idea 
 
 prince/build
 graph-parser/build

@@ -15,7 +15,7 @@
 #define ALGORITHMS_H
 
 #include "graph/graph.h"
-
+#include <pthread.h>
 #ifdef __cplusplus
 extern "C" {
 #endif

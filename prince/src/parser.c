@@ -54,7 +54,7 @@ parse_jsoninfo(char *buffer){
 int
 add_node(struct topology * topo, const char *id){
 	struct node *temp = topo->first;
-	topo->first=malloc(sizeof(struct node));
+	topo->first=(struct node*)malloc(sizeof(struct node));
 	topo->first->next=temp;
 	topo->first->id=strdup(id);
 	topo->first->neighbor_list=0;
@@ -94,7 +94,7 @@ add_neigh(struct topology *topo, const char *source, const char *id, const doubl
 		return 0;
 
 	temp=n->neighbor_list;
-	n->neighbor_list=malloc(sizeof(struct neighbor));
+	n->neighbor_list=(struct neighbor*)malloc(sizeof(struct neighbor));
 	if((n->neighbor_list->id=find_node(topo, id))==0)
 		return 0;
 	n->neighbor_list->weight=weight;
@@ -109,7 +109,7 @@ add_neigh(struct topology *topo, const char *source, const char *id, const doubl
 * @return pointer to the topology
 */
 struct topology * _init_topo(int type){
-	struct topology *topo = malloc(sizeof(struct topology));
+	struct topology *topo = (struct topology*)malloc(sizeof(struct topology));
 	if(type==0){
 		topo->id_lenght=39;
 	}else if(type ==1){

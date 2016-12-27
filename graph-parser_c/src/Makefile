@@ -1,9 +1,9 @@
 
 # define the C source files
 SRCS = graph_parser.c algorithms.c graph/graph.c graph/list.c
-TARGET = libgraphparser
+TARGET = libgraphcparser
 OBJS = $(SRCS:.c=.o)
-CFLAGS = -g -fPIC
+CFLAGS = -g -fPIC -pthread
 LDFLAGS = -shared -Wl,-soname,$(TARGET).so
 BPATH = ../build/lib/
 
@@ -21,7 +21,7 @@ $(TARGET): makefolder $(OBJS)
 	$(CC) $(CFLAGS) $(INCLUDES) $(LDFLAGS) -o $(BPATH)$(TARGET).so $(OBJS)  $(LIBS )
 
 
-log: CFLAGS = -fPIC -g
+log: CFLAGS = -fPIC -g -pthread
 log: LIBS = -lpthread 
 log: $(OBJS)
 	$(CC) $(CFLAGS) $(INCLUDES) $(LDFLAGS) -o $(BPATH)$(TARGET).so $(OBJS)  $(LIBS )

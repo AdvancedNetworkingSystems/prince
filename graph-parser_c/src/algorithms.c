@@ -8,6 +8,7 @@
 //pseudocode from https://en.wikipedia.org/wiki/Tarjan's_strongly_connected_components_algorithm
 
 const int INFINITY=INT_MAX;
+bool multithread=true;
 
 void strongconnect(struct node_graph* v,int * current_index, struct list * s,int * bcc_id,struct list* connected_components, int * index,int * low_link,bool * on_stack);  
 void DFS_iter(struct node_graph* u,int * current_index,struct list * s,int *bcc_id,
@@ -32,9 +33,9 @@ struct list*  tarjan_rec_dir(struct graph * g){
     int bcc_id=0;
     struct node_list * n =g->nodes.head;
     int node_num=g->nodes.size;
-    int * index=malloc(sizeof(int)*node_num);
-    int * low_link=malloc(sizeof(int)*node_num);
-    bool * on_stack=malloc(sizeof(bool)*node_num);
+    int * index=( int *)malloc(sizeof(int)*node_num);
+    int * low_link=( int *)malloc(sizeof(int)*node_num);
+    bool * on_stack=( bool *)malloc(sizeof(bool)*node_num);
     int i;
     for(i=0;i<node_num;i++){
         index[i]=-1;
@@ -103,9 +104,9 @@ struct list*  tarjan_iter_dir(struct graph * g){
     struct node_graph ** caller=(struct node_graph **)malloc(sizeof(struct node_graph *)*g->nodes.size);
     struct node_list ** iterator=(struct node_list **)malloc(sizeof(struct node_list *)*g->nodes.size);
     int node_num=g->nodes.size;
-    int * index=malloc(sizeof(int)*node_num);
-    int * low_link=malloc(sizeof(int)*node_num);
-    bool * on_stack=malloc(sizeof(bool)*node_num);
+    int * index=( int *)malloc(sizeof(int)*node_num);
+    int * low_link=( int *)malloc(sizeof(int)*node_num);
+    bool * on_stack=( bool *)malloc(sizeof(bool)*node_num);
     int i;
     for(i=0;i<node_num;i++){
         index[i]=-1;
@@ -196,11 +197,11 @@ double * betweeness_brandes(struct graph * g, bool endpoints,int ** traffic_matr
     init_priority_queue(&q);
     init_list(&S);
     int node_num=g->nodes.size;
-    double * dist=malloc(node_num*sizeof(double));
-    struct list * pred=malloc(node_num*sizeof( struct list));
-    int * sigma=malloc(node_num*sizeof(int));
-    double * delta=malloc(node_num*sizeof(double));
-    double * ret_val=malloc(node_num*sizeof(double));
+    double * dist=( double *)malloc(node_num*sizeof(double));
+    struct list * pred=(struct list *)malloc(node_num*sizeof( struct list));
+    int * sigma=( int *)malloc(node_num*sizeof(int));
+    double * delta=( double *)malloc(node_num*sizeof(double));
+    double * ret_val=( double *)malloc(node_num*sizeof(double));
     int i;
     for( i =0;i<node_num;i++){
         ret_val[i]=0;
@@ -309,13 +310,13 @@ struct list*  tarjan_rec_undir(struct graph * g, bool * is_articulation_point){
     init_list(connected_components);
     int node_num=g->nodes.size;
     int count=0;
-    bool * visited=malloc(node_num*sizeof(bool));
-    bool * added=malloc(node_num*sizeof(bool));
+    bool * visited=(bool*)malloc(node_num*sizeof(bool));
+    bool * added=(bool*)malloc(node_num*sizeof(bool));
     struct node_graph ** parent=(struct node_graph **)malloc(sizeof(struct node_graph *)*g->nodes.size);
     struct list s;
     init_list(&s);
-    int * d=malloc(node_num*sizeof(int));
-    int * low=malloc(node_num*sizeof(int));
+    int * d=(int*)malloc(node_num*sizeof(int));
+    int * low=(int*)malloc(node_num*sizeof(int));
     int i;
     for(i=0;i<node_num;i++){
         visited[i]=false;
@@ -458,7 +459,7 @@ struct list*  connected_components_to_tree(struct graph * g, struct list* connec
     struct list* tree_edges=(struct list*)malloc(sizeof(struct list));
     init_list(tree_edges);
     struct node_list * ccs_iterator;
-    struct node_graph ** nodes=malloc(sizeof( struct node_graph *)*g->nodes.size);
+    struct node_graph ** nodes=(struct node_graph **)malloc(sizeof( struct node_graph *)*g->nodes.size);
     int i;
     struct node_list * node_iterator=g->nodes.head;
     for(i=0;i<g->nodes.size;i++){
@@ -512,7 +513,7 @@ void compute_component_tree_weights(struct graph * g, struct list* tree_edges){
         }
     }  
     while(!is_empty_list(&q)){
-        struct cc_node_edge * cne=dequeue_list(&q);
+        struct cc_node_edge * cne=(struct cc_node_edge *)dequeue_list(&q);
         if(cne->normal){
             int size=cne->from->g.nodes.size-1;
             struct node_list * edge_iterator;
@@ -564,8 +565,68 @@ void compute_component_tree_weights(struct graph * g, struct list* tree_edges){
     }
 }
 
+struct multithread_handle_cc_struct{
+    struct connected_component * cc;
+    int * node_num;
+    bool *is_articulation_point;
+    double * ret_val;
+    pthread_t t;
+};
+
+
+
+double * handle_cc(  struct connected_component * cc,int node_num,bool *is_articulation_point){
+    int cc_node_num=cc->g.nodes.size;
+    int ** comm_matrix=(int **)malloc(sizeof(int*)*cc_node_num);
+    int i;
+    for( i=0;i<cc_node_num;i++){
+        comm_matrix[i]=(int *)malloc(sizeof(int)*cc_node_num);
+    }
+    int j;
+    for(i=0;i<cc_node_num;i++){
+        for(j=0;j<cc_node_num;j++){
+            if(i==j){
+                comm_matrix[i][j]=0;
+            }else{
+                int new_i=cc->mapping[i],new_j=cc->mapping[j];
+                bool is_i_ap=is_articulation_point[new_i];
+                bool is_j_ap=is_articulation_point[new_j];
+                if(!is_i_ap&&!is_j_ap){//0 art point
+                    comm_matrix[i][j]=1;
+                }else if(is_i_ap&&is_j_ap){
+                    // reverse weight for both (rweight= |V| - weight -1) 
+                    // it should be (rweight_i+1)*(rweight_j+1)
+                    // the two ones are summed
+                    comm_matrix[i][j]=((node_num-cc->weights[j])*(node_num-cc->weights[i]));
+                }else{//one art point
+                    // same as above
+                    if(is_i_ap){
+                        comm_matrix[i][j]=(node_num-(cc->weights[i]));
+                    }else{
+                        comm_matrix[i][j]=(node_num-(cc->weights[j]));
+                    }
+                }
+            }
+            
+        } 
+    } 
+    double * ret_val=betweeness_brandes(&(cc->g),true,comm_matrix);        
+    for(i=0;i<cc_node_num;i++){
+        free(comm_matrix[i]);
+    }
+    free(comm_matrix);
+    return ret_val;
+}
+
+void * run(void *arguments){
+    struct multithread_handle_cc_struct *args = arguments;
+    args->ret_val=handle_cc(args->cc,*args->node_num,args->is_articulation_point);
+    return 0;
+}
+
+
 double * betwenness_heuristic(struct graph * g){
-    bool * is_articulation_point=malloc(sizeof(bool)*g->nodes.size);
+    bool * is_articulation_point=( bool * )malloc(sizeof(bool)*g->nodes.size);
     struct list* connected_components=tarjan_rec_undir(g,is_articulation_point);
     struct list* tree_edges=connected_components_to_tree(g,connected_components,is_articulation_point);
     compute_component_tree_weights(g,tree_edges);
@@ -599,53 +660,43 @@ double * betwenness_heuristic(struct graph * g){
     }
     
     struct node_list * ccs_iterator;
-    for(ccs_iterator=connected_components->head;ccs_iterator!=0;ccs_iterator=ccs_iterator->next){
-        struct connected_component * cc= ( struct connected_component *)ccs_iterator->content;
-        int cc_node_num=cc->g.nodes.size;
-        int **comm_matrix=malloc(sizeof(int*)*cc_node_num);
-        for( i=0;i<cc_node_num;i++){
-            comm_matrix[i]=malloc(sizeof(int)*cc_node_num);
+    if(multithread){
+        int i=0;
+        int cc_num=connected_components->size;
+        struct multithread_handle_cc_struct * args=(struct multithread_handle_cc_struct *)malloc(sizeof(struct multithread_handle_cc_struct )*cc_num);
+        for(ccs_iterator=connected_components->head;ccs_iterator!=0;ccs_iterator=ccs_iterator->next){
+            struct connected_component * cc= ( struct connected_component *)ccs_iterator->content;
+            args[i].cc=cc;
+            args[i].is_articulation_point=is_articulation_point;
+            args[i].node_num=&node_num;
+            args[i].ret_val=0;
+            i++;
         }
-        int j;
-        for(i=0;i<cc_node_num;i++){
-            for(j=0;j<cc_node_num;j++){
-                if(i==j){
-                    comm_matrix[i][j]=0;
-                }else{
-                    int new_i=cc->mapping[i],new_j=cc->mapping[j];
-                    bool is_i_ap=is_articulation_point[new_i];
-                    bool is_j_ap=is_articulation_point[new_j];
-                    if(!is_i_ap&&!is_j_ap){//0 art point
-                        comm_matrix[i][j]=1;
-                    }else if(is_i_ap&&is_j_ap){
-                        // reverse weight for both (rweight= |V| - weight -1) 
-                        // it should be (rweight_i+1)*(rweight_j+1)
-                        // the two ones are summed
-                        comm_matrix[i][j]=((node_num-cc->weights[j])*(node_num-cc->weights[i]));
-                    }else{//one art point
-                        // same as above
-                        if(is_i_ap){
-                            comm_matrix[i][j]=(node_num-(cc->weights[i]));
-                        }else{
-                            comm_matrix[i][j]=(node_num-(cc->weights[j]));
-                        }
-                    }
-                }
-                
-            } 
-        } 
+        for( i=0;i<cc_num;i++)
+            pthread_create(&args[i].t, NULL, &run, (void *)(args+i));
         
-        double *partial=betweeness_brandes(&(cc->g),true,comm_matrix);
+        for( i=0;i<cc_num;i++){
+            pthread_join(args[i].t, NULL);
+            int j;
+            for(j=0;j<args[i].cc->g.nodes.size;j++){
+                ret_val[args[i].cc->mapping[j]] += args[i].ret_val[j];
+            }
+            free(args[i].ret_val);
+        }
+        free(args);
+    }else{
         
-        for(i=0;i<cc_node_num;i++){
-            free(comm_matrix[i]);
+        for(ccs_iterator=connected_components->head;ccs_iterator!=0;ccs_iterator=ccs_iterator->next){
+            struct connected_component * cc= ( struct connected_component *)ccs_iterator->content;
+            double * partial=handle_cc( cc, node_num,is_articulation_point);
+            int i;
+            for(i=0;i<cc->g.nodes.size;i++){
+                ret_val[cc->mapping[i]] += partial[i];
+            }
+            free(partial);
         }
-        free(comm_matrix);
-        for(i=0;i<cc_node_num;i++){
-            ret_val[cc->mapping[i]] += partial[i];
-        }
-        free(partial);
     }
+    
     if(node_num>2){
         double scale=1/(((double)(node_num-1))*((double)(node_num-2)));
         for( i =0;i<node_num;i++){
@@ -654,14 +705,12 @@ double * betwenness_heuristic(struct graph * g){
     }
     
     while(!is_empty_list(tree_edges)){
-        
-        struct cc_node_edge * cne=dequeue_list(tree_edges);
-        
+        struct cc_node_edge * cne=( struct cc_node_edge *)dequeue_list(tree_edges);
         free(cne);
     }
     free(tree_edges);
     while(!is_empty_list(connected_components)){
-        struct connected_component * cc=dequeue_list(connected_components);
+        struct connected_component * cc=(struct connected_component *)dequeue_list(connected_components);
         free_graph(&(cc->g));
         free(cc->mapping);
         free(cc->weights);
