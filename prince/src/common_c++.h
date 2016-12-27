@@ -37,7 +37,6 @@ SOFTWARE.
 #include <stddef.h>
 #include "../../graph-parser/src/graph_parser.h"
 
-
 /*DEFINES*/
 #define true 1
 #define false 0

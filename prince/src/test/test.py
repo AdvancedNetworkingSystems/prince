@@ -21,9 +21,7 @@ SOFTWARE.
 '''
 import re
 import socket
-import networkx as nx
 import subprocess
-import random
 import json
 import numpy as np
 from poprouting import ComputeTheoreticalValues
@@ -70,21 +68,14 @@ class PrinceTestOONF:
                 hello_py = ctv.Hi[node]
                 tc_py = ctv.TCi[node]
         return hello_py, tc_py
-    '''
-    Run a test without heuristic
-    type: see below
-    N: number of nodes
-    iter: number of batch tests
-    '''
-    def test_noh(self, type, N, iter):
-        ''' type = 0    CN
+
+    def test_p(self, type, N, iter, port):
+	''' type = 0    CN
             type = 1    PLAW
             type = 2    MESH
         '''
-
-        ''' listen to the port 2010 to emulate a oonf's daemon.
-            when prince connect it reply with the netjson and then wait for the
-            optimized timers
+        ''' listen to the port 2009 to emulate a oonf's daemon.
+            when prince connect it reply with the netjson and then wait for the optimized timers
         '''
         serversocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         serversocket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
@@ -96,27 +87,25 @@ class PrinceTestOONF:
         executions = []
         hs = []
         tcs = []
-        # run the test 'iter' times
         while iter:
-            # accept connections and receive the request
+            # accept connections
             (cs, address) = serversocket.accept()
+
             data = cs.recv(1024).decode("utf-8")
+
             # simulate the oonf's netjson command to get the topology
             if data.strip() == "/netjsoninfo filter graph ipv6_0/quit":
                 # generate the graph, calculate timers(python) and push topology to prince
                 self.genG(type, cs, N)
-
             else:
                 # search for the timers' values using the regex
                 if data:
-                    toks = p.findall(data)  # match the regex
+                    toks = p.findall(data)
+                    print(toks)
                     if toks:
                         tc_cpp = float(toks[0])
                         hello_cpp = float(toks[1])
                         exec_time = float(toks[2])
-                        ''' calculate the percentage difference between the
-                        expected and the reference values, then append this values in a list
-                        '''
                         p_tc = abs(tc_cpp - self.tc_py) / ((tc_cpp + self.tc_py) / 2) * 100
                         p_h = abs(hello_cpp - self.h_py) / ((hello_cpp + self.h_py) / 2) * 100
                         hs.append(p_h)
@@ -139,6 +128,14 @@ class PrinceTestOONF:
         # print "Average tc difference is " + str(measures['tc_mean']) + " variance: " + str(measures['tc_var'])
         # print "Average h difference is " + str(measures['h_mean']) + " variance: " + str(measures['h_var'])
         return measures
+    '''
+    Run a test without heuristic
+    type: see below
+    N: number of nodes
+    iter: number of batch tests
+    '''
+    def test_noh(self, type, N, iter):
+        return self.test_p(type,N,iter,2010)
     '''
     Run a test with the heuristic
     type: see below
@@ -210,6 +207,10 @@ measures_plaw_noh = []
 measures_plaw = []
 measures_plaw_noh_var = []
 measures_plaw_var = []
+measures_plaw_noh_c = []
+measures_plaw_c = []
+measures_plaw_noh_var_c = []
+measures_plaw_var_c = []
 x = []
 sample = 10
 max = 200
