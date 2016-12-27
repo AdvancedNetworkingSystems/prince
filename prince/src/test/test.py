@@ -216,7 +216,6 @@ max = 200
 # run prince w & w/o heuristic
 # proc_noh = subprocess.Popen("exec ../../build/prince ../../input/test_noh.ini", shell=True)
 # proc = subprocess.Popen("exec ../../build/prince ../../input/test.ini", shell=True)
-
 # cycle till the max values
 for i in range(1, (max / sample) + 1):
     size = sample * i
