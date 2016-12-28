@@ -14,7 +14,7 @@ Clone the repository in your pc with :
 Enter in the directory :
 `cd poprouting`
 
-Checkout the v0.1 :
+Checkout the v0.2 :
 `git checkout v0.2`
 
 Compile and install:
