@@ -27,35 +27,28 @@ new_plugin(char* host, int port, c_graph_parser *gp, int json_type){
  */
 int
 get_topology(routing_plugin *o){
-	printf("B1 %d\n",o->port);
 	int sd, sent;
 	if((sd = _create_socket(o->host, o->port))==0){
 		printf("Cannot connect to %s:%d", o->host, o->port);
 		return 0;
 	}
-	printf("B2\n");
 	char *req = "/netjsoninfo filter graph ipv6_0/quit\n";
-	printf("B2.1\n");
 	if( (sent = send(sd,req,strlen(req),0))==-1){
-		printf("B2.2\n");
 		printf("Cannot send to %s:%d", o->host, o->port);
 		close(sd);
 		return 0;
 	}
-	printf("B3\n");
 	if(!_telnet_receive(sd, &(o->recv_buffer))){
 		printf("cannot receive \n");
 		close(sd);
 		return 0;
 	}
-	printf("B4\n");
 	struct topology *t = parse_netjson(o->recv_buffer);
 	if(!t){
 		printf("can't parse netjson\n %s \n", o->recv_buffer);
 		close(sd);
 		return 0;
 	}
-	printf("B5\n");
 	graph_parser_parse_simplegraph(o->gp, t);
 	o->self_id=strdup(t-> self_id);
 	close(sd);

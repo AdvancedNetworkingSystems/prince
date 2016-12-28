@@ -4,10 +4,10 @@ TARGET = prince
 TARGET_C= prince_c
 OBJS = $(SRCS:.c=.o)
 OBJS_C = $(SRCS:.c=.o)
-CFLAGS = -ansi -g -fPIC -D_GNU_SOURCE
+CFLAGS = -std=gnu11 -g -fPIC -D_GNU_SOURCE
 CCFLAGS = --std=c++11 -g
 LIBS = -L../../graph-parser/build/lib -lgraphparser -ldl -ljson-c
-LIBC = -L../../graph-parser_c/build/lib -lgraphcparser -ldl -ljson-c
+LIBC = -L../../graph-parser_c/build/lib -lgraphcparser -ldl -ljson-c -lm
 BPATH = ../build/
 
 all: all_c
@@ -17,7 +17,7 @@ all_c: preparec $(TARGET_C)  libprince_olsr.so libprince_oonf.so removecomm
 $(TARGET) : preparecpp $(OBJS)
 	$(CXX) $(CCFLAGS) -o $(BPATH)$(TARGET) $(OBJS) $(LIBS)
 $(TARGET_C) : preparec $(OBJS_C)
-	$(CXX) $(CCFLAGS) -o $(BPATH)$(TARGET_C) $(OBJS) $(LIBC)
+	$(CC) $(CFLAGS) -o $(BPATH)$(TARGET_C) $(OBJS) $(LIBC)
 
 
 libprince_olsr.so : olsr.o socket.o parser.o
