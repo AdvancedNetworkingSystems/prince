@@ -7,10 +7,10 @@ all:
 	$(MAKE)  all_c -C prince/src
 
 install:
-	cp graph-parser/build/lib/libgraphparser.so /usr/lib/
+	#cp graph-parser/build/lib/libgraphparser.so /usr/lib/
 	cp graph-parser_c/build/lib/libgraphcparser.so /usr/lib/
 	cp prince/build/libprince_oonf.so /usr/lib/
-	cp prince/build/prince /usr/bin/
+	cp prince/build/prince_c /usr/bin/
 
 uninstall:
 	rm -f /usr/lib/libgraphparser.so
