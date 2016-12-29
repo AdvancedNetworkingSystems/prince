@@ -11,7 +11,8 @@ install:
 	cp graph-parser_c/build/lib/libgraphcparser.so /usr/lib/
 	cp prince/build/libprince_oonf.so /usr/lib/
 	cp prince/build/prince_c /usr/bin/
-
+	cp prince/build/prince /usr/bin
+	
 uninstall:
 	rm -f /usr/lib/libgraphparser.so
 	rm -f /usr/lib/libgraphcparser.so
