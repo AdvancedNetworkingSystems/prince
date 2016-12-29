@@ -4,7 +4,6 @@ import json
 import numpy as np
 from poprouting import ComputeTheoreticalValues
 from graph_generator import Gen
-import matplotlib.pyplot as plt
 
 
 class PrinceTestOONF:
