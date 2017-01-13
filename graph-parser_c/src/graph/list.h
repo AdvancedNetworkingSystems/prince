@@ -52,6 +52,7 @@ extern "C" {
     void enqueue_list(struct list * q,void * item);
     void * dequeue_list(struct list * q);
     void * peek_last_list(struct list * q);
+    void * peek_first_list(struct list * q);
     void * pop_list(struct list * q);
     void print_list(struct list * q);
     void clear_list(struct list * q);

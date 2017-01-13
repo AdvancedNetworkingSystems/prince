@@ -31,7 +31,7 @@ struct connected_component{
 };
 
 double * betweeness_brandes(struct graph * g, bool endpoints,int ** traffic_matrix);
-double * betwenness_heuristic(struct graph * g);
+double * betwenness_heuristic(struct graph * g, bool recursive);
 
 
 #ifdef __cplusplus

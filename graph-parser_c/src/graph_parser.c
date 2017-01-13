@@ -32,10 +32,13 @@ void graph_parser_parse_simplegraph(c_graph_parser* v, struct topology *topo){
         }
     }
 }
+
+bool recursive=true;
+
 void graph_parser_calculate_bc(c_graph_parser* v){
     struct graph_parser * gp=(struct graph_parser *)v;
     if(gp->heuristic_b){
-        gp->bc=betwenness_heuristic(&(gp->g));
+        gp->bc=betwenness_heuristic(&(gp->g),recursive);
     }else{
         gp->bc=betweeness_brandes(&(gp->g),true,0);
     }

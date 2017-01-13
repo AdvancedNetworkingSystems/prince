@@ -429,11 +429,181 @@ void DFS_visit(struct node_graph * u,struct list * s,int * d,int * low,bool * vi
         }
     }
 }
+struct cc_edge_stack{
+    struct node_graph * grandparent;
+    struct node_graph * parent;
+    struct node_list * iterator;
+};
+struct cc_edge_stack * init_cc_edge_stack(struct node_graph * grandparent,struct node_graph * parent){
+    struct cc_edge_stack * ced=(struct cc_edge_stack * )malloc(sizeof(struct cc_edge_stack ));
+    ced->parent=parent;
+    ced->grandparent=grandparent;
+    ced->iterator=parent->neighbours.head;
+    return ced;
+}
 
 
 //https://www.google.it/url?sa=t&rct=j&q=&esrc=s&source=web&cd=10&cad=rja&uact=8&ved=0ahUKEwiqxLjNo_nQAhWCPxQKHSwyAUkQFghkMAk&url=https%3A%2F%2Fwww.cs.duke.edu%2Fcourses%2Ffall05%2Fcps130%2Flectures%2Freif.lectures%2FALG5.1.ppt&usg=AFQjCNHYopbww378Ke-abSmSNdIoWGAP8w&sig2=ygNiUqK_CQIcYJK6phyp0g
-struct list*  tarjan_iter_undir(struct graph * g){
-    
+struct list*  tarjan_iter_undir(struct graph * g, bool * is_articulation_point){
+    struct list * connected_components=( struct list * )malloc(sizeof( struct list ));
+    init_list(connected_components);
+    int node_num=g->nodes.size;
+    bool * visited=( bool * )malloc(sizeof(bool)*node_num);
+    bool * added=( bool * )malloc(sizeof(bool)*node_num);
+    int * discovery=( int * )malloc(sizeof(int)*node_num);
+    int * low=( int * )malloc(sizeof(int)*node_num);
+    int i;
+    for(i=0;i<node_num;i++){
+        is_articulation_point[i]=false;
+        visited[i]=false;
+        added[i]=false;
+    }
+    struct node_list * n;
+    for(n =g->nodes.head;n!=0;n=n->next){
+        struct node_graph *ng=(struct node_graph *)n->content;
+        if(!visited[ng->node_graph_id]){
+            visited[ng->node_graph_id]=true;
+            int discovery_len=1;
+            int root_children=0;
+            for(i=0;i<node_num;i++){
+                discovery[i]=0;
+                low[i]=0;
+            }
+            struct list edge_stack;
+            init_list(&edge_stack);
+            struct list s;
+            init_list(&s);
+            enqueue_list(&s,init_cc_edge_stack(ng,ng));
+            while(!is_empty_list(&s)){
+                struct cc_edge_stack * ced=(struct cc_edge_stack * )peek_last_list(&s);
+                if(ced->iterator!=0){
+                    struct edge_graph * edge=(struct  edge_graph*)ced->iterator->content;
+                    struct node_graph * child=edge->to;
+                    ced->iterator=ced->iterator->next;
+                    if(child==ced->grandparent){
+                        continue;
+                    }
+                    if(visited[child->node_graph_id]){
+                        if(discovery[child->node_graph_id]<=discovery[ced->parent->node_graph_id]){
+                            low[ced->parent->node_graph_id] = min(low[ced->parent->node_graph_id], discovery[child->node_graph_id]);
+                            enqueue_list(&edge_stack,init_edge_repr(ced->parent,child,edge->value)); 
+                        }
+                    }else{
+                        low[child->node_graph_id]=discovery_len;
+                        discovery[child->node_graph_id]=discovery_len;
+                        discovery_len++;
+                        visited[child->node_graph_id]=true;
+                        enqueue_list(&s,init_cc_edge_stack(ced->parent,child));
+                        enqueue_list(&edge_stack,init_edge_repr(ced->parent,child,edge->value));
+                    }
+                }else{
+                    struct cc_edge_stack * ced_to_clear=(struct cc_edge_stack * )pop_list(&s);
+                    if(s.size>1){
+                        if(low[ced->parent->node_graph_id]>=discovery[ced->grandparent->node_graph_id]){
+                            struct edge_repr * er=(struct edge_repr *) peek_last_list(&edge_stack);
+                            struct list l;
+                            init_list(&l);
+                            int added_count=0;
+                            while(er!=0){
+                                enqueue_list(&l,er);
+                                if(!added[er->from->node_graph_id])
+                                    added_count++;
+                                if(!added[er->to->node_graph_id])
+                                    added_count++;
+                                added[er->from->node_graph_id]=true;
+                                added[er->to->node_graph_id]=true;
+                                pop_list(&edge_stack);
+                                if((er->from==ced->grandparent && er->to==ced->parent)){
+                                    break;
+                                }
+                                er=(struct edge_repr *) peek_last_list(&edge_stack);
+                            }
+                            if(!is_empty_list(&l)){
+                                struct connected_component * cc=(struct connected_component *)malloc(sizeof(struct connected_component));
+                                init_graph(&(cc->g));
+                                cc->mapping=(int *)malloc(sizeof(int)*added_count);
+                                cc->weights=(int *)malloc(sizeof(int)*added_count);
+                                for(i=0;i<added_count;i++){
+                                    cc->weights[i]=-1;
+                                }
+                                //cc->map_size=added_count;
+                                cc->cutpoint=0;
+                                while(!is_empty_list(&l)){
+                                    struct edge_repr * er_i=( struct edge_repr *)pop_list(&l);
+                                    added[er_i->from->node_graph_id]=false;
+                                    added[er_i->to->node_graph_id]=false;
+                                    int f=0,t=0;
+                                    add_edge_graph_return_node_indexes(&(cc->g), er_i->from->name, er_i->to->name, er_i->value,0,&f, &t);
+                                    cc->mapping[f]= er_i->from->node_graph_id;
+                                    cc->mapping[t]= er_i->to->node_graph_id;
+                                    free(er_i);
+                                }
+                                enqueue_list(connected_components,cc);
+                            }
+                            is_articulation_point[ced->grandparent->node_graph_id]=true;
+                        } 
+                        low[ced->grandparent->node_graph_id]=min(low[ced->parent->node_graph_id],low[ced->grandparent->node_graph_id]);
+                    }else if(s.size==1){
+                        root_children++;
+                        struct node_list * nl= edge_stack.tail;
+                        struct edge_repr * er=(struct edge_repr *) nl->content;
+                        struct list l;
+                        init_list(&l);
+                        int added_count=0;
+                        while(er!=0){
+                            enqueue_list(&l,er);
+                            if(!added[er->from->node_graph_id])
+                                added_count++;
+                            if(!added[er->to->node_graph_id])
+                                added_count++;
+                            nl=nl->prev;
+                            if(er->from==ced->grandparent && er->to==ced->parent)
+                                break;
+                            if(nl!=0){
+                                er=(struct edge_repr *) nl->content;
+                            }else{
+                                er=0;
+                            }
+                        }
+                        if(!is_empty_list(&l)){
+                            struct connected_component * cc=(struct connected_component *)malloc(sizeof(struct connected_component));
+                            init_graph(&(cc->g));
+                            cc->mapping=(int *)malloc(sizeof(int)*added_count);
+                            cc->weights=(int *)malloc(sizeof(int)*added_count);
+                            for(i=0;i<added_count;i++){
+                                cc->weights[i]=-1;
+                            }
+                            //cc->map_size=added_count;
+                            cc->cutpoint=0;
+                            while(!is_empty_list(&l)){
+                                struct edge_repr * er_i=( struct edge_repr *)pop_list(&l);
+                                added[er_i->from->node_graph_id]=false;
+                                added[er_i->to->node_graph_id]=false;
+                                int f=0,t=0;
+                                add_edge_graph_return_node_indexes(&(cc->g), er_i->from->name, er_i->to->name, er_i->value,0,&f, &t);
+                                cc->mapping[f]= er_i->from->node_graph_id;
+                                cc->mapping[t]= er_i->to->node_graph_id;
+                                free(er_i);
+                            }
+                            enqueue_list(connected_components,cc);
+                        }
+                        
+                    }
+                    free(ced_to_clear);
+                }
+            }
+            if(root_children>1){
+                is_articulation_point[ng->node_graph_id]=true;
+            }
+            clear_list(&edge_stack);
+            clear_list(&s);
+        }
+    }
+    free(added); 
+    free(low); 
+    free(discovery);
+    free(visited);
+    return connected_components;
 }
 
 // normal defines whether the pair is (B,v) (if false, (v,B)). Since ordering 
@@ -476,7 +646,7 @@ struct list*  connected_components_to_tree(struct graph * g, struct list* connec
         struct node_list *n;
         i=0;
         for(n=cc->g.nodes.head;n!=0;n=n->next){
-            struct node_graph *ng=(struct node_graph *)n->content;
+            // struct node_graph *ng=(struct node_graph *)n->content;
             if(is_articulation_point[cc->mapping[i]]){
                 int new_index=cc->mapping[i];
                 ng_cutpoint=nodes[new_index];
@@ -625,9 +795,14 @@ void * run(void *arguments){
 }
 
 
-double * betwenness_heuristic(struct graph * g){
+double * betwenness_heuristic(struct graph * g, bool recursive){
     bool * is_articulation_point=( bool * )malloc(sizeof(bool)*g->nodes.size);
-    struct list* connected_components=tarjan_rec_undir(g,is_articulation_point);
+    struct list* connected_components;
+    if(recursive){
+        connected_components=tarjan_rec_undir(g,is_articulation_point);
+    }else {
+        connected_components=tarjan_iter_undir(g,is_articulation_point);
+    }
     struct list* tree_edges=connected_components_to_tree(g,connected_components,is_articulation_point);
     compute_component_tree_weights(g,tree_edges);
     double * ret_val=(double *)malloc(sizeof(double)*g->nodes.size);
@@ -721,35 +896,9 @@ double * betwenness_heuristic(struct graph * g){
     return ret_val;
 }
 
-
-
-
+//https://github.com/networkx/networkx/blob/master/networkx/algorithms/components/biconnected.py#L427
 int main(){
-    /* struct graph g;
-     init_graph(&g);
-     add_edge_graph(&g,"0","2",8);
-     add_edge_graph(&g,"1","0",7);
-     add_edge_graph(&g,"1","2",3);
-     add_edge_graph(&g,"1","3",3);
-     add_edge_graph(&g,"2","0",7);
-     add_edge_graph(&g,"2","1",6);
-     add_edge_graph(&g,"2","3",10);
-     add_edge_graph(&g,"2","4",1);
-     add_edge_graph(&g,"3","0",4);
-     add_edge_graph(&g,"3","1",2);
-     add_edge_graph(&g,"3","2",9);
-     add_edge_graph(&g,"3","4",1);
-     add_edge_graph(&g,"4","0",10);
-     add_edge_graph(&g,"4","1",5);
-     add_edge_graph(&g,"4","2",8);
-     // betweeness_brandes(&g);
-     struct list*  ti=tarjan_iter(&g);
-     print_CCs(ti);
-     reset_graph(&g);
-     struct list*  tr=tarjan_rec(&g);
-     print_CCs(tr);
-     //0: 0.08333333333333333, 1: 0.25, 2: 0.25, 3: 0.125, 4: 0.041666666666666664
-     */
+    
     struct graph g1;
     init_graph(&g1);
     add_edge_graph(&g1,"A","B",1,0);
@@ -770,99 +919,15 @@ int main(){
     add_edge_graph(&g1,"N","M",1,0);
     struct node_list *  nl;
     double * bh=betweeness_brandes(&g1,true,0);
-    
-    
-    
-    
-    
-    double * bh_c=betwenness_heuristic(&g1);
-    //int i;
-    //for(i=0;i<g1.nodes.size;i++){
-    //     printf("%f %f\n",bh[i],  bh_c[i]);
-    //}
-    
+
+    double * bh_c=betwenness_heuristic(&g1,true);
     for(nl=g1.nodes.head;nl!=0;nl=nl->next){
         struct node_graph * ng=(struct node_graph*)nl->content;
-        // printf("%s %f\n",ng->name,bh[j]);
         printf("%s:\t%f \t%f\t%d\n",ng->name,bh[ng->node_graph_id],  bh_c[ng->node_graph_id],bh[ng->node_graph_id]==bh_c[ng->node_graph_id]);
         
     }
     free(bh);
     free(bh_c);
     free_graph(&g1);
-    /*
-     struct list*  ti1=tarjan_iter(&g1);
-     print_CCs(ti1);
-     reset_graph(&g1);
-     struct list*  tr2=tarjan_rec(&g1);
-     print_CCs(tr2);
-     exit(0);
-     struct graph g2;
-     init_graph(&g2);
-     add_edge_graph(&g2,"1","0",1);
-     add_edge_graph(&g2,"0","2",1);
-     add_edge_graph(&g2,"2","1",1);
-     add_edge_graph(&g2,"0","3",1);
-     add_edge_graph(&g2,"3","4",1);
-     tr2=tarjan_rec(&g2);
-     print_CCs(tr2);
-     
-     struct graph g3;
-     init_graph(&g3);
-     add_edge_graph(&g3,"0","1",1);
-     add_edge_graph(&g3,"1","2",1);
-     add_edge_graph(&g3,"2","3",1);
-     tr2=tarjan_rec(&g3);
-     print_CCs(tr2);
-     
-     
-     struct graph g4;
-     init_graph(&g4);
-     add_edge_graph(&g4,"0","1",1);
-     add_edge_graph(&g4,"1","2",1);
-     add_edge_graph(&g4,"2","0",1);
-     add_edge_graph(&g4,"1","3",1);
-     add_edge_graph(&g4,"1","4",1);
-     add_edge_graph(&g4,"1","6",1);
-     add_edge_graph(&g4,"3","5",1);
-     add_edge_graph(&g4,"4","5",1);
-     tr2=tarjan_rec(&g4);
-     print_CCs(tr2);
-     
-     struct graph g5;
-     init_graph(&g5);
-     add_edge_graph(&g5,"0","1",1);
-     add_edge_graph(&g5,"0","3",1);
-     add_edge_graph(&g5,"1","2",1);
-     add_edge_graph(&g5,"1","4",1);
-     add_edge_graph(&g5,"2","0",1);
-     add_edge_graph(&g5,"2","6",1);
-     add_edge_graph(&g5,"3","2",1);
-     add_edge_graph(&g5,"4","5",1);
-     add_edge_graph(&g5,"4","6",1);
-     add_edge_graph(&g5,"5","6",1);
-     add_edge_graph(&g5,"5","7",1);
-     add_edge_graph(&g5,"5","8",1);
-     add_edge_graph(&g5,"5","9",1);
-     add_edge_graph(&g5,"6","4",1);
-     add_edge_graph(&g5,"7","9",1);
-     add_edge_graph(&g5,"8","9",1);
-     add_edge_graph(&g5,"9","8",1);
-     tr2=tarjan_rec(&g5);
-     print_CCs(tr2);
-     
-     
-     struct graph g6;
-     init_graph(&g6);
-     add_edge_graph(&g6,"0","1",1);
-     add_edge_graph(&g6,"1","2",1);
-     add_edge_graph(&g6,"2","3",1);
-     add_edge_graph(&g6,"2","4",1);
-     add_edge_graph(&g6,"3","0",1);
-     add_edge_graph(&g6,"4","2",1);
-     tr2=tarjan_rec(&g6);
-     print_CCs(tr2);
-     
-     */ 
     return 0;
 }

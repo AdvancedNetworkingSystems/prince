@@ -53,7 +53,13 @@ void * peek_last_list(struct list * q){
     }
     return ret_val;
 }
-
+void * peek_first_list(struct list * q){
+    void * ret_val=0;
+    if(q->head!=0){
+        ret_val=q->head->content;
+    }
+    return ret_val;
+}
 
 void * pop_list(struct list * q){
     void * ret_val=0;
