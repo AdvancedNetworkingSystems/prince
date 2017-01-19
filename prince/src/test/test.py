@@ -27,6 +27,7 @@ import numpy as np
 from poprouting import ComputeTheoreticalValues
 from graph_generator import Gen
 import matplotlib.pyplot as plt
+import sys
 
 
 class PrinceTestOONF:
@@ -176,38 +177,38 @@ measures_plaw_c = []
 measures_plaw_noh_var_c = []
 measures_plaw_var_c = []
 x = []
-sample = 4#20
-max = 20#500
+jump = 50#20
+max =1000 #500
+min=300
+iter=3
 # run prince w & w/o heuristic
-#proc_noh = subprocess.Popen("exec ../../build/prince ../../input/test_noh.ini", shell=True)
-#proc = subprocess.Popen("exec ../../build/prince ../../input/test.ini", shell=True)
+proc_noh = subprocess.Popen("exec ../../build/prince ../../input/test_noh.ini", shell=True)
+proc = subprocess.Popen("exec ../../build/prince ../../input/test.ini", shell=True)
 
-#proc_noh_c = subprocess.Popen("exec ../../build/prince_c ../../input/test_noh_c.ini", shell=True, stdout=subprocess.PIPE)
+proc_noh_c = subprocess.Popen("exec ../../build/prince_c ../../input/test_noh_c.ini", shell=True, stdout=subprocess.PIPE)
 proc_c = subprocess.Popen("exec ../../build/prince_c ../../input/test_c.ini", shell=True, stdout=subprocess.PIPE)
 # cycle till the max values
-
 try:
-    for i in range(1, (max / sample) + 1):
-        size = sample * i
+    for i in range(min, max+1,jump):
+        size = i
         # run tests with and w/o heuristic
-        #t = p.test(1, size, 5)
-        #tnoh = p.test_noh(1, size, 5)
-        t_c = p.test_c(1, size, 5)
-        #tnoh_c = p.test_noh_c(1, size, 5)
+        t = p.test(1, size, iter)
+        tnoh = p.test_noh(1, size, iter)
+        t_c = p.test_c(1, size, iter)
+        tnoh_c = p.test_noh_c(1, size, iter)
         # append the values in lists to plot them
-        """
         measures_plaw_noh.append(tnoh['exec_mean'])
         measures_plaw_noh_var.append(tnoh['exec_var'])
         measures_plaw.append(t['exec_mean'])
         measures_plaw_var.append(t['exec_var'])
-        """
         measures_plaw_noh_c.append(tnoh_c['exec_mean'])
         measures_plaw_noh_var_c.append(tnoh_c['exec_var'])
         measures_plaw_c.append(t_c['exec_mean'])
         measures_plaw_var_c.append(t_c['exec_var'])
         x.append(size)
 except:
-    exit(0)
+    print "Unexpected error:", sys.exc_info()
+    exit(-1)
     #print("1====> ",proc_noh_c.stdout.read())
     #print("2====> ",proc_c.stdout.read())
     import sys
@@ -221,7 +222,7 @@ import signal
 kill(proc_noh.pid, signal.SIGTERM)
 kill(proc.pid, signal.SIGTERM)
 kill(proc_noh_c.pid, signal.SIGTERM)
-#kill(proc_c.pid, signal.SIGTERM)
+kill(proc_c.pid, signal.SIGTERM)
 
 # plot the values and the error bars with pyplot
 plt.errorbar(x, measures_plaw_noh, yerr=measures_plaw_noh_var, label="C++ w/o h")
@@ -231,4 +232,7 @@ plt.errorbar(x, measures_plaw_c, yerr=measures_plaw_var_c, label="C w h")
 plt.xlabel('size of graph (nodes)')
 plt.ylabel('execution time (s)')
 plt.legend(loc='upper center', shadow=True)
+plt.axhline(1,color='k')
+plt.savefig('res.png')
 plt.show()
+

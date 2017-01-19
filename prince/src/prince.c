@@ -41,45 +41,35 @@ void (*delete_plugin)(routing_plugin* o);
 int
 main(int argc, char* argv[]){
 	struct prince_handler *ph= new_prince_handler(argv[1]);
-	printf("A1\n");
 	/*cycle each 'refresh' seconds*/
 	do{
-		printf("A1.1\n");
 		sleep(ph->refresh);
-		printf("A1.2\n");
 		ph->gp = new_graph_parser(ph->weights, ph->heuristic);
-		printf("A1.3\n");
 		ph->rp = new_plugin(ph->host, ph->port, ph->gp, ph->json_type);
-		printf("A1.4\n");
 		if(!get_topology(ph->rp)){
 			printf("Error getting topology");
 			continue;
 
 		}
-		printf("A2\n");
 		if(ph->rp->self_id)
 			ph->self_id = strdup(ph->rp->self_id);
 		clock_t start = clock();
 		graph_parser_calculate_bc(ph->gp);
 		clock_t end = clock();
 		graph_parser_compose_degree_bc_map(ph->gp, ph->bc_degree_map);
-		printf("A3\n");
 		ph->opt_t.exec_time = (double)(end - start) / CLOCKS_PER_SEC;
 		printf("Calculation time: %fs\n", ph->opt_t.exec_time);
 		if (!compute_timers(ph)){
 			delete_prince_handler(ph);
 			continue;
 		}
-		printf("A4\n");
 		printf("\nId of the node we are computing is: %s\n", ph->self_id);
 		if (!push_timers(ph->rp, ph->opt_t)){
 			delete_prince_handler(ph);
 			continue;
 		}
-		printf("A5\n");
 		delete_plugin(ph->rp);
 	}while(ph->refresh);
-	printf("A6\n");
 	delete_prince_handler(ph);
 	return 1;
 

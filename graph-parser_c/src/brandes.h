@@ -14,21 +14,13 @@
 #ifndef ALGORITHMS_H
 #define ALGORITHMS_H
 
-#include "graph/graph.h"
+
 #include <pthread.h>
+#include "biconnected.h"
 #ifdef __cplusplus
 extern "C" {
 #endif
-struct graph;
 
-struct connected_component{
-    struct graph g;
-    int * mapping;
-    int * weights;
-    
-    struct node_graph * cutpoint;
-    int cutpoint_index;
-};
 
 double * betweeness_brandes(struct graph * g, bool endpoints,int ** traffic_matrix);
 double * betwenness_heuristic(struct graph * g, bool recursive);
