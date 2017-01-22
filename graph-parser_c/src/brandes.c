@@ -38,6 +38,15 @@ struct cc_node_edge * init_cc_node_edge(struct connected_component * from,struct
     return cne;
 }
 
+struct cc_node_edge * clone_cc_node_edge(struct cc_node_edge * cne){
+    struct cc_node_edge * cne_n=(struct cc_node_edge * )malloc(sizeof(struct cc_node_edge ));
+    cne_n->from=cne->from;
+    cne_n->to=cne->to;
+    cne_n->weight=cne->weight;
+    cne_n->normal=cne->normal;
+    return cne_n;
+}
+
 
 struct list*  connected_components_to_tree(struct graph * g, struct list* connected_components, bool * is_articulation_point){
     struct list* tree_edges=(struct list*)malloc(sizeof(struct list));
@@ -86,6 +95,7 @@ struct list*  connected_components_to_tree(struct graph * g, struct list* connec
 
 //From http://algo.uni-konstanz.de/publications/pzedb-hsbcc-12.pdf
 void compute_component_tree_weights(struct graph * g, struct list* tree_edges){
+    struct  node_list * nl;
     struct list q;
     init_list(&q);
     int v_num=g->nodes.size;
@@ -93,6 +103,7 @@ void compute_component_tree_weights(struct graph * g, struct list* tree_edges){
     for(edge_iterator=tree_edges->head;edge_iterator!=0;edge_iterator=edge_iterator->next){
         struct cc_node_edge * cne=(struct cc_node_edge *)edge_iterator->content;
         if(cne->from->cutpoint!=0){
+            cne=clone_cc_node_edge(cne);
             enqueue_list(&q,cne);
         }
     }  
@@ -103,11 +114,12 @@ void compute_component_tree_weights(struct graph * g, struct list* tree_edges){
             struct node_list * edge_iterator;
             for(edge_iterator=tree_edges->head;edge_iterator!=0;edge_iterator=edge_iterator->next){
                 struct cc_node_edge * cne_i=(struct cc_node_edge*)edge_iterator->content;
-                if(cne_i->from==cne->from&&(*cne_i->weight)!=-1){
-                    size+=(v_num-(*cne_i->weight) - 1);
+                if(cne_i->from==cne->from&&(*cne_i->weight)!=-1&&cne_i->to!=cne->to){
+                    size+=(v_num-(*cne_i->weight) - 1); //right one
                 }
             }
             (*cne->weight)=size;
+            //  printf("directed '%s':%d\n",cne->to->name,(*cne->weight));
             int count=0;
             struct cc_node_edge * t;
             for(edge_iterator=tree_edges->head;edge_iterator!=0;edge_iterator=edge_iterator->next){
@@ -119,19 +131,22 @@ void compute_component_tree_weights(struct graph * g, struct list* tree_edges){
                 }
             }
             if(count==1){
+                t=clone_cc_node_edge(t);
                 t->normal=false;
                 enqueue_list(&q,t);
             }
         }else{            
-            int size=0;
+            int size= 0; //right one
             struct node_list * edge_iterator;
             for(edge_iterator=tree_edges->head;edge_iterator!=0;edge_iterator=edge_iterator->next){
                 struct cc_node_edge * cne_i=(struct cc_node_edge*)edge_iterator->content;
-                if(cne_i->from!=cne->from&&strcmp(cne_i->to->name,cne->to->name)==0&&(*cne_i->weight)!=-1){
+                if(strcmp(cne_i->to->name,cne->to->name)==0&&(*cne_i->weight)!=-1&&cne_i->from!=cne->from){
                     size+=(*cne_i->weight);
                 }
             }
             (*cne->weight)=v_num-1-size;
+            // printf("reversed '%s':%d\n",cne->to->name,(*cne->weight));
+            
             int count=0;
             struct cc_node_edge * t;
             for(edge_iterator=tree_edges->head;edge_iterator!=0;edge_iterator=edge_iterator->next){
@@ -142,10 +157,12 @@ void compute_component_tree_weights(struct graph * g, struct list* tree_edges){
                 }
             }
             if(count==1){
+                t=clone_cc_node_edge(t);
                 t->normal=true;
                 enqueue_list(&q,t);
             }
         }
+        free(cne);
     }
 }
 
@@ -450,7 +467,7 @@ double * betweeness_brandes(struct graph * g, bool endpoints,int ** traffic_matr
             struct node_graph* ng=(struct node_graph*)nl->content;
             // ret_val[i]*=scale;
             //printf("%s:%f,",ng->name,ret_val[ng->node_graph_id]);
-            ret_val[ng->node_graph_id]*=scale;
+           // ret_val[ng->node_graph_id]*=scale;
             nl=nl->next;
         }
         
@@ -463,12 +480,29 @@ int main(){
     
     struct graph g1;
     init_graph(&g1);
-    add_edge_graph(&g1,"0","2",5.78987181508,0);
-    add_edge_graph(&g1,"1","5",6.03465776758,0);
-    add_edge_graph(&g1,"1","6",0.455996486203,0);
-    add_edge_graph(&g1,"2","4",4.00905027877,0);
-    add_edge_graph(&g1,"3","6",6.35398260464,0);
-    add_edge_graph(&g1,"4","6",0.176504629754,0);
+    add_edge_graph(&g1,"0","17",1,0);
+    add_edge_graph(&g1,"0","19",1,0);
+    add_edge_graph(&g1,"1","17",1,0);
+    add_edge_graph(&g1,"1","18",1,0);
+    add_edge_graph(&g1,"2","6",1,0);
+    add_edge_graph(&g1,"3","17",1,0);
+    add_edge_graph(&g1,"3","11",1,0);
+    add_edge_graph(&g1,"3","12",1,0);
+    add_edge_graph(&g1,"3","6",1,0);
+    add_edge_graph(&g1,"4","13",1,0);
+    add_edge_graph(&g1,"5","16",1,0);
+    add_edge_graph(&g1,"6","12",1,0);
+    add_edge_graph(&g1,"7","17",1,0);
+    add_edge_graph(&g1,"7","15",1,0);
+    add_edge_graph(&g1,"8","15",1,0);
+    add_edge_graph(&g1,"9","14",1,0);
+    add_edge_graph(&g1,"10","16",1,0);
+    add_edge_graph(&g1,"10","17",1,0);
+    add_edge_graph(&g1,"10","12",1,0);
+    add_edge_graph(&g1,"12","13",1,0);
+    add_edge_graph(&g1,"12","18",1,0);
+    add_edge_graph(&g1,"12","19",1,0);
+    add_edge_graph(&g1,"13","18",1,0);
     struct node_list *  nl;
     double * bh=betweeness_brandes(&g1,true,0);
     
@@ -487,7 +521,12 @@ int main(){
     int i=0;
     for(nl=g1.nodes.head;nl!=0;nl=nl->next){
         struct node_graph * ng=(struct node_graph*)nl->content;
-        printf("%s:\t%f \t%f\t%d\t%d\n",ng->name,bh[ng->node_graph_id],  bh_c[ng->node_graph_id],bh[ng->node_graph_id]==bh_c[ng->node_graph_id],is_articulation_point[i++]);
+        printf("%s:\t%f \t%f\t%d\t%d\t%f\n",
+                ng->name,bh[ng->node_graph_id], 
+                bh_c[ng->node_graph_id],
+                bh[ng->node_graph_id]==bh_c[ng->node_graph_id],
+                is_articulation_point[i++],
+                -bh[ng->node_graph_id]+bh_c[ng->node_graph_id]);
         
     }
     free(bh);
