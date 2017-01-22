@@ -22,7 +22,9 @@ extern "C" {
 		int i;	
 		PyObject*  d=PyDict_New();
 		for(i=0;i<map.size;i++){
-		PyDict_SetItem(d,PyInt_FromString(map.map[i].id,0,10),PyFloat_FromDouble(map.map[i].bc));
+		//PyDict_SetItem(d,PyInt_FromString(map.map[i].id,0,10),PyFloat_FromDouble(map.map[i].bc));
+		PyDict_SetItem(d,PyString_FromString(map.map[i].id),PyFloat_FromDouble(map.map[i].bc));
+
 		}
 	return d;
 	}

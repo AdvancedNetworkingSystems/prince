@@ -1,11 +1,13 @@
 #Some of these are related to eclipse. So i keep them out of my repo
+
 .cproject
 .dep/
 .project
 .settings/
 nbproject/
-*.out
-.idea 
+.idea/
+
+
 
 prince/build
 graph-parser/build
@@ -23,3 +25,9 @@ graph-parser/build
 *.map
 *.sym
 *.pyc
+*.png
+*.pdf
+*.txt
+*.out
+
+

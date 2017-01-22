@@ -104,12 +104,7 @@ void print_graph(struct graph * g){
 void init_node_graph(struct node_graph * n,const char * name,int node_graph_id){
     n->name=strdup((const char *)name);
     init_list(&(n->neighbours));
-   /* n->index=-1;
-    n->low_link=-1;
-    n->on_stack=false;
-    n->bcc_id=-1;*/
     n->node_graph_id=node_graph_id;
-    
 }
 
 void init_edge_graph(struct edge_graph * e){

@@ -1,6 +1,6 @@
 
 # define the C source files
-SRCS = graph_parser.c algorithms.c graph/graph.c graph/list.c
+SRCS = graph_parser.c brandes.c biconnected.c graph/graph.c graph/list.c
 TARGET = libgraphcparser
 OBJS = $(SRCS:.c=.o)
 CFLAGS = -g -fPIC -pthread

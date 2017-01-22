@@ -59,12 +59,12 @@ class Gen:
             Netjson['nodes'].append(n)
 
         Netjson['links'] = []
-        for link in graph.edges():
+        for link in graph.edges(data=True):
             e = {}
             e['source'] = str(link[0])
             e['target'] = str(link[1])
-            if graph.get_edge_data(e['source'], e['target']) is not None:
-                e['cost'] = graph.get_edge_data(e['source'], e['target'])['weight']
+            if graph.get_edge_data(link[0], link[1]) is not None:
+                e['cost'] = graph.get_edge_data(link[0], link[1])['weight']
             else:
                 e['cost'] = 1.0
             Netjson['links'].append(e)

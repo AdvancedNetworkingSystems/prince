@@ -5,6 +5,7 @@ import datetime as dt
 import networkx as nx
 import numpy as np
 import matplotlib.pyplot as plt
+
 def run_tests(node_num,repeat,lib_n,w):
 	ge = Gen()
 	executions = []
@@ -35,10 +36,10 @@ var_c_heu=[]
 m_c_heu=[]
 var_cpp_heu=[]
 m_cpp_heu=[]
-repeats=20
-for k in range(50,1001,50):
-	if (k % 10)==0:
-		print(k)
+repeats=5
+
+for k in range(100,1101,100):
+	print(k)
 	r=run_tests(k,repeats,'./libtest_c.so',0)
 	m_c.append(r[0])
 	var_c.append(r[1])
@@ -53,7 +54,10 @@ for k in range(50,1001,50):
 	var_cpp_heu.append(r[1])
 	x.append(k)
 
-plt.gca().set_position((.1, .1, .8, .8))
+
+
+plt.gca().set_position((.1, .2, .8, .7))
+plt.gca().set_xlim( (0,1200) )
 plt.errorbar(x, m_cpp, yerr=var_cpp, label="C++")
 plt.errorbar(x, m_cpp_heu, yerr=var_cpp_heu, label="C++ heuristic")
 
