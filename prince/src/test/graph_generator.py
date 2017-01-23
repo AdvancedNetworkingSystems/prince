@@ -19,7 +19,8 @@ allowedGraphs = [linearGraph, unitDisk, gridGraph, regularGraph, plainGrid, ring
 
 
 class Gen:
-    def composeNetJson(self, graph):
+    @staticmethod
+    def composeNetJson(graph):
         """ Parameters
         graph: nx graph object
         """

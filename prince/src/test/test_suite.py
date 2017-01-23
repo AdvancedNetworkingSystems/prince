@@ -23,7 +23,7 @@ class TestSuite:
         oonf_cfg.set('proto', 'protocol', 'oonf')
         oonf_cfg.set('proto', 'host', '127.0.0.1')
         oonf_cfg.set('proto', 'port', self.port)
-        oonf_cfg.set('proto', 'refresh', 1)
+        oonf_cfg.set('proto', 'refresh', 0)
         oonf_cfg.add_section('graph-parser')
         oonf_cfg.set('graph-parser', 'heuristic', self.heuristic)
         oonf_cfg.set('graph-parser', 'weights', self.weight)
@@ -43,7 +43,7 @@ class TestSuite:
         '''
         p = PrinceTestOONF()
         x = []
-        result_file = open(self.test_id + ".dat", 'w')
+        result_file = open(self.test_id + ".dat", 'a')
         weight = 0
         # run prince w heuristic
         self.cfg_filename = self.test_id + ".ini"
@@ -58,8 +58,11 @@ class TestSuite:
             measures_mean = measures_mtx.mean(axis=0)
             measures_var = measures_mtx.std(axis=0)
             measures = np.concatenate((measures_mean, measures_var), axis = 0)
-            result_file.write("%d %f %f %f %f %f %f\n" % (size, measures[0], measures[1], measures[2], measures[3], measures[4], measures[5]))
+            line = "%d %f %f %f %f %f %f\n" % (size, measures[0], measures[1], measures[2], measures[3], measures[4], measures[5])
+            result_file.write(line)
+            print line
             battery_measures = np.c_[battery_measures, measures]
+        print("Exec Time mean  Hello relative error mean  TC relative error mean, Exec Stdev  hello std  tc std")
         print(np.delete(battery_measures, 0, axis=1))
         result_file.close()
         proc.terminate()
