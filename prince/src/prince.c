@@ -19,16 +19,16 @@ void (*delete_plugin)(routing_plugin* o);
  */
 int
 main(int argc, char* argv[]){
-	struct prince_handler *ph= new_prince_handler(argv[1]);
+	struct prince_handler *ph = new_prince_handler(argv[1]);
+	ph->gp = new_graph_parser(ph->weights, ph->heuristic);
+	ph->rp = new_plugin(ph->host, ph->port, ph->gp, ph->json_type);
+
 	/*cycle each 'refresh' seconds*/
 	do{
 		sleep(ph->refresh);
-		ph->gp = new_graph_parser(ph->weights, ph->heuristic);
-		ph->rp = new_plugin(ph->host, ph->port, ph->gp, ph->json_type);
 		if(!get_topology(ph->rp)){
-			printf("Error getting topology");
+			printf("Error getting topology\n");
 			continue;
-
 		}
 		if(ph->rp->self_id)
 			ph->self_id = strdup(ph->rp->self_id);
@@ -39,16 +39,14 @@ main(int argc, char* argv[]){
 		ph->opt_t.exec_time = (double)(end - start) / CLOCKS_PER_SEC;
 		printf("Calculation time: %fs\n", ph->opt_t.exec_time);
 		if (!compute_timers(ph)){
-			delete_prince_handler(ph);
 			continue;
 		}
 		printf("\nId of the node we are computing is: %s\n", ph->self_id);
 		if (!push_timers(ph->rp, ph->opt_t)){
-			delete_prince_handler(ph);
 			continue;
 		}
-		delete_plugin(ph->rp);
 	}while(ph->refresh);
+	delete_plugin(ph->rp);
 	delete_prince_handler(ph);
 	return 1;
 
