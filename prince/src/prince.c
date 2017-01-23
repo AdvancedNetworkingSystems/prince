@@ -28,7 +28,7 @@ main(int argc, char* argv[]){
 		sleep(ph->refresh);
 		if(!get_topology(ph->rp)){
 			printf("Error getting topology\n");
-			continue;
+			break;
 		}
 		if(ph->rp->self_id)
 			ph->self_id = strdup(ph->rp->self_id);
@@ -41,7 +41,7 @@ main(int argc, char* argv[]){
 		if (!compute_timers(ph)){
 			continue;
 		}
-		printf("\nId of the node we are computing is: %s\n", ph->self_id);
+		printf("Id of the node we are computing is: %s\n", ph->self_id);
 		if (!push_timers(ph->rp, ph->opt_t)){
 			continue;
 		}

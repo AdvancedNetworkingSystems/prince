@@ -15,7 +15,7 @@ new_plugin(char* host, int port, c_graph_parser *gp, int json_type){
 	routing_plugin *o =(routing_plugin*) malloc(sizeof(routing_plugin));
 	o->port=port;
 	o->host=strdup(host);
-	if(o->gp)o->gp = gp;
+	o->gp = gp;
 	o->json_type=json_type;
 	return o;
 }
