@@ -65,4 +65,5 @@ class TestSuite:
         print("Exec Time mean  Hello relative error mean  TC relative error mean, Exec Stdev  hello std  tc std")
         print(np.delete(battery_measures, 0, axis=1))
         result_file.close()
+        p.terminate_workers()
         proc.terminate()
