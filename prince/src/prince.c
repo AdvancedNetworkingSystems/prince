@@ -22,13 +22,14 @@ main(int argc, char* argv[]){
 	struct prince_handler *ph = new_prince_handler(argv[1]);
 	ph->gp = new_graph_parser(ph->weights, ph->heuristic);
 	ph->rp = new_plugin(ph->host, ph->port, ph->gp, ph->json_type);
-
+	int go = 1;
 	/*cycle each 'refresh' seconds*/
 	do{
 		sleep(ph->refresh);
 		if(!get_topology(ph->rp)){
 			printf("Error getting topology\n");
-			break;
+			sleep(ph->sleep_onfail);
+			continue;
 		}
 		if(ph->rp->self_id)
 			ph->self_id = strdup(ph->rp->self_id);
@@ -45,7 +46,7 @@ main(int argc, char* argv[]){
 		if (!push_timers(ph->rp, ph->opt_t)){
 			continue;
 		}
-	}while(ph->refresh);
+	}while(go);
 	delete_plugin(ph->rp);
 	delete_prince_handler(ph);
 	return 1;
@@ -60,11 +61,12 @@ main(int argc, char* argv[]){
 struct prince_handler*
 new_prince_handler(char * conf_file){
 	struct prince_handler* ph = (struct prince_handler*) malloc(sizeof(struct prince_handler));
-	ph->def_t.h_timer=2.0;
-	ph->def_t.tc_timer=5.0;
+	ph->def_t.h_timer = 2.0;
+	ph->def_t.tc_timer = 5.0;
 	ph->bc_degree_map = (map_id_degree_bc *) malloc(sizeof(map_id_degree_bc));
-	ph->weights=0;
-	ph->heuristic=1;
+	ph->weights = 0;
+	ph->heuristic = 1;
+	ph->sleep_onfail = 1;
 
 	read_config_file(ph, conf_file);
 	switch(ph->proto){

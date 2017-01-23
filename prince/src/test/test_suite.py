@@ -23,7 +23,7 @@ class TestSuite:
         oonf_cfg.set('proto', 'protocol', 'oonf')
         oonf_cfg.set('proto', 'host', '127.0.0.1')
         oonf_cfg.set('proto', 'port', self.port)
-        oonf_cfg.set('proto', 'refresh', 1)
+        oonf_cfg.set('proto', 'refresh', 0)
         oonf_cfg.add_section('graph-parser')
         oonf_cfg.set('graph-parser', 'heuristic', self.heuristic)
         oonf_cfg.set('graph-parser', 'weights', self.weight)
