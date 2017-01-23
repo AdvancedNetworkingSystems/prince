@@ -22,15 +22,18 @@ class PrinceTestOONF:
         self.workers_order_q = Queue.Queue()
         self.workers_result_q = Queue.Queue()
         self.workers = []
-        for i in range(1,6):
+        self.go = 1
+        for i in range(1,3):
             t = threading.Thread(target = self.generatorWorker, args=[i])
             self.workers.append(t)
+            t.daemon = True
             t.start()
 
+    def terminate_workers(self):
+        self.go = 0
 
     def generatorWorker(self, worker_id):
-        go = 1
-        while(go):
+        while(self.go):
             #READ FROM SHARED FIFO QUEUE
             order = self.workers_order_q.get()
             print (str(worker_id)+" got an order\n")
