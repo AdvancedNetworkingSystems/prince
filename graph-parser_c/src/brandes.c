@@ -1,9 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
-
 /* 
  * File:   brandes.c
  * Author: principale
@@ -56,7 +50,6 @@ struct list*  connected_components_to_tree(struct graph * g, struct list* connec
     int i;
     struct node_list * node_iterator=g->nodes.head;
     for(i=0;i<g->nodes.size;i++){
-        //visited[i]=false;
         nodes[i]=(struct node_graph *)node_iterator->content;
         node_iterator=node_iterator->next;
     }
@@ -69,7 +62,6 @@ struct list*  connected_components_to_tree(struct graph * g, struct list* connec
         struct node_list *n;
         i=0;
         for(n=cc->g.nodes.head;n!=0;n=n->next){
-            // struct node_graph *ng=(struct node_graph *)n->content;
             if(is_articulation_point[cc->mapping[i]]){
                 int new_index=cc->mapping[i];
                 ng_cutpoint=nodes[new_index];
@@ -94,11 +86,9 @@ struct list*  connected_components_to_tree(struct graph * g, struct list* connec
 
 
 //From http://algo.uni-konstanz.de/publications/pzedb-hsbcc-12.pdf
-void compute_component_tree_weights(struct graph * g, struct list* tree_edges){
-    struct  node_list * nl;
+void compute_component_tree_weights(struct graph * g, struct list* tree_edges,int v_num){
     struct list q;
     init_list(&q);
-    int v_num=g->nodes.size;
     struct node_list * edge_iterator;
     for(edge_iterator=tree_edges->head;edge_iterator!=0;edge_iterator=edge_iterator->next){
         struct cc_node_edge * cne=(struct cc_node_edge *)edge_iterator->content;
@@ -119,7 +109,6 @@ void compute_component_tree_weights(struct graph * g, struct list* tree_edges){
                 }
             }
             (*cne->weight)=size;
-            //  printf("directed '%s':%d\n",cne->to->name,(*cne->weight));
             int count=0;
             struct cc_node_edge * t;
             for(edge_iterator=tree_edges->head;edge_iterator!=0;edge_iterator=edge_iterator->next){
@@ -136,7 +125,7 @@ void compute_component_tree_weights(struct graph * g, struct list* tree_edges){
                 enqueue_list(&q,t);
             }
         }else{            
-            int size= 0; //right one
+            int size= 0;
             struct node_list * edge_iterator;
             for(edge_iterator=tree_edges->head;edge_iterator!=0;edge_iterator=edge_iterator->next){
                 struct cc_node_edge * cne_i=(struct cc_node_edge*)edge_iterator->content;
@@ -145,8 +134,6 @@ void compute_component_tree_weights(struct graph * g, struct list* tree_edges){
                 }
             }
             (*cne->weight)=v_num-1-size;
-            // printf("reversed '%s':%d\n",cne->to->name,(*cne->weight));
-            
             int count=0;
             struct cc_node_edge * t;
             for(edge_iterator=tree_edges->head;edge_iterator!=0;edge_iterator=edge_iterator->next){
@@ -166,13 +153,6 @@ void compute_component_tree_weights(struct graph * g, struct list* tree_edges){
     }
 }
 
-struct multithread_handle_cc_struct{
-    struct connected_component * cc;
-    int * node_num;
-    bool *is_articulation_point;
-    double * ret_val;
-    pthread_t t;
-};
 
 
 
@@ -183,9 +163,8 @@ double * handle_cc(  struct connected_component * cc,int node_num,bool *is_artic
     for( i=0;i<cc_node_num;i++){
         comm_matrix[i]=(int *)malloc(sizeof(int)*cc_node_num);
     }
-    int j;
-    //printf("@=@=@=@=@=@=@=@\n");
     for(i=0;i<cc_node_num;i++){
+        int j;
         for(j=0;j<cc_node_num;j++){
             if(i==j){
                 comm_matrix[i][j]=0;
@@ -210,10 +189,8 @@ double * handle_cc(  struct connected_component * cc,int node_num,bool *is_artic
                 }
                 
             }
-            //printf("%d\t",comm_matrix[i][j]);
-        }// printf("\n");
+        }
     } 
-    //printf("@=@=@=@=@=@=@=@\n");
     double * ret_val=betweeness_brandes(&(cc->g),true,comm_matrix);        
     for(i=0;i<cc_node_num;i++){
         free(comm_matrix[i]);
@@ -222,67 +199,61 @@ double * handle_cc(  struct connected_component * cc,int node_num,bool *is_artic
     return ret_val;
 }
 
-void * run(void *arguments){
+struct multithread_handle_cc_struct{
+    struct connected_component * cc;
+    int * node_num;
+    bool *is_articulation_point;
+    double * ret_val;
+    pthread_t t;
+};
+
+
+void * run_brandes_heu(void *arguments){
     struct multithread_handle_cc_struct *args = ( struct multithread_handle_cc_struct *)arguments;
     args->ret_val=handle_cc(args->cc,*args->node_num,args->is_articulation_point);
     return 0;
 }
 
 
-double * betwenness_heuristic(struct graph * g, bool recursive){
-    bool * is_articulation_point=( bool * )malloc(sizeof(bool)*g->nodes.size);
-    struct list* connected_components;
-    if(recursive){
-        connected_components=tarjan_rec_undir(g,is_articulation_point);
-    }else {
-        connected_components=tarjan_iter_undir(g,is_articulation_point);
-    }
-    struct list* tree_edges=connected_components_to_tree(g,connected_components,is_articulation_point);
-    compute_component_tree_weights(g,tree_edges);
-    double * ret_val=(double *)malloc(sizeof(double)*g->nodes.size);
+void compute_heuristic_wo_scale(struct graph * g, 
+        struct list * connected_components,
+        bool * is_articulation_point,double * ret_val, 
+        int * connected_component_index,int cc_node_num, int cc_index){
     int node_num=g->nodes.size;
-    int i=0;
-    for(i=0;i<g->nodes.size;i++)
-        ret_val[i]=0;
+    int i;
+    node_num=cc_node_num;
+    
+    struct list* tree_edges=connected_components_to_tree(g,connected_components,is_articulation_point);
+    compute_component_tree_weights(g,tree_edges,node_num);
     i=0;
     struct node_list * graph_iterator;
     for(graph_iterator=g->nodes.head;graph_iterator!=0;graph_iterator=graph_iterator->next){
-        
         struct node_graph * n= ( struct node_graph *)graph_iterator->content;
-        if(is_articulation_point[i]){
-            struct node_list * tree_edge_iterator;
-            double weight_sum=0;//-1;
-            for(tree_edge_iterator=tree_edges->head;tree_edge_iterator!=0;tree_edge_iterator=tree_edge_iterator->next){
-                struct cc_node_edge * cne=(struct cc_node_edge *)tree_edge_iterator->content;
-                if(cne->to==n){
-                    //counter++;
-                    //give that DBV)+1+DBV(=|V|, BC^inter = (|V|-1+DBV( )*DBV(
-                    // weight_sum+=tree_weights[cne->index]*(node_num-1-tree_weights[cne->index]);
-                    // weight_sum+=(*cne->weight)*(node_num-1-(*cne->weight));
-                    if(!cne->from->added){
-                        //weight_sum+=cne->from->g.nodes.size;
-                        cne->from->added=true;
-                    }
-                    weight_sum+=(*cne->weight)*(node_num-1-(*cne->weight));
+        if(connected_component_index[i]==cc_index){
+            if(is_articulation_point[i]){
+                struct node_list * tree_edge_iterator;
+                double weight_sum=0;//-1;
+                for(tree_edge_iterator=tree_edges->head;tree_edge_iterator!=0;tree_edge_iterator=tree_edge_iterator->next){
+                    struct cc_node_edge * cne=(struct cc_node_edge *)tree_edge_iterator->content;
+                    if(cne->to==n){
+                        //give that DBV)+1+DBV(=|V|, BC^inter = (|V|-1+DBV( )*DBV(
+                        // weight_sum+=tree_weights[cne->index]*(node_num-1-tree_weights[cne->index]);
+                        // weight_sum+=(*cne->weight)*(node_num-1-(*cne->weight));
+                        weight_sum+=(*cne->weight)*(node_num-1-(*cne->weight));
+                    } 
                 } 
-            } 
-            struct node_list * ccs_iterator;
-            for(ccs_iterator=connected_components->head;ccs_iterator!=0;ccs_iterator=ccs_iterator->next){
-                (( struct connected_component *)ccs_iterator->content)->added=false;
-                
+                ret_val[i]-=weight_sum;
+            }else {
+                ret_val[i]=0;
             }
-            ret_val[i]-=weight_sum;
-            
-        }else {
-            ret_val[i]=0;
         }
         i++;
     }
     
     struct node_list * ccs_iterator;
-    if(multithread){
+    int cc_num=connected_components->size;
+    if(multithread && cc_num>1){
         int i=0;
-        int cc_num=connected_components->size;
         struct multithread_handle_cc_struct * args=(struct multithread_handle_cc_struct *)malloc(sizeof(struct multithread_handle_cc_struct )*cc_num);
         for(ccs_iterator=connected_components->head;ccs_iterator!=0;ccs_iterator=ccs_iterator->next){
             struct connected_component * cc= ( struct connected_component *)ccs_iterator->content;
@@ -293,7 +264,7 @@ double * betwenness_heuristic(struct graph * g, bool recursive){
             i++;
         }
         for( i=0;i<cc_num;i++)
-            pthread_create(&args[i].t, NULL, &run, (void *)(args+i));
+            pthread_create(&args[i].t, NULL, &run_brandes_heu, (void *)(args+i));
         
         for( i=0;i<cc_num;i++){
             pthread_join(args[i].t, NULL);
@@ -305,7 +276,6 @@ double * betwenness_heuristic(struct graph * g, bool recursive){
         }
         free(args);
     }else{
-        
         for(ccs_iterator=connected_components->head;ccs_iterator!=0;ccs_iterator=ccs_iterator->next){
             struct connected_component * cc= ( struct connected_component *)ccs_iterator->content;
             double * partial=handle_cc( cc, node_num,is_articulation_point);
@@ -316,14 +286,6 @@ double * betwenness_heuristic(struct graph * g, bool recursive){
             free(partial);
         }
     }
-    
-    if(node_num>2){
-        double scale=1/(((double)(node_num-1))*((double)(node_num-2)));
-        for( i =0;i<node_num;i++){
-            ret_val[i]*=scale;
-        }
-    }
-    
     while(!is_empty_list(tree_edges)){
         struct cc_node_edge * cne=( struct cc_node_edge *)dequeue_list(tree_edges);
         free(cne);
@@ -337,12 +299,88 @@ double * betwenness_heuristic(struct graph * g, bool recursive){
         free(cc);
     }
     free(connected_components);
+}
+
+struct multithread_subgraph_struct{
+    struct graph * g;
+    struct list * ccs;
+    bool * art_point;
+    double * ret_val;
+    int *  indexes;
+    int * size;
+    int cc_index;
+    pthread_t t;
+};
+
+void * run_subgraph(void *arguments){
+    struct multithread_subgraph_struct *args = ( struct multithread_subgraph_struct *)arguments;
+    compute_heuristic_wo_scale(args->g,args->ccs,args->art_point,args->ret_val,args->indexes,(*args->size),args->cc_index);
+    return 0;
+}
+
+double * betwenness_heuristic(struct graph * g, bool recursive){
+    int node_num=g->nodes.size;
+    bool * is_articulation_point=( bool * )malloc(sizeof(bool)*node_num);
+    int * connected_component_indexes=( int * )malloc(sizeof(int)*node_num);
+    double * ret_val=(double *)malloc(sizeof(double)*node_num);
+    int i;
+    for(i=0;i<node_num;i++){
+        ret_val[i]=0;
+        connected_component_indexes[i]=-1;
+    }
+    struct list* connected_components_subgraphs;
+    if(recursive){
+        connected_components_subgraphs=tarjan_rec_undir(g,is_articulation_point,connected_component_indexes);
+    }else {
+        connected_components_subgraphs=tarjan_iter_undir(g,is_articulation_point,connected_component_indexes);
+    }
+    int connected_component_index=0;
+    int cc_num=connected_components_subgraphs->size;
+    if(multithread && cc_num>1){
+        i=0;
+        struct multithread_subgraph_struct * args=(struct multithread_subgraph_struct *)malloc(sizeof(struct multithread_subgraph_struct )*cc_num);
+        struct node_list * subgraph_iterator=connected_components_subgraphs->head;
+        for(;subgraph_iterator!=0;subgraph_iterator=subgraph_iterator->next){
+            struct sub_graph * sg=(struct sub_graph *)subgraph_iterator->content;
+            args[i].g=g;
+            args[i].ccs=&sg->connected_components;
+            args[i].art_point=is_articulation_point;
+            args[i].ret_val=ret_val;
+            args[i].indexes=connected_component_indexes;
+            args[i].size=&sg->size;
+            args[i].cc_index=i;
+            i++;
+        }
+        for( i=0;i<cc_num;i++)
+            pthread_create(&args[i].t, NULL, &run_subgraph, (void *)(args+i));
+        
+        for( i=0;i<cc_num;i++){
+            pthread_join(args[i].t, NULL);
+        }
+        free(args);
+    }else{
+        //struct graph * g, struct list * connected_components,bool * is_articulation_point,double * ret_val
+        while(!is_empty_list(connected_components_subgraphs)){
+            struct sub_graph * sg=(struct sub_graph *)dequeue_list(connected_components_subgraphs);
+            compute_heuristic_wo_scale(g,&(sg->connected_components),
+                    is_articulation_point,ret_val,connected_component_indexes,
+                    sg->size,connected_component_index++);
+        }
+    }
+    clear_list(connected_components_subgraphs);
+    free(connected_components_subgraphs);
     free(is_articulation_point);
+    free(connected_component_indexes);
+    if(node_num>2){
+        double scale=1/(((double)(node_num-1))*((double)(node_num-2)));
+        for( i =0;i<node_num;i++){
+            ret_val[i]*=scale;
+        }
+    }
     return ret_val;
 }
 
 //http://algo.uni-konstanz.de/publications/b-vspbc-08.pdf
-//todo: check Algorithm 11 for weights?
 double * betweeness_brandes(struct graph * g, bool endpoints,int ** traffic_matrix){
     struct priority_queue q;
     struct list S;
@@ -373,7 +411,7 @@ double * betweeness_brandes(struct graph * g, bool endpoints,int ** traffic_matr
         dist[s->node_graph_id]=0;
         sigma[s->node_graph_id]=1;
         insert_priority_queue(&q,(void*)s,0);
-        
+        //weighted shortest path (dijkstra)
         while(!is_empty_priority_queue(&q)){
             struct node_graph* v=(struct node_graph*)dequeue_priority_queue(&q);
             enqueue_list(&S,v);
@@ -395,30 +433,21 @@ double * betweeness_brandes(struct graph * g, bool endpoints,int ** traffic_matr
                 }
             }
         }
-        if(traffic_matrix!=0){//endpoints included by default
+        //accumulation
+        if(traffic_matrix!=0){
+            //endpoints included by default
             while(!is_empty_list(&S)){
                 struct node_graph * w=(struct node_graph * )pop_list(&S);
                 double communication_intensity=(double)traffic_matrix[w->node_graph_id][s->node_graph_id];
-                /*//same as C++ version
-                 delta[w->node_graph_id]+=communication_intensity;
-                 ret_val[s->node_graph_id]+=communication_intensity;
-                 struct node_list * node_iterator;
-                 for(node_iterator =pred[w->node_graph_id].head;node_iterator!=0;node_iterator=node_iterator->next){
-                 struct node_graph * v=(struct node_graph*)node_iterator->content;
-                 delta[v->node_graph_id]+=(delta[w->node_graph_id]/ ((double)sigma[w->node_graph_id]));
-                 }
-                 if(w!=s){
-                 ret_val[w->node_graph_id]=ret_val[w->node_graph_id]+delta[w->node_graph_id];
-                 }*/
-                //from formulas
+                delta[w->node_graph_id]+=communication_intensity;
                 ret_val[s->node_graph_id]+=communication_intensity;
                 struct node_list * node_iterator;
                 for(node_iterator =pred[w->node_graph_id].head;node_iterator!=0;node_iterator=node_iterator->next){
                     struct node_graph * v=(struct node_graph*)node_iterator->content;
-                    delta[v->node_graph_id]+=((delta[w->node_graph_id]+communication_intensity)*(((double)sigma[v->node_graph_id])/ ((double)sigma[w->node_graph_id])));
+                    delta[v->node_graph_id]+=(delta[w->node_graph_id]/ ((double)sigma[w->node_graph_id]));
                 }
                 if(w!=s){
-                    ret_val[w->node_graph_id]+=delta[w->node_graph_id]+communication_intensity;
+                    ret_val[w->node_graph_id]=ret_val[w->node_graph_id]+delta[w->node_graph_id];
                 }
             }       
         }else if(endpoints){
@@ -457,127 +486,42 @@ double * betweeness_brandes(struct graph * g, bool endpoints,int ** traffic_matr
     free(pred);
     free(sigma);
     free(delta);
-    //https://github.com/networkx/networkx/blob/master/networkx/algorithms/centrality/betweenness.py#L329
-    //rescaling for directed and k==n (k is sample number), normalized is default
-    //printf("C res:{");
     struct node_list * nl=g->nodes.head;
     if(node_num>2&&traffic_matrix==0){
         double scale=1/(((double)(node_num-1))*((double)(node_num-2)));
         for( i =0;i<node_num;i++){
             struct node_graph* ng=(struct node_graph*)nl->content;
-            // ret_val[i]*=scale;
-            //printf("%s:%f,",ng->name,ret_val[ng->node_graph_id]);
-           // ret_val[ng->node_graph_id]*=scale;
+            ret_val[ng->node_graph_id]*=scale;
             nl=nl->next;
         }
         
     }
-    //printf("}\n");
     return ret_val;
 }
 
 int main(){
-    
-    struct graph g1;
-    init_graph(&g1);
-    add_edge_graph(&g1,"0","17",1,0);
-    add_edge_graph(&g1,"0","19",1,0);
-    add_edge_graph(&g1,"1","17",1,0);
-    add_edge_graph(&g1,"1","18",1,0);
-    add_edge_graph(&g1,"2","6",1,0);
-    add_edge_graph(&g1,"3","17",1,0);
-    add_edge_graph(&g1,"3","11",1,0);
-    add_edge_graph(&g1,"3","12",1,0);
-    add_edge_graph(&g1,"3","6",1,0);
-    add_edge_graph(&g1,"4","13",1,0);
-    add_edge_graph(&g1,"5","16",1,0);
-    add_edge_graph(&g1,"6","12",1,0);
-    add_edge_graph(&g1,"7","17",1,0);
-    add_edge_graph(&g1,"7","15",1,0);
-    add_edge_graph(&g1,"8","15",1,0);
-    add_edge_graph(&g1,"9","14",1,0);
-    add_edge_graph(&g1,"10","16",1,0);
-    add_edge_graph(&g1,"10","17",1,0);
-    add_edge_graph(&g1,"10","12",1,0);
-    add_edge_graph(&g1,"12","13",1,0);
-    add_edge_graph(&g1,"12","18",1,0);
-    add_edge_graph(&g1,"12","19",1,0);
-    add_edge_graph(&g1,"13","18",1,0);
-    struct node_list *  nl;
-    double * bh=betweeness_brandes(&g1,true,0);
-    
-    double * bh_c=betwenness_heuristic(&g1,true);
-    
-    bool * is_articulation_point=( bool * )malloc(sizeof(bool)*g1.nodes.size);
-    struct list* connected_components=connected_components=tarjan_rec_undir(&g1,is_articulation_point);
-    while(!is_empty_list(connected_components)){
-        struct connected_component * cc=(struct connected_component *)dequeue_list(connected_components);
-        free_graph(&(cc->g));
-        free(cc->mapping);
-        free(cc->weights);
-        free(cc);
-    }
-    free(connected_components);
-    int i=0;
-    for(nl=g1.nodes.head;nl!=0;nl=nl->next){
-        struct node_graph * ng=(struct node_graph*)nl->content;
-        printf("%s:\t%f \t%f\t%d\t%d\t%f\n",
-                ng->name,bh[ng->node_graph_id], 
-                bh_c[ng->node_graph_id],
-                bh[ng->node_graph_id]==bh_c[ng->node_graph_id],
-                is_articulation_point[i++],
-                -bh[ng->node_graph_id]+bh_c[ng->node_graph_id]);
-        
-    }
-    free(bh);
-    free(bh_c);
-    free_graph(&g1);
-    free(is_articulation_point);
-    return 0;
-    
     /*
      struct graph g1;
      init_graph(&g1);
-     add_edge_graph(&g1,"A","B",1,0);
-     add_edge_graph(&g1,"A","C",1,0);
-     add_edge_graph(&g1,"B","D",1,0);
-     add_edge_graph(&g1,"C","D",1,0);
-     add_edge_graph(&g1,"E","D",1,0);
-     add_edge_graph(&g1,"E","F",1,0);
-     add_edge_graph(&g1,"F","G",1,0);
-     add_edge_graph(&g1,"H","G",1,0);
-     add_edge_graph(&g1,"I","G",1,0);
-     add_edge_graph(&g1,"I","J",1,0);
-     add_edge_graph(&g1,"I","K",1,0);
-     add_edge_graph(&g1,"L","K",1,0); 
-     add_edge_graph(&g1,"G","M",1,0); 
-     add_edge_graph(&g1,"L","M",1,0); 
-     add_edge_graph(&g1,"L","N",1,0);
-     add_edge_graph(&g1,"N","M",1,0);
+     add_edge_graph(&g1,"0","1",7.3003332296,0);
      struct node_list *  nl;
      double * bh=betweeness_brandes(&g1,true,0);
      
-     double * bh_c=betwenness_heuristic(&g1,true);
-     
-     bool * is_articulation_point=( bool * )malloc(sizeof(bool)*g1.nodes.size);
-     struct list* connected_components=connected_components=tarjan_rec_undir(&g1,is_articulation_point);
-     while(!is_empty_list(connected_components)){
-     struct connected_component * cc=(struct connected_component *)dequeue_list(connected_components);
-     free_graph(&(cc->g));
-     free(cc->mapping);
-     free(cc->weights);
-     free(cc);
-     }
-     free(connected_components);
-     int i=0;
+     double * bh_c=betwenness_heuristic(&g1,false);
+     double * bh_c2=betwenness_heuristic(&g1,true);
      for(nl=g1.nodes.head;nl!=0;nl=nl->next){
      struct node_graph * ng=(struct node_graph*)nl->content;
-     printf("%s:\t%f \t%f\t%d\t%d\n",ng->name,bh[ng->node_graph_id],  bh_c[ng->node_graph_id],bh[ng->node_graph_id]==bh_c[ng->node_graph_id],is_articulation_point[i++]);
+     
+     printf("%s:\t%f \t%f\t%f\t%d\t%f\n",
+     ng->name,bh[ng->node_graph_id], 
+     bh_c[ng->node_graph_id],bh_c2[ng->node_graph_id],
+     bh[ng->node_graph_id]==bh_c[ng->node_graph_id] && bh[ng->node_graph_id]==bh_c2[ng->node_graph_id],
+     -bh[ng->node_graph_id]+bh_c[ng->node_graph_id]);
      
      }
      free(bh);
      free(bh_c);
+     free(bh_c2);
      free_graph(&g1);
-     free(is_articulation_point);
      return 0;*/
 }
