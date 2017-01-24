@@ -23,7 +23,7 @@ class PrinceTestOONF:
         self.workers_result_q = Queue.Queue()
         self.workers = []
         self.go = 1
-        for i in range(1,3):
+        for i in range(1,5):
             t = threading.Thread(target = self.generatorWorker, args=[i])
             self.workers.append(t)
             t.daemon = True
@@ -36,7 +36,7 @@ class PrinceTestOONF:
         while(self.go):
             #READ FROM SHARED FIFO QUEUE
             order = self.workers_order_q.get()
-            print (str(worker_id)+" got an order\n")
+            print ("thread "+ str(worker_id)+" got an order\n")
             #Gen the graph
             T = int(order['N'] * 1.2)
             E = order['N'] * 1.8
@@ -49,12 +49,15 @@ class PrinceTestOONF:
                 ge.genMeshGraph(order['N'], 23)
             #Calculate the timers
             netjson = Gen.composeNetJson(ge.graph)
-            print (str(worker_id)+" calc timers with nx\n")
+            print ("thread "+ str(worker_id)+" calc timers with nx\n")
             h_py, tc_py = self.calculateTimers(ge.graph, netjson['router_id'])
             #WRITE TO SHARED FIFO QUEUE
             result = (netjson, h_py, tc_py)
-            print (str(worker_id)+" put result\n")
+            print ("thread "+ str(worker_id)+" put result\n")
             self.workers_result_q.put(result)
+            print "ORDER QSIZE " + str(self.workers_order_q.qsize())
+            print "RESULT QSIZE " + str(self.workers_result_q.qsize())
+
 
     '''
     Calculate timers using the poprouting function CalculateTheoreticalValues
