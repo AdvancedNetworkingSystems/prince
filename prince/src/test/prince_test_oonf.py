@@ -85,11 +85,11 @@ class PrinceTestOONF:
         serversocket.bind(('0.0.0.0', port))
         serversocket.listen(5)
         # regular expression to catch the timers' values
-        p = re.compile(r"\d*\.\d+")
+        self.p = re.compile(r"\d*\.\d+")
         tc_cpp = 0
-        executions = []
-        hs = []
-        tcs = []
+        self.executions = []
+        self.hs = []
+        self.tcs = []
         ge = Gen()
         # Order iter graphs of size 'N' and type to the workers
         for i in range(1, iter+1):
@@ -97,6 +97,7 @@ class PrinceTestOONF:
             order['type'] = type
             order['N'] = N
             self.workers_order_q.put(order)
+        self.workers_order_q.task_done()
         print("Order made")
         while iter:
             # accept connections
@@ -112,25 +113,28 @@ class PrinceTestOONF:
                 cs.send(json.dumps(self.netjson))
                 cs.close()
 
-
             else:
                 # search for the timers' values using the regex
-                if data:
-                    toks = p.findall(data)
-                    if toks:
-                        tc_cpp = float(toks[0])
-                        hello_cpp = float(toks[1])
-                        exec_time = float(toks[2])
-                        # calculate the percentage error between the reference (py) and the measured (C[++]) values
-                        tc_err = abs(tc_cpp - self.tc_py) / ((tc_cpp + self.tc_py) / 2) * 100
-                        h_err = abs(hello_cpp - self.h_py) / ((hello_cpp + self.h_py) / 2) * 100
-                        hs.append(h_err)
-                        tcs.append(tc_err)
-                        executions.append(exec_time)
-                        cs.close()
-                        iter -= 1
-        executions = np.array(executions)
-        hs = np.array(hs)
-        tcs = np.array(tcs)
+                self.parse_data(data)
+                cs.close()
+                iter -= 1
+
+        executions = np.array(self.executions)
+        hs = np.array(self.hs)
+        tcs = np.array(self.tcs)
         mat = np.dstack((executions, hs, tcs)).squeeze()
         return mat
+
+    def parse_data(self, data):
+        if data:
+            toks = self.p.findall(data)
+            if toks:
+                tc_cpp = float(toks[0])
+                hello_cpp = float(toks[1])
+                exec_time = float(toks[2])
+                # calculate the percentage error between the reference (py) and the measured (C[++]) values
+                tc_err = abs(tc_cpp - self.tc_py) / ((tc_cpp + self.tc_py) / 2) * 100
+                h_err = abs(hello_cpp - self.h_py) / ((hello_cpp + self.h_py) / 2) * 100
+                self.hs.append(h_err)
+                self.tcs.append(tc_err)
+                self.executions.append(exec_time)
