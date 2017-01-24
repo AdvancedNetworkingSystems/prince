@@ -31,7 +31,11 @@ SOFTWARE.
 
 #include <math.h>
 #include <dlfcn.h>
+#ifdef __cplusplus
 #include "common.h"
+#else
+#include "common_c.h"
+#endif
 #include "lib/ini.h"
 #include "parser.h"
 

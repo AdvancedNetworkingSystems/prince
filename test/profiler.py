@@ -256,8 +256,32 @@ def biconnected_dfs(G, components=True):
         else:
             a=set()
 
-errors=[]
+#test on cliques for single connected components to test whether it is faster orig brandes
+#or heuristic
 
+ge = Gen()
+g=nx.complete_graph(200)
+s=json.dumps(ge.composeNetJson(g))
+times=[]
+for i in xrange(1):
+    lib_n='./libtest_c.so'
+    lib = cdll.LoadLibrary(lib_n)
+    lib.get_res.restype=py_object
+    bc_nx_st = time.time()
+    lib.init(1);
+    lib.parse(s);
+    compute(lib)
+    res=lib.get_res()
+    lib.destroy()
+    bc_nx_ts=(time.time() - bc_nx_st)
+    times.append(bc_nx_ts)
+    print(res)
+    print(nx.betweenness_centrality(g,endpoints=True))
+print("non orig",np.mean(times),np.var(times))
+sys.exit(0)
+
+
+errors=[]
 while i <100:
     nodenum=r.randint(25,200)#1500)
     ge = Gen()

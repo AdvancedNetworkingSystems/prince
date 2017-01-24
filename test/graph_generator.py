@@ -63,7 +63,7 @@ class Gen:
             e = {}
             e['source'] = str(link[0])
             e['target'] = str(link[1])
-            if graph.get_edge_data(link[0], link[1]) is not None:
+            if graph.get_edge_data(link[0], link[1]):
                 e['cost'] = graph.get_edge_data(link[0], link[1])['weight']
             else:
                 e['cost'] = 1.0
