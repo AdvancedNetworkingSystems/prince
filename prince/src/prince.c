@@ -5,7 +5,6 @@
  *      Author: gabriel
  */
 #include "prince.h"
-#include "time.h"
 
 routing_plugin* (*new_plugin)(char* host, int port, c_graph_parser *gp, int json_type);
 int (*get_topology)(routing_plugin *o);
@@ -81,7 +80,7 @@ new_prince_handler(char * conf_file){
 	if(!ph->plugin_handle)
 		return 0;
 
-	new_plugin = (routing_plugin* (*)(char* host, c_graph_parser *gp, int json_type)) dlsym(ph->plugin_handle, "new_plugin");
+	new_plugin = (routing_plugin* (*)(char* host, int port, c_graph_parser *gp, int json_type)) dlsym(ph->plugin_handle, "new_plugin");
 	get_topology = (int (*)(routing_plugin *o)) dlsym(ph->plugin_handle, "get_topology");
 	push_timers = (int (*)(routing_plugin *o, struct timers t)) dlsym(ph->plugin_handle, "push_timers");
 	delete_plugin = (void (*)(routing_plugin *o)) dlsym(ph->plugin_handle, "delete_plugin");

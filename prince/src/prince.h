@@ -10,9 +10,11 @@
 
 #include <math.h>
 #include <dlfcn.h>
+#include <unistd.h>
 #include "common.h"
 #include "lib/ini.h"
 #include "parser.h"
+#include "time.h"
 
 struct constants{
 	double O_H, O_TC, sq_lambda_H, sq_lambda_TC, R;

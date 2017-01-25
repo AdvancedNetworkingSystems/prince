@@ -55,7 +55,7 @@ struct topology * parse_netjson(char* buffer);
 int add_node(struct topology * topo, const char *id);
 struct topology * _init_topo(int type);
 int add_neigh(struct topology *topo, const char *source, const char *id, const double weight);
-
+void destroy_topo(struct topology *topo);
 struct node* find_node(struct topology *topo, const char *id);
 void bc_degree_map_delete(map_id_degree_bc * map);
 
