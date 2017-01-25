@@ -1,9 +1,9 @@
 sudo: required
 language: c
 
-
 install:
-- sudo apt-get install libjson-c-dev
+- sudo apt-get -qq update
+- sudo apt-get install -y libjson-c-dev
 
 script:
 - make -C graph-parser_c/src/
