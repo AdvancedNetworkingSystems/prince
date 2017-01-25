@@ -10,13 +10,13 @@
 
 
 
-void strongconnect(struct node_graph* v,int * current_index, struct list * s,int * bcc_id,struct list* connected_components, int * index,int * low_link,bool * on_stack);  
+void strongconnect(struct node_graph* v,int * current_index, struct list * s,int * bcc_id,struct list* connected_components, int * index,int * low_link,bool * on_stack);
 void DFS_iter(struct node_graph* u,int * current_index,struct list * s,int *bcc_id,
         struct list* connected_components,struct node_graph ** caller, struct node_list ** iterator,
         int * index,int * low_link,bool * on_stack);
 void DFS_visit(struct node_graph * u,struct list *s,int * d,int * low,bool * visited,struct node_graph ** parent,int * count, bool * added, bool * is_articulation_point,int node_num,struct list * connected_components);
 
-inline int min(int a, int b){
+static inline int min(int a, int b){
     if(a<b)
         return a;
     return b;
@@ -28,7 +28,7 @@ struct list*  tarjan_rec_dir(struct graph * g){
     init_list(connected_components);
     struct list s;
     init_list(&s);
-    
+
     int current_index=0;
     int bcc_id=0;
     struct node_list * n =g->nodes.head;
@@ -42,7 +42,7 @@ struct list*  tarjan_rec_dir(struct graph * g){
         low_link[i]=-1;
         on_stack[i]=false;
     }
-    
+
     while(n!=0){
         struct node_graph* ng=(struct node_graph*) n->content;
         if(index[ng->node_graph_id]<0){
@@ -71,7 +71,7 @@ void strongconnect(struct node_graph* v,int * current_index, struct list * s,int
         }else if(on_stack[w->node_graph_id]){
             low_link[v->node_graph_id]=min(low_link[v->node_graph_id],index[w->node_graph_id]);
         }
-        
+
     }
     if(low_link[v->node_graph_id]==index[v->node_graph_id]){
         struct node_graph *w=0;
@@ -143,7 +143,7 @@ void DFS_iter(struct node_graph* u,int * current_index,struct list * s,int *bcc_
     while(true){
         if(iterator[last->node_graph_id]!=0){
             struct node_graph *w = ((struct edge_graph*)iterator[last->node_graph_id]->content)->to;
-            iterator[last->node_graph_id]=iterator[last->node_graph_id]->next; 
+            iterator[last->node_graph_id]=iterator[last->node_graph_id]->next;
             if(index[w->node_graph_id]<0){
                 caller[w->node_graph_id]=last;
                 index[w->node_graph_id]=*current_index;
@@ -165,7 +165,7 @@ void DFS_iter(struct node_graph* u,int * current_index,struct list * s,int *bcc_
                     top =(struct node_graph*)pop_list(s);
                     if(top!=0){
                         enqueue_list(cc_list,top);
-                        on_stack[top->node_graph_id]=false;                    
+                        on_stack[top->node_graph_id]=false;
                     }
                 }while(top!=0 && index[top->node_graph_id]!=index[last->node_graph_id]);
                 if(cc_list->size>0){
@@ -175,7 +175,7 @@ void DFS_iter(struct node_graph* u,int * current_index,struct list * s,int *bcc_
                 }else{
                     free(cc_list);
                 }
-                
+
             }
             struct node_graph *new_last=caller[last->node_graph_id];
             if(new_last!=0){
@@ -233,7 +233,7 @@ struct list*  tarjan_rec_undir(struct graph * g, bool * is_articulation_point){
 
 struct edge_repr{
     struct node_graph *from;
-    struct node_graph *to;  
+    struct node_graph *to;
     double value;
 };
 struct edge_repr * init_edge_repr(struct node_graph * from,struct node_graph * to, double value){
@@ -262,7 +262,7 @@ void DFS_visit(struct node_graph * u,struct list * s,int * d,int * low,bool * vi
                 enqueue_list(s,er);
                 parent[v->node_graph_id]=u;
                 DFS_visit(v,s,d,low,visited,parent,count,added,is_articulation_point,node_num,connected_components);
-                
+
                 if(low[v->node_graph_id]>=d[u->node_graph_id]){
                     struct edge_repr * er_i=0;
                     struct list l;
@@ -273,7 +273,7 @@ void DFS_visit(struct node_graph * u,struct list * s,int * d,int * low,bool * vi
                         added[er_i->to->node_graph_id]=true;
                         enqueue_list(&l,er_i);
                     }  while(!is_empty_list(s) && !(er_i->to==er->to && er_i->from==er->from ));
-                    
+
                     int added_count=0;
                     int i;
                     for(i=0;i<node_num;i++){
@@ -309,7 +309,7 @@ void DFS_visit(struct node_graph * u,struct list * s,int * d,int * low,bool * vi
                     is_articulation_point[u->node_graph_id]=true;
                 }
                 low[u->node_graph_id]=min(low[u->node_graph_id],low[v->node_graph_id]);
-                
+
             }else if((parent[u->node_graph_id]!=v)&&(d[v->node_graph_id]<d[u->node_graph_id])){
                 struct edge_repr * er=init_edge_repr(u,v,edge->value);
                 enqueue_list(s,er);
@@ -375,7 +375,7 @@ struct list*  tarjan_iter_undir(struct graph * g, bool * is_articulation_point){
                     if(visited[child->node_graph_id]){
                         if(discovery[child->node_graph_id]<=discovery[ced->parent->node_graph_id]){
                             low[ced->parent->node_graph_id] = min(low[ced->parent->node_graph_id], discovery[child->node_graph_id]);
-                            enqueue_list(&edge_stack,init_edge_repr(ced->parent,child,edge->value)); 
+                            enqueue_list(&edge_stack,init_edge_repr(ced->parent,child,edge->value));
                         }
                     }else{
                         low[child->node_graph_id]=discovery_len;
@@ -431,7 +431,7 @@ struct list*  tarjan_iter_undir(struct graph * g, bool * is_articulation_point){
                                 enqueue_list(connected_components,cc);
                             }
                             is_articulation_point[ced->grandparent->node_graph_id]=true;
-                        } 
+                        }
                         low[ced->grandparent->node_graph_id]=min(low[ced->parent->node_graph_id],low[ced->grandparent->node_graph_id]);
                     }else if(s.size==1){
                         root_children++;
@@ -478,7 +478,7 @@ struct list*  tarjan_iter_undir(struct graph * g, bool * is_articulation_point){
                             }
                             enqueue_list(connected_components,cc);
                         }
-                        
+
                     }
                     free(ced_to_clear);
                 }
@@ -490,10 +490,9 @@ struct list*  tarjan_iter_undir(struct graph * g, bool * is_articulation_point){
             clear_list(&s);
         }
     }
-    free(added); 
-    free(low); 
+    free(added);
+    free(low);
     free(discovery);
     free(visited);
     return connected_components;
 }
-
