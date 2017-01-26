@@ -1,8 +1,11 @@
 #include "python2.7/Python.h"
-#include "../graph-parser_c/src/graph_parser.h"
 #include "../prince/src/parser.h"
-//#include "../graph-parser/src/graph_parser.h"
-#include "python2.7/Python.h" 
+#ifdef dyn_lib
+#include "../graph-parser_c/src/graph_parser.h"
+#else
+#include "../graph-parser/src/graph_parser.h"
+#endif
+
 
 c_graph_parser* cg;
 extern "C" {

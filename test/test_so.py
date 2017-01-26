@@ -26,7 +26,8 @@ def run_tests(node_num,repeat,lib_n,w):
 		res=lib.get_res()
 		lib.destroy();
 		executions.append(elapsed_time)
-	return (np.mean(executions),np.std(executions))
+	print(executions)
+	return (np.mean(executions),np.var(executions))
 x=[]
 var_c=[]
 m_c=[]
@@ -36,9 +37,9 @@ var_c_heu=[]
 m_c_heu=[]
 var_cpp_heu=[]
 m_cpp_heu=[]
-repeats=5
+repeats=4
 
-for k in range(100,1101,100):
+for k in range(50,801,50):
 	print(k)
 	r=run_tests(k,repeats,'./libtest_c.so',0)
 	m_c.append(r[0])
@@ -53,22 +54,25 @@ for k in range(100,1101,100):
 	m_cpp_heu.append(r[0])
 	var_cpp_heu.append(r[1])
 	x.append(k)
-
-
+print(m_cpp,m_cpp_heu)
 
 plt.gca().set_position((.1, .2, .8, .7))
 plt.gca().set_xlim( (0,1200) )
+"""
 plt.errorbar(x, m_cpp, yerr=var_cpp, label="C++")
 plt.errorbar(x, m_cpp_heu, yerr=var_cpp_heu, label="C++ heuristic")
-
 plt.errorbar(x, m_c, yerr=var_c, label="C")
 plt.errorbar(x,m_c_heu, yerr=var_c_heu, label="C heuristic")
-
+"""
+plt.errorbar(x, m_cpp,  label="C++")
+plt.errorbar(x, m_cpp_heu,  label="C++ heuristic")
+plt.errorbar(x, m_c,  label="C")
+plt.errorbar(x, m_c_heu,  label="C heuristic")
 plt.xlabel('size of graph (nodes)', fontsize=16)
 plt.ylabel('execution time (ms)', fontsize=16)
 plt.legend(loc='upper left', shadow=True)
 plt.figtext(.4, .02, "# samples= "+str(repeats), fontsize=16)
-plt.savefig('foo.pdf')
-#plt.show()
+#plt.savefig('foo.pdf')
+plt.show()
 
 

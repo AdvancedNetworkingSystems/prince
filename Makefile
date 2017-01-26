@@ -15,13 +15,7 @@ install:
 	
 uninstall:
 	rm -f /usr/lib/libgraphparser.so
-	rm -f /usr/lib/libgraphcparser.so
 	rm -f /usr/lib/libprince_oonf.so
 	rm -f /usr/bin/prince
 	rm -fr prince/build/
 	rm -fr graph-parser/build/
-	rm -fr graph-parser_c/build/
-	rm -fr graph-parser_c/src/*.o
-	rm -fr graph-parser/src/*.o
-	rm -fr graph-parser/src/*.~
-	rm -fr graph-parser_c/src/*.~
