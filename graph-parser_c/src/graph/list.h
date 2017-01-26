@@ -1,9 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
-
 /* 
  * File:   list.h
  * Author: mb03
@@ -20,7 +14,14 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-    
+    /**
+     * Structs and functions used to represent a generic list and a priority 
+     * queue. 
+     * The list works both with LIFO and FIFO policies.
+     * The priority queue offers all operation needed for dijkstra algorithm.
+     * The underlying implementation for both is the double linked list.
+     * Further detail in list.c
+     */
     
     struct node_list {
         void * content;

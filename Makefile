@@ -13,6 +13,4 @@ uninstall:
 	rm -f /usr/lib/libprince_oonf.so
 	rm -f /usr/bin/prince_c
 	rm -fr prince/build/
-	rm -fr graph-parser_c/build/
-	rm -fr graph-parser_c/src/*.o
-	rm -fr graph-parser_c/src/*.~
+	rm -fr graph-parser/build/

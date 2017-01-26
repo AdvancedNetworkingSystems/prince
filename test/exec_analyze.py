@@ -1,7 +1,7 @@
 import commands
 
 def do_test(nodenum,is_c,heu):
-	res =commands.getstatusoutput('perf stat -e cache-misses python -m memory_profiler  profiler.py '+str(nodenum)+' '+str(is_c)+' '+str(heu))
+	res =commands.getstatusoutput('perf stat -e cache-misses python -m memory_profiler  test_lib.py '+str(nodenum)+' '+str(is_c)+' '+str(heu))
 	res=res[1]
 	res=res.split("\n")
 	data=eval(res[0])

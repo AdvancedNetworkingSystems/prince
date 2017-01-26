@@ -1,5 +1,3 @@
 test_c:
-	gcc -g biconnected.c brandes.c graph/list.c graph/graph.c graph_parser.c -pthread
+	gcc -g biconnected.c brandes.c graph/list.c graph/graph.c graph_parser.c -pthread -lm
 
-compile:
-	gcc -g biconnected.c brandes.c graph/list.c graph/graph.c graph_parser.c

@@ -29,5 +29,6 @@ graph-parser/build
 *.pdf
 *.txt
 *.out
+*.gch
 
 
