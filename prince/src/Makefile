@@ -4,7 +4,7 @@ TARGET = prince
 TARGET_C= prince_c
 OBJS = $(SRCS:.c=.o)
 OBJS_C = $(SRCS:.c=.o)
-CFLAGS = -std=gnu11 -g -fPIC -D_GNU_SOURCE
+CFLAGS = -std=gnu11 -fPIC -D_GNU_SOURCE
 LIBS = -L../../graph-parser/build/lib -lgraphparser -ldl -ljson-c
 LIBC = -L../../graph-parser_c/build/lib -lgraphcparser -ldl -ljson-c -lm
 BPATH = ../build/
