@@ -26,7 +26,7 @@ void DFS_visit(struct node_graph * u,struct list *s,int * d,int * low,
  * @param b An integer
  * @return the minimum value of @a and @b. 
  */
-inline int min(int a, int b){
+static inline int min(int a, int b){
     if(a<b)
         return a;
     return b;
