@@ -258,7 +258,7 @@ def biconnected_dfs(G, components=True):
 
 #test on cliques for single connected components to test whether it is faster orig brandes
 #or heuristic
-
+"""
 ge = Gen()
 g=nx.complete_graph(200)
 s=json.dumps(ge.composeNetJson(g))
@@ -276,10 +276,10 @@ for i in xrange(1):
     bc_nx_ts=(time.time() - bc_nx_st)
     times.append(bc_nx_ts)
     print(res)
-    print(nx.betweenness_centrality(g,endpoints=True))
+    print(nx.betweenness_centrality(g,endpoints=Truela ))
 print("non orig",np.mean(times),np.var(times))
 sys.exit(0)
-
+"""
 
 errors=[]
 while i <100:
@@ -287,8 +287,8 @@ while i <100:
     ge = Gen()
     ge.genGraph("PLAW", nodenum)
     g=ge.graph
-    if nx.is_connected(g):
-        continue
+    #if nx.is_connected(g):
+    #    continue
     print(str(i)+"--- %s seconds ---" % round((time.time() - start_time),2)+" with #nodes: "+str(nodenum))
     i+=1
     g2=nx.Graph()
@@ -315,7 +315,7 @@ while i <100:
     #b=(dict(map(lambda (k,v): (k, round(v,8)),bc_nx.iteritems()))==dict(map(lambda (k,v): (k,round(v,8)), res.iteritems())))
     b=bc_nx==res
     errors+=filter(lambda x:x!=0,[v-res[k] for k,v in bc_nx.iteritems()])
-    if not b:
+    if not b or True:
         #print '\033[91m'+ "Warning"
         #print '\033[90m'+str((i,nx.is_connected(g)))
         print(i,nx.is_connected(g),[len(u) for u in list(nx.connected_components(g))])
@@ -326,12 +326,12 @@ while i <100:
         print("correct     ",bc)
         #print("keys",g.nodes())
         #res=([round(res[str(x)],1) for x in g.nodes()])
-        print("heuristic   ",res)
+        #print("heuristic   ",res)
         import numpy as np
-        print("errors",[bc[k]-res[k] for k in res if (bc[k]-res[k])!=0])
-        for e in g.edges(data='weight'):
-            print('add_edge_graph(&g1,"'+str(e[0])+'","'+str(e[1])+'",'+str(e[2])+',0);')
-        #print_json_f(g)
+        #print("errors",[bc[k]-res[k] for k in res if (bc[k]-res[k])!=0])
+        #for e in g.edges(data='weight'):
+        #    print('add_edge_graph(&g1,"'+str(e[0])+'","'+str(e[1])+'",'+str(e[2])+',0);')
+        print_json_f(g)
         sys.exit(-1)
 print("l",len(errors))
 print(errors)

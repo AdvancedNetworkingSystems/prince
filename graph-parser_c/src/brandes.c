@@ -8,6 +8,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <limits.h>
+#include <math.h>
 #include "brandes.h"
 #include "biconnected.h"
 
@@ -27,9 +28,17 @@ bool multithread=true;
  */
 bool use_heu_on_single_biconnected=true;
 
+/*
+ * used for rounding. approximation to E^(-9)
+ */
+float decimal_places=1000000000;
+
+inline double round_decimal(double d){
+    return roundf(d*decimal_places)/decimal_places;
+}
 
 
-const int INFINITY=INT_MAX;
+const int INFINITY_DIST=INT_MAX;
 /**
  * This function implements brandes algorithm. Given a weighted graph, 
  * it returns an array of value, in which for every node identifier there is
@@ -70,7 +79,7 @@ double * betweeness_brandes(struct graph * g, bool endpoints,int ** traffic_matr
         struct node_graph* s=(struct node_graph*) n->content;
         for( i =0;i<node_num;i++){
             clear_list(pred +i);
-            dist[i]=INFINITY;
+            dist[i]=INFINITY_DIST;
             sigma[i]=0;
             delta[i]=0;
         }
@@ -107,17 +116,18 @@ double * betweeness_brandes(struct graph * g, bool endpoints,int ** traffic_matr
             while(!is_empty_list(&S)){
                 struct node_graph * w=(struct node_graph * )pop_list(&S);
                 double communication_intensity=(double)traffic_matrix[w->node_graph_id][s->node_graph_id];
-                delta[w->node_graph_id]+=communication_intensity;
                 ret_val[s->node_graph_id]+=communication_intensity;
                 struct node_list * node_iterator;
                 for(node_iterator =pred[w->node_graph_id].head;node_iterator!=0;node_iterator=node_iterator->next){
                     struct node_graph * v=(struct node_graph*)node_iterator->content;
-                    delta[v->node_graph_id]+=(delta[w->node_graph_id]/ ((double)sigma[w->node_graph_id]));
+                    delta[v->node_graph_id]+=((delta[w->node_graph_id]+communication_intensity)*(((double)sigma[v->node_graph_id])/ ((double)sigma[w->node_graph_id])));
                 }
                 if(w!=s){
-                    ret_val[w->node_graph_id]=ret_val[w->node_graph_id]+delta[w->node_graph_id];
+                    ret_val[w->node_graph_id]+=delta[w->node_graph_id]+communication_intensity;
                 }
-            }       
+                
+            }   
+            
         }else if(endpoints){
             ret_val[s->node_graph_id]+=(S.size-1);
             while(!is_empty_list(&S)){
@@ -150,7 +160,7 @@ double * betweeness_brandes(struct graph * g, bool endpoints,int ** traffic_matr
     for( i =0;i<node_num;i++){
         clear_list(&pred[i]);
     }
-    clear_list(pred);
+    //clear_list(pred);
     free(pred);
     free(sigma);
     free(delta);
@@ -160,6 +170,7 @@ double * betweeness_brandes(struct graph * g, bool endpoints,int ** traffic_matr
         for( i =0;i<node_num;i++){
             struct node_graph* ng=(struct node_graph*)nl->content;
             ret_val[ng->node_graph_id]*=scale;
+            ret_val[ng->node_graph_id]=round_decimal(ret_val[ng->node_graph_id]);
             nl=nl->next;
         }
         
@@ -655,34 +666,233 @@ double * betwenness_heuristic(struct graph * g, bool recursive){
         double scale=1/(((double)(node_num-1))*((double)(node_num-2)));
         for( i =0;i<node_num;i++){
             ret_val[i]*=scale;
+            ret_val[i]=round_decimal(ret_val[i]);
+            
         }
     }
     return ret_val;
 }
 /*
-int main(){
-    
-    struct graph g1;
-    init_graph(&g1);
-    add_edge_graph(&g1,"0","1",7.3003332296,0);
-    struct node_list *  nl;
-    double * bh=betweeness_brandes(&g1,true,0);
-    
-    double * bh_c=betwenness_heuristic(&g1,false);
-    double * bh_c2=betwenness_heuristic(&g1,true);
-    for(nl=g1.nodes.head;nl!=0;nl=nl->next){
-        struct node_graph * ng=(struct node_graph*)nl->content;
-        
-        printf("%s:\t%f \t%f\t%f\t%d\t%f\n",
-                ng->name,bh[ng->node_graph_id], 
-                bh_c[ng->node_graph_id],bh_c2[ng->node_graph_id],
-                bh[ng->node_graph_id]==bh_c[ng->node_graph_id] && bh[ng->node_graph_id]==bh_c2[ng->node_graph_id],
-                -bh[ng->node_graph_id]+bh_c[ng->node_graph_id]);
-        
-    }
-    free(bh);
-    free(bh_c);
-    free(bh_c2);
-    free_graph(&g1);
-    return 0;
-}*/
+ int main(){
+ //double d=sqrt(2);
+ //int decimal_places=1000000000;
+ //double d1=roundf(d*decimal_places)/decimal_places;
+ //decimal_places=1000000;
+ //double d2=roundf(d*decimal_places)/decimal_places;
+ //printf("%1.50f\n",d1-d);
+ struct graph g1;
+ init_graph(&g1);
+ add_edge_graph(&g1,"0","64",1,0);
+ add_edge_graph(&g1,"0","1",1,0);
+ add_edge_graph(&g1,"0","27",1,0);
+ add_edge_graph(&g1,"0","4",1,0);
+ add_edge_graph(&g1,"0","37",1,0);
+ add_edge_graph(&g1,"0","79",1,0);
+ add_edge_graph(&g1,"0","43",1,0);
+ add_edge_graph(&g1,"0","47",1,0);
+ add_edge_graph(&g1,"0","50",1,0);
+ add_edge_graph(&g1,"0","22",1,0);
+ add_edge_graph(&g1,"0","88",1,0);
+ add_edge_graph(&g1,"0","59",1,0);
+ add_edge_graph(&g1,"0","5",1,0);
+ add_edge_graph(&g1,"1","64",1,0);
+ add_edge_graph(&g1,"1","37",1,0);
+ add_edge_graph(&g1,"1","39",1,0);
+ add_edge_graph(&g1,"1","8",1,0);
+ add_edge_graph(&g1,"1","72",1,0);
+ add_edge_graph(&g1,"1","82",1,0);
+ add_edge_graph(&g1,"1","83",1,0);
+ add_edge_graph(&g1,"1","23",1,0);
+ add_edge_graph(&g1,"1","88",1,0);
+ add_edge_graph(&g1,"1","26",1,0);
+ add_edge_graph(&g1,"1","60",1,0);
+ add_edge_graph(&g1,"1","94",1,0);
+ add_edge_graph(&g1,"2","64",1,0);
+ add_edge_graph(&g1,"2","95",1,0);
+ add_edge_graph(&g1,"3","25",1,0);
+ add_edge_graph(&g1,"4","65",1,0);
+ add_edge_graph(&g1,"4","28",1,0);
+ add_edge_graph(&g1,"4","88",1,0);
+ add_edge_graph(&g1,"4","26",1,0);
+ add_edge_graph(&g1,"4","27",1,0);
+ add_edge_graph(&g1,"4","60",1,0);
+ add_edge_graph(&g1,"5","65",1,0);
+ add_edge_graph(&g1,"5","87",1,0);
+ add_edge_graph(&g1,"6","64",1,0);
+ add_edge_graph(&g1,"6","37",1,0);
+ add_edge_graph(&g1,"6","31",1,0);
+ add_edge_graph(&g1,"7","26",1,0);
+ add_edge_graph(&g1,"8","56",1,0);
+ add_edge_graph(&g1,"8","37",1,0);
+ add_edge_graph(&g1,"9","82",1,0);
+ add_edge_graph(&g1,"9","75",1,0);
+ add_edge_graph(&g1,"9","45",1,0);
+ add_edge_graph(&g1,"10","64",1,0);
+ add_edge_graph(&g1,"10","48",1,0);
+ add_edge_graph(&g1,"11","72",1,0);
+ add_edge_graph(&g1,"11","86",1,0);
+ add_edge_graph(&g1,"12","27",1,0);
+ add_edge_graph(&g1,"13","88",1,0);
+ add_edge_graph(&g1,"13","25",1,0);
+ add_edge_graph(&g1,"13","26",1,0);
+ add_edge_graph(&g1,"13","95",1,0);
+ add_edge_graph(&g1,"14","91",1,0);
+ add_edge_graph(&g1,"15","64",1,0);
+ add_edge_graph(&g1,"15","57",1,0);
+ add_edge_graph(&g1,"15","26",1,0);
+ add_edge_graph(&g1,"16","88",1,0);
+ add_edge_graph(&g1,"16","90",1,0);
+ add_edge_graph(&g1,"17","28",1,0);
+ add_edge_graph(&g1,"18","88",1,0);
+ add_edge_graph(&g1,"18","31",1,0);
+ add_edge_graph(&g1,"19","45",1,0);
+ add_edge_graph(&g1,"20","64",1,0);
+ add_edge_graph(&g1,"21","88",1,0);
+ add_edge_graph(&g1,"22","37",1,0);
+ add_edge_graph(&g1,"24","43",1,0);
+ add_edge_graph(&g1,"26","27",1,0);
+ add_edge_graph(&g1,"26","28",1,0);
+ add_edge_graph(&g1,"26","30",1,0);
+ add_edge_graph(&g1,"26","31",1,0);
+ add_edge_graph(&g1,"26","35",1,0);
+ add_edge_graph(&g1,"26","41",1,0);
+ add_edge_graph(&g1,"26","43",1,0);
+ add_edge_graph(&g1,"26","45",1,0);
+ add_edge_graph(&g1,"26","46",1,0);
+ add_edge_graph(&g1,"26","47",1,0);
+ add_edge_graph(&g1,"26","63",1,0);
+ add_edge_graph(&g1,"26","68",1,0);
+ add_edge_graph(&g1,"26","70",1,0);
+ add_edge_graph(&g1,"26","72",1,0);
+ add_edge_graph(&g1,"26","82",1,0);
+ add_edge_graph(&g1,"26","85",1,0);
+ add_edge_graph(&g1,"26","86",1,0);
+ add_edge_graph(&g1,"26","88",1,0);
+ add_edge_graph(&g1,"26","95",1,0);
+ add_edge_graph(&g1,"26","96",1,0);
+ add_edge_graph(&g1,"26","99",1,0);
+ add_edge_graph(&g1,"27","88",1,0);
+ add_edge_graph(&g1,"28","64",1,0);
+ add_edge_graph(&g1,"28","65",1,0);
+ add_edge_graph(&g1,"28","66",1,0);
+ add_edge_graph(&g1,"28","69",1,0);
+ add_edge_graph(&g1,"28","70",1,0);
+ add_edge_graph(&g1,"28","77",1,0);
+ add_edge_graph(&g1,"28","47",1,0);
+ add_edge_graph(&g1,"28","53",1,0);
+ add_edge_graph(&g1,"28","88",1,0);
+ add_edge_graph(&g1,"28","89",1,0);
+ add_edge_graph(&g1,"28","60",1,0);
+ add_edge_graph(&g1,"28","95",1,0);
+ add_edge_graph(&g1,"29","31",1,0);
+ add_edge_graph(&g1,"31","64",1,0);
+ add_edge_graph(&g1,"31","65",1,0);
+ add_edge_graph(&g1,"31","34",1,0);
+ add_edge_graph(&g1,"31","38",1,0);
+ add_edge_graph(&g1,"31","47",1,0);
+ add_edge_graph(&g1,"31","74",1,0);
+ add_edge_graph(&g1,"31","44",1,0);
+ add_edge_graph(&g1,"31","50",1,0);
+ add_edge_graph(&g1,"31","45",1,0);
+ add_edge_graph(&g1,"31","42",1,0);
+ add_edge_graph(&g1,"31","86",1,0);
+ add_edge_graph(&g1,"31","88",1,0);
+ add_edge_graph(&g1,"31","79",1,0);
+ add_edge_graph(&g1,"31","60",1,0);
+ add_edge_graph(&g1,"32","86",1,0);
+ add_edge_graph(&g1,"33","56",1,0);
+ add_edge_graph(&g1,"34","50",1,0);
+ add_edge_graph(&g1,"36","64",1,0);
+ add_edge_graph(&g1,"36","84",1,0);
+ add_edge_graph(&g1,"37","86",1,0);
+ add_edge_graph(&g1,"37","64",1,0);
+ add_edge_graph(&g1,"37","76",1,0);
+ add_edge_graph(&g1,"37","56",1,0);
+ add_edge_graph(&g1,"37","88",1,0);
+ add_edge_graph(&g1,"37","60",1,0);
+ add_edge_graph(&g1,"39","60",1,0);
+ add_edge_graph(&g1,"40","88",1,0);
+ add_edge_graph(&g1,"40","86",1,0);
+ add_edge_graph(&g1,"41","80",1,0);
+ add_edge_graph(&g1,"41","46",1,0);
+ add_edge_graph(&g1,"42","98",1,0);
+ add_edge_graph(&g1,"43","60",1,0);
+ add_edge_graph(&g1,"44","64",1,0);
+ add_edge_graph(&g1,"44","88",1,0);
+ add_edge_graph(&g1,"44","58",1,0);
+ add_edge_graph(&g1,"45","60",1,0);
+ add_edge_graph(&g1,"47","97",1,0);
+ add_edge_graph(&g1,"47","64",1,0);
+ add_edge_graph(&g1,"47","49",1,0);
+ add_edge_graph(&g1,"47","88",1,0);
+ add_edge_graph(&g1,"48","96",1,0);
+ add_edge_graph(&g1,"48","84",1,0);
+ add_edge_graph(&g1,"51","76",1,0);
+ add_edge_graph(&g1,"52","67",1,0);
+ add_edge_graph(&g1,"53","88",1,0);
+ add_edge_graph(&g1,"54","88",1,0);
+ add_edge_graph(&g1,"54","77",1,0);
+ add_edge_graph(&g1,"55","61",1,0);
+ add_edge_graph(&g1,"56","91",1,0);
+ add_edge_graph(&g1,"56","87",1,0);
+ add_edge_graph(&g1,"57","88",1,0);
+ add_edge_graph(&g1,"58","88",1,0);
+ add_edge_graph(&g1,"59","65",1,0);
+ add_edge_graph(&g1,"60","88",1,0);
+ add_edge_graph(&g1,"60","91",1,0);
+ add_edge_graph(&g1,"61","64",1,0);
+ add_edge_graph(&g1,"62","97",1,0);
+ add_edge_graph(&g1,"64","99",1,0);
+ add_edge_graph(&g1,"64","73",1,0);
+ add_edge_graph(&g1,"64","98",1,0);
+ add_edge_graph(&g1,"64","77",1,0);
+ add_edge_graph(&g1,"64","86",1,0);
+ add_edge_graph(&g1,"64","88",1,0);
+ add_edge_graph(&g1,"65","74",1,0);
+ add_edge_graph(&g1,"66","88",1,0);
+ add_edge_graph(&g1,"68","94",1,0);
+ add_edge_graph(&g1,"69","88",1,0);
+ add_edge_graph(&g1,"69","82",1,0);
+ add_edge_graph(&g1,"71","83",1,0);
+ add_edge_graph(&g1,"77","91",1,0);
+ add_edge_graph(&g1,"78","90",1,0);
+ add_edge_graph(&g1,"79","88",1,0);
+ add_edge_graph(&g1,"80","83",1,0);
+ add_edge_graph(&g1,"81","88",1,0);
+ add_edge_graph(&g1,"86","93",1,0);
+ add_edge_graph(&g1,"88","92",1,0);
+ add_edge_graph(&g1,"88","96",1,0);
+ add_edge_graph(&g1,"88","98",1,0);
+ 
+ 
+ struct node_list *  nl;
+ double * bh=betweeness_brandes(&g1,true,0);
+ 
+ double * bh_c=betwenness_heuristic(&g1,false);
+ //double * bh_c2=betwenness_heuristic(&g1,true);
+ 
+ 
+ for(nl=g1.nodes.head;nl!=0;nl=nl->next){
+ struct node_graph * ng=(struct node_graph*)nl->content;
+ 
+ 
+ printf("%s:\t%f \t%f\t%d\t%1.50f\n",
+ //printf("%s:\t%1.50f \t%1.50f\t%d\t%1.50f\n",
+ ng->name,
+ bh[ng->node_graph_id], 
+ bh_c[ng->node_graph_id],
+ bh[ng->node_graph_id]==bh_c[ng->node_graph_id],
+ -bh[ng->node_graph_id]+bh_c[ng->node_graph_id]);
+ if((-bh[ng->node_graph_id]+bh_c[ng->node_graph_id])!=0){
+ printf("%1.50f\n",
+ //printf("%s:\t%1.50f \t%1.50f\t%d\t%1.50f\n",
+ -bh[ng->node_graph_id]+bh_c[ng->node_graph_id]);
+ }
+ }
+ free(bh);
+ free(bh_c);
+ //free(bh_c2);
+ free_graph(&g1);
+ return 0;
+ }*/
+
