@@ -26,12 +26,13 @@ SOFTWARE.
  *      Author: gabriel
  */
 #include "prince.h"
-#include "time.h"
+#include <unistd.h>
+#include <time.h>
 
-routing_plugin* (*new_plugin)(char* host, int port, c_graph_parser *gp, int json_type);
-int (*get_topology)(routing_plugin *o);
-int (*push_timers)(routing_plugin *o, struct timers t);
-void (*delete_plugin)(routing_plugin* o);
+routing_plugin* (*new_plugin_p)(char* host, int port, c_graph_parser *gp, int json_type);
+int (*get_topology_p)(routing_plugin *o);
+int (*push_timers_p)(routing_plugin *o, struct timers t);
+void (*delete_plugin_p)(routing_plugin* o);
 
 /**
  * Main routine of Prince. Collect topology, parse it, calculate bc and timers, push them back.
@@ -45,8 +46,8 @@ main(int argc, char* argv[]){
 	do{
 		sleep(ph->refresh);
 		ph->gp = new_graph_parser(ph->weights, ph->heuristic);
-		ph->rp = new_plugin(ph->host, ph->port, ph->gp, ph->json_type);
-		if(!get_topology(ph->rp)){
+		ph->rp = new_plugin_p(ph->host, ph->port, ph->gp, ph->json_type);
+		if(!get_topology_p(ph->rp)){
 			printf("Error getting topology");
 			continue;
 
@@ -64,11 +65,11 @@ main(int argc, char* argv[]){
 			continue;
 		}
 		printf("\nId of the node we are computing is: %s\n", ph->self_id);
-		if (!push_timers(ph->rp, ph->opt_t)){
+		if (!push_timers_p(ph->rp, ph->opt_t)){
 			delete_prince_handler(ph);
 			continue;
 		}
-		delete_plugin(ph->rp);
+		delete_plugin_p(ph->rp);
 	}while(ph->refresh);
 	delete_prince_handler(ph);
 	return 1;
@@ -101,11 +102,18 @@ new_prince_handler(char * conf_file){
 	}
 	if(!ph->plugin_handle)
 		return 0;
-
-	new_plugin = (routing_plugin* (*)(char* host, c_graph_parser *gp, int json_type)) dlsym(ph->plugin_handle, "new_plugin");
-	get_topology = (int (*)(routing_plugin *o)) dlsym(ph->plugin_handle, "get_topology");
-	push_timers = (int (*)(routing_plugin *o, struct timers t)) dlsym(ph->plugin_handle, "push_timers");
-	delete_plugin = (void (*)(routing_plugin *o)) dlsym(ph->plugin_handle, "delete_plugin");
+	#ifndef unique
+	new_plugin_p = (routing_plugin* (*)(char* host, int port, c_graph_parser *gp, int json_type)) dlsym(ph->plugin_handle, "new_plugin");
+	get_topology_p = (int (*)(routing_plugin *o)) dlsym(ph->plugin_handle, "get_topology");
+	push_timers_p = (int (*)(routing_plugin *o, struct timers t)) dlsym(ph->plugin_handle, "push_timers");
+	delete_plugin_p = (void (*)(routing_plugin *o)) dlsym(ph->plugin_handle, "delete_plugin");
+	#else
+	#include "oonf.h"
+	new_plugin_p = new_plugin;
+	get_topology_p = get_topology;
+	push_timers_p = push_timers;
+	delete_plugin_p = delete_plugin ;
+	#endif	
 	return ph;
 }
 /**
@@ -113,7 +121,7 @@ new_prince_handler(char * conf_file){
  * @param struct prince_handler* pointer to the prince_handler struct.
  */
 void delete_prince_handler(struct prince_handler* ph){
-	delete_plugin(ph->rp);
+	delete_plugin_p(ph->rp);
 	bc_degree_map_delete(ph->bc_degree_map);
 	dlclose(ph->plugin_handle);
 	free(ph->self_id);

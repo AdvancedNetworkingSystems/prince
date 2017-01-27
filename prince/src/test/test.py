@@ -102,7 +102,6 @@ class PrinceTestOONF:
                 # search for the timers' values using the regex
                 if data:
                     toks = p.findall(data)
-                    print(toks)
                     if toks:
                         tc_cpp = float(toks[0])
                         hello_cpp = float(toks[1])
@@ -177,10 +176,10 @@ measures_plaw_c = []
 measures_plaw_noh_var_c = []
 measures_plaw_var_c = []
 x = []
-jump = 50#20
-max =1000 #500
-min=300
-iter=3
+jump = 100#20
+max =1500 #500
+min=200
+iter=10
 # run prince w & w/o heuristic
 proc_noh = subprocess.Popen("exec ../../build/prince ../../input/test_noh.ini", shell=True)
 proc = subprocess.Popen("exec ../../build/prince ../../input/test.ini", shell=True)
@@ -216,7 +215,6 @@ except:
     kill(proc_c.pid, signal.SIGTERM)
 
 
-print("qui")
 from os import kill
 import signal
 kill(proc_noh.pid, signal.SIGTERM)

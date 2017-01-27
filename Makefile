@@ -3,7 +3,6 @@ all:
 	mkdir -p prince/build/
 	$(MAKE) -C graph-parser/src
 	$(MAKE) -C prince/src
-	$(MAKE)  all_c -C prince/src
 
 install:
 	cp graph-parser/build/lib/libgraphparser.so /usr/lib/

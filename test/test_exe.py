@@ -43,14 +43,13 @@ def time_exe(is_c,heu):
     else:
         title+=" without heu"
     out=eval(out)
-    out= {k:round(v,6) for k,v in out.iteritems()}
+    out= {k:round(v,5) for k,v in out.iteritems()}
     return elapsed,out
 
 
 
-start,end,jump=2
-00,1200+1,200
-repetitions=3
+start,end,jump=200,1600+1,200
+repetitions=10
 max=int(math.ceil(float(end-start)/jump))*repetitions
 
 res={}
@@ -83,9 +82,9 @@ for i in range(start,end,jump):
         cpp_eu.append(timer)
         #print(val1)
         actual_res=nx.betweenness_centrality(g,endpoints=True)
-        actual_res= {k:round(v,6) for k,v in actual_res.iteritems()}
+        actual_res= {k:round(v,5) for k,v in actual_res.iteritems()}
         #print(actual_res)
-        if not (actual_res==val1 and val1==val2):
+        if (not (actual_res==val1 and val1==val2)) and False:
             print("actual_res",actual_res)
             print("1",val1)
             print("2",val2)
@@ -94,8 +93,8 @@ for i in range(start,end,jump):
             for e in g.edges(data='weight'):
                 print('add_edge_graph(&g1,"'+str(e[0])+'","'+str(e[1])+'",'+str(e[2])+',0);')
 
-            import sys
-            sys.exit(0)
+            #import sys
+            #sys.exit(0)
     res["c_var"].append(var(c))
     res["c_mean"].append(mean(c))
     res["c_eu_var"].append(var(c_eu))

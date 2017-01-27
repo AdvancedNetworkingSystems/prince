@@ -31,11 +31,7 @@ SOFTWARE.
 
 #include <math.h>
 #include <dlfcn.h>
-#ifdef __cplusplus
 #include "common.h"
-#else
-#include "common_c.h"
-#endif
 #include "lib/ini.h"
 #include "parser.h"
 
@@ -58,7 +54,7 @@ struct prince_handler{
 
 int main(int argc, char *argv[]);
 
-struct prince_handler* new_prince_handler();
+struct prince_handler* new_prince_handler(char * conf_file);
 int compute_constants(struct prince_handler *ph);
 int compute_timers(struct prince_handler *ph);
 void delete_prince_handler(struct prince_handler*);
