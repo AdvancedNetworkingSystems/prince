@@ -37,7 +37,7 @@ def time_exe(save):
     elapsed = time.time() - start
     return elapsed,"Recompute" in out or not save
 
-"""
+
 #do once
 ge = Gen()
 ge.genGraph("PLAW", 1000)
@@ -47,7 +47,7 @@ for e in graph.edges():
     graph2.add_edge(e[0],e[1],weight=r.uniform(0,10))
 graph=graph2
 nx.write_weighted_edgelist(graph,"base.graph");
-"""
+""""""
 
 def evolve_graph(g,change_probability):
     edges=g.edges()
@@ -57,7 +57,7 @@ def evolve_graph(g,change_probability):
         if add:
             nodes=g.nodes()
             node_num=len(nodes)-1
-            while True:
+            while True and len(edges)>2:
                 n1_id=r.randint(0,node_num)
                 n1=nodes[n1_id]
                 n2_id=n1_id
@@ -77,7 +77,7 @@ def evolve_graph(g,change_probability):
 def run_evolution(ge,g,number,prob,save):
     timing=[]
     timer=0
-    num_recompute=0
+    num_recompute=-1
     for i in xrange(number):
         if i % 100 ==0 and i>0:
             print(i)
@@ -88,6 +88,7 @@ def run_evolution(ge,g,number,prob,save):
             num_recompute+=1
         timer+=t
         timing.append(timer)
+    print num_recompute
     return timing,num_recompute
 
 ge = Gen()
@@ -113,6 +114,7 @@ print("e")
 g=nx.read_weighted_edgelist("base.graph")
 res["c_with_0.99"],res["c_with_0.99_r"]=run_evolution(ge,g,number,0.99,1)
 
+plt.subplots_adjust(left=0.1, right=0.8, top=0.9, bottom=0.1)
 plt.errorbar(x, res["c_without"],  label="Recompute ")
 plt.errorbar(x, res["c_with_0.01"],  label="Test-recompute ($p_{change}$=0.01)")
 plt.errorbar(x, res["c_with_0.1"],  label="Test-recompute ($p_{change}$=0.1)")
@@ -128,31 +130,32 @@ plt.savefig('res.png')
 #for var in ("c_without","c_with_0.01","c_with_0.1","c_with_0.5","c_with_0.99"):#",c_with_0","c_with_0.25"):
 
 series = res["c_without"]
-text= res["c_without_r"]
+text= str(int(round(series[-1],0)))+"("+str(res["c_without_r"])+")"
 plt.annotate(text, xy=(1, series[-1]), xytext=(8, 0),
                  xycoords=('axes fraction', 'data'), textcoords='offset points')
 
 series = res["c_with_0.01"]
-text= res["c_with_0.01_r"]
+text= str(int(round(series[-1],0)))+"("+str(res["c_with_0.01_r"])+")"
 plt.annotate(text, xy=(1, series[-1]*0.97), xytext=(8, 0),
                  xycoords=('axes fraction', 'data'), textcoords='offset points')
 series = res["c_with_0.1"]
-text= res["c_with_0.1_r"]
+text= str(int(round(series[-1],0)))+"("+str(res["c_with_0.1_r"])+")"
 plt.annotate(text, xy=(1, series[-1]*0.99), xytext=(8, 0),
                  xycoords=('axes fraction', 'data'), textcoords='offset points')
 series = res["c_with_0.5"]
-text= res["c_with_0.5_r"]
+text= str(int(round(series[-1],0)))+"("+str(res["c_with_0.5_r"])+")"
 plt.annotate(text, xy=(1, series[-1]*1.01), xytext=(8, 0),
                  xycoords=('axes fraction', 'data'), textcoords='offset points')
 series = res["c_with_0.99"]
-text= res["c_with_0.99_r"]
+text= str(int(round(series[-1],0)))+"("+str(res["c_with_0.99_r"])+")"
 plt.annotate(text, xy=(1, series[-1]*1.03), xytext=(8, 0),
                  xycoords=('axes fraction', 'data'), textcoords='offset points')
 
 ax=plt.twinx()
-plt.ylabel("Number of computations (-)")
-ax.yaxis.set_label_coords(1.09, 0.6)
+plt.ylabel(" Time spent (Number of recomputations)")
+ax.yaxis.set_label_coords(1.2, 0.6)
 plt.setp( ax.get_yticklabels(), visible=False)
+plt.setp( ax.get_yticklines(), visible=False)
 
 
 plt.savefig('res_exe.png')
