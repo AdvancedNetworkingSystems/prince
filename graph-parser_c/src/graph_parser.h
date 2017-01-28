@@ -1,7 +1,7 @@
 /* Graph_Parser_lib.h*/
 
 #include "../../prince/src/parser.h"
-
+#include "brandes.h"
 
 typedef void c_graph_parser;
 
