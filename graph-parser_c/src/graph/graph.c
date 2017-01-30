@@ -39,8 +39,8 @@ struct node_graph * add_node_graph(struct graph * g, const char * name){//unique
  * are created.
  * The complexity of this insertion, which gives from granted that only a new
  * edge are added, is O(|N|+|E|), i.e. linear to the number of nodes and edges.
- * Given that medium degree of real graph for this project is 1.1,
- * we have a good average complexity.
+ * Given that medium degree of real graph for this project is 1.2, we have a 
+ * good average complexity.
  * 
  * @param g A graph
  * @param name_from The vertex name in which the edge originates

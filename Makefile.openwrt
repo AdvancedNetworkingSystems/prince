@@ -1,33 +1,34 @@
 include $(TOPDIR)/rules.mk
 
+BUILD_DIR:=build
+PKG_BUILD_DIR:=$(BUILD_DIR)/poprouting
 PKG_NAME:=poprouting
-PKG_VERSION:=v0.1
-PKG_RELEASE:=1
-
-PKG_BUILD_DIR:=$(BUILD_DIR)/poprouting-$(PKG_VERSION)
-PKG_USE_MIPS16:=0 
+PKG_VERSION:=master
+PKG_SOURCE:=poprouting-master.tar.gz
 PKG_SOURCE_PROTO:=git
-PKG_SOURCE:=poprouting-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=https://github.com/mb03/poprouting.git
 PKG_SOURCE_VERSION:=master
-PKG_SOURCE_SUBDIR:=poprouting-v0.1
+PKG_SOURCE_SUBDIR:=poprouting
+
 include $(INCLUDE_DIR)/package.mk
+
 define Package/poprouting
-	SECTION :=net
-	CATEGORY :=Network
-	SUBMENU :=Routing and Redirection
-	TITLE :=PopRouting daemon
-	MENU :=1
-	DEPENDS := +libjson-c +libpthread +libm +libdl
+  SECTION:=net
+  CATEGORY:=Network
+  SUBMENU:=Routing and Redirection
+  TITLE:=poprouting
+  URL:=http://127.0.0.1
+  MAINTAINER:= https://github.com/mb03
+  DEPENDS:= +libc +libjson-c +libpthread +libdl +libm
 endef
 
-define Package/poprouting/description
-	TODO
+
+
+define Package/poprouting/install
+	$(INSTALL_DIR) $(1)/usr/sbin
+	$(INSTALL_DIR) $(1)/usr/sbin1
+	$(INSTALL_DIR) $(1)/usr/sbin2
+	$(INSTALL_BIN) $(PKG_BUILD_DIR)/prince_c $(1)/usr/sbin/prince
 endef
 
-define Build/Prepare
-        $(Build/Prepare/Default)
-endef
-
-$(eval $(call BuildPackage,poprouting))
-
+$(eval $(call BuildPackage,poprouting,+libc))

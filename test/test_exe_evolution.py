@@ -21,7 +21,7 @@ def gen_graph(N):
     graph = ge.graph
     graph2=nx.Graph()
     for e in graph.edges():
-        graph2.add_edge(e[0],e[1],weight=1)#r.uniform(0,10))
+        graph2.add_edge(e[0],e[1],weight=r.uniform(0,10))
     graph=graph2
     write_graph_to_file(ge,graph)
     return graph
@@ -37,7 +37,7 @@ def time_exe(save):
     elapsed = time.time() - start
     return elapsed,"Recompute" in out or not save
 
-
+"""
 #do once
 ge = Gen()
 ge.genGraph("PLAW", 1000)
@@ -47,7 +47,7 @@ for e in graph.edges():
     graph2.add_edge(e[0],e[1],weight=r.uniform(0,10))
 graph=graph2
 nx.write_weighted_edgelist(graph,"base.graph");
-""""""
+"""
 
 def evolve_graph(g,change_probability):
     edges=g.edges()
@@ -88,7 +88,6 @@ def run_evolution(ge,g,number,prob,save):
             num_recompute+=1
         timer+=t
         timing.append(timer)
-    print num_recompute
     return timing,num_recompute
 
 ge = Gen()
@@ -130,24 +129,24 @@ plt.savefig('res.png')
 #for var in ("c_without","c_with_0.01","c_with_0.1","c_with_0.5","c_with_0.99"):#",c_with_0","c_with_0.25"):
 
 series = res["c_without"]
-text= str(int(round(series[-1],0)))+"("+str(res["c_without_r"])+")"
+text= str(int(round(series[-1],2)))+"("+str(res["c_without_r"])+")"
 plt.annotate(text, xy=(1, series[-1]), xytext=(8, 0),
                  xycoords=('axes fraction', 'data'), textcoords='offset points')
 
 series = res["c_with_0.01"]
-text= str(int(round(series[-1],0)))+"("+str(res["c_with_0.01_r"])+")"
+text= str(int(round(series[-1],2)))+"("+str(res["c_with_0.01_r"])+")"
 plt.annotate(text, xy=(1, series[-1]*0.97), xytext=(8, 0),
                  xycoords=('axes fraction', 'data'), textcoords='offset points')
 series = res["c_with_0.1"]
-text= str(int(round(series[-1],0)))+"("+str(res["c_with_0.1_r"])+")"
+text= str(int(round(series[-1],2)))+"("+str(res["c_with_0.1_r"])+")"
 plt.annotate(text, xy=(1, series[-1]*0.99), xytext=(8, 0),
                  xycoords=('axes fraction', 'data'), textcoords='offset points')
 series = res["c_with_0.5"]
-text= str(int(round(series[-1],0)))+"("+str(res["c_with_0.5_r"])+")"
+text= str(int(round(series[-1],2)))+"("+str(res["c_with_0.5_r"])+")"
 plt.annotate(text, xy=(1, series[-1]*1.01), xytext=(8, 0),
                  xycoords=('axes fraction', 'data'), textcoords='offset points')
 series = res["c_with_0.99"]
-text= str(int(round(series[-1],0)))+"("+str(res["c_with_0.99_r"])+")"
+text= str(int(round(series[-1],2)))+"("+str(res["c_with_0.99_r"])+")"
 plt.annotate(text, xy=(1, series[-1]*1.03), xytext=(8, 0),
                  xycoords=('axes fraction', 'data'), textcoords='offset points')
 
