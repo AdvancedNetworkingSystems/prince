@@ -54,11 +54,12 @@ get_topology(routing_plugin *o){
 		return 0;
 	}
 	char *req = "/netjsoninfo filter graph ipv6_0/quit\n";
-	if( (sent = send(sd,req,strlen(req),0))==-1){
+	if( (sent = send(sd,req,strlen(req),MSG_NOSIGNAL))==-1){
 		printf("Cannot send to %s:%d", o->host, o->port);
 		close(sd);
 		return 0;
 	}
+	
 	if(!_telnet_receive(sd, &(o->recv_buffer))){
 		printf("cannot receive \n");
 		close(sd);

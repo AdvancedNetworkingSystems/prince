@@ -1,5 +1,6 @@
 include $(TOPDIR)/rules.mk
 
+
 BUILD_DIR:=build
 PKG_BUILD_DIR:=$(BUILD_DIR)/poprouting
 PKG_NAME:=poprouting
@@ -19,7 +20,7 @@ define Package/poprouting
   TITLE:=poprouting
   URL:=http://127.0.0.1
   MAINTAINER:= https://github.com/mb03
-  DEPENDS:= +libc +libjson-c +libpthread +libdl +libm
+  DEPENDS:= +libjson-c +libpthread
 endef
 
 
@@ -29,4 +30,4 @@ define Package/poprouting/install
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/prince_c $(1)/usr/sbin/prince
 endef
 
-$(eval $(call BuildPackage,poprouting,+libc))
+$(eval $(call BuildPackage,poprouting))

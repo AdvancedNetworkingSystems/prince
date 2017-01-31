@@ -89,8 +89,8 @@ new_prince_handler(char * conf_file){
 	ph->bc_degree_map = (map_id_degree_bc *) malloc(sizeof(map_id_degree_bc));
 	ph->weights=0;
 	ph->heuristic=1;
-
 	read_config_file(ph, conf_file);
+	#ifndef unique
 	switch(ph->proto){
 		case 0: /*olsr*/
 			ph->json_type=0;
@@ -102,7 +102,7 @@ new_prince_handler(char * conf_file){
 	}
 	if(!ph->plugin_handle)
 		return 0;
-	#ifndef unique
+	
 	new_plugin_p = (routing_plugin* (*)(char* host, int port, c_graph_parser *gp, int json_type)) dlsym(ph->plugin_handle, "new_plugin");
 	get_topology_p = (int (*)(routing_plugin *o)) dlsym(ph->plugin_handle, "get_topology");
 	push_timers_p = (int (*)(routing_plugin *o, struct timers t)) dlsym(ph->plugin_handle, "push_timers");

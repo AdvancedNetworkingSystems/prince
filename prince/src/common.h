@@ -20,66 +20,47 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 /*
- * parser.h
+ * common.h
  *
- *  Created on: 02 lug 2016
+ *  Created on: 25 mag 2016
  *      Author: gabriel
  */
 
-#ifndef SRC_PARSER_H_
-#define SRC_PARSER_H_
+#ifndef SRC_COMMON_H_
+#define SRC_COMMON_H_
 
-#include <json-c/json.h>
+
+/*INCLUDES */
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
+#include <stddef.h>
+#include "../../graph-parser_c/src/graph_parser.h"
 
-/* bc degree structures definition*/
-typedef struct _id_degree_bc{
-	char* id;
-	double bc;
-	int degree;
-
-}id_degree_bc;
-
-typedef struct _map_id_degree_bc{
-	id_degree_bc *map;
-	size_t size;
-	int n_edges;
-}map_id_degree_bc;
+/*DEFINES*/
+#define true 1
+#define false 0
+#define LINE_SIZE 64
 
 
+struct timers{
+	double h_timer;
+	double tc_timer;
+	double exec_time;
+};
 
-/* topology structures definition*/
-struct topology{
-	int id_lenght;
-	char *protocol;
+
+typedef struct
+routing_plugin_{
+	char *recv_buffer;
 	char *self_id;
-	struct node *first;
+	char *host;
+	short port;
+	int json_type;
+	c_graph_parser *gp;
 
-};
-
-struct node{
-	char *id;
-	struct neighbor *neighbor_list;
-	struct node *next;
-};
+}routing_plugin;
 
 
-struct neighbor{
-	struct node *id;
-	float weight;
-	struct neighbor *next;
-};
 
-
-struct topology * parse_netjson(char* buffer);
-int add_node(struct topology * topo, const char *id);
-struct topology * _init_topo(int type);
-int add_neigh(struct topology *topo, const char *source, const char *id, const double weight);
-
-struct node* find_node(struct topology *topo, const char *id);
-void bc_degree_map_delete(map_id_degree_bc * map);
-
-void destroy_topo(struct topology *topo);
-
-#endif /* SRC_PARSER_H_ */
+#endif /* SRC_COMMON_H_ */
