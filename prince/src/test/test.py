@@ -164,6 +164,9 @@ class PrinceTestOONF:
     def test_c(self, type, N, iter):
 	return self.test_p(type,N,iter,2019)
 
+from sys import exit
+PrinceTestOONF().test_p(1,20,2,1235)
+exit(0)
 
 p = PrinceTestOONF()
 # initialize the lists

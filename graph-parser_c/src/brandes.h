@@ -16,20 +16,7 @@
 extern "C" {
 #endif
     
-/**
- * Whether we want to run on multiple threads.
- * It can be set manually or either you can set it via code, detecting number 
- * of cores. 
- * Default is true.
- */
-extern bool multithread;
 
-/**
- * Whether we compute centrality only if the network changed or all the time.
- * We define a base measure of change, and will be further studied.
- * Default is true.
- */
-extern bool stop_computing_if_unchanged;
 
 /**
  * This is the algorithm described in the linked papers.

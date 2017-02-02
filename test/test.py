@@ -80,7 +80,8 @@ class PrinceTestOONF:
         '''
         serversocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         serversocket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-        serversocket.bind(('localhost', port))
+        addr='localhost'
+        serversocket.bind((addr, port))
         serversocket.listen(5)
         # regular expression to catch the timers' values
         p = re.compile(r"\d*\.\d+")
@@ -171,7 +172,7 @@ p = PrinceTestOONF()
 
 
 from sys import exit
-p.test_p(1,20,2,8888)
+p.test_p(1,20,2,1235)
 exit(0)
 
 p = PrinceTestOONF()

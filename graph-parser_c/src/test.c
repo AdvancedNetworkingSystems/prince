@@ -60,6 +60,8 @@ char* read_file_content(char *filename)
  * 
  */
 int main(int argc, char** argv) {
+    if(argc<3)
+        return 0;
     int heuristic=atoi(argv[1]);
     //to remove in case of different test
     stop_computing_if_unchanged=atoi(argv[2])==1;
@@ -71,8 +73,7 @@ int main(int argc, char** argv) {
     graph_parser_calculate_bc(cgp);
     map_id_degree_bc * bc_degree_map = (map_id_degree_bc *) malloc(sizeof(map_id_degree_bc));
     graph_parser_compose_degree_bc_map(cgp,bc_degree_map);
-    delete_graph_parser(cgp);
-    return 0;
+    
     int i;
     // printf("[\n");
     printf("{\n");
@@ -86,6 +87,7 @@ int main(int argc, char** argv) {
         printf("\n");
     }
     printf("}");
+    delete_graph_parser(cgp);
     /*  printf(",");
      printf("\n");
      cgp=new_graph_parser(1, 1-heuristic);

@@ -2,11 +2,7 @@
 
 bool recursive=true;
 
-struct graph_parser{
-    struct graph g;
-    bool heuristic_b;
-    double * bc;
-};
+
 
 c_graph_parser* new_graph_parser(int weight, int heuristic){
     struct graph_parser * gp=(struct graph_parser *)malloc(sizeof(struct graph_parser));

@@ -16,7 +16,7 @@ extern "C" {
 #endif
 
 #include <stdio.h>
-
+#include <stdbool.h>
 /* Typedef for prototype of handler function. */
 typedef int (*ini_handler)(void* user, const char* section,
                            const char* name, const char* value);
@@ -41,7 +41,7 @@ int ini_parse(const char* filename, ini_handler handler, void* user);
 
 /* Same as ini_parse(), but takes a FILE* instead of filename. This doesn't
    close the file when it's finished -- the caller must do that. */
-int ini_parse_file(FILE* file, ini_handler handler, void* user);
+bool ini_parse_file(FILE* file, ini_handler handler, void* user);
 
 /* Same as ini_parse(), but takes an ini_reader function pointer instead of
    filename. Used for implementing custom or string-based I/O. */
