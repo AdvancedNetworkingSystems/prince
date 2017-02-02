@@ -93,7 +93,6 @@ class Gen:
 
         """
         G = nx.Graph()
-        print "Loading Graph"
         if graphKind == linearGraph:
             G.add_nodes_from(range(0, numNodes))
             for i in range(0, numNodes-1):
@@ -175,6 +174,6 @@ class Gen:
             print >> sys.stderr, errMsg
             sys.exit(1)
 
-        print >> sys.stderr, "ok"
-        print G
+        #print >> sys.stderr, "ok"
+        #print G
         self.graph = G

@@ -8,113 +8,6 @@ from random import Random
 import networkx as nx
 r=Random(1234)
 
-
-from heapq import heappush, heappop
-from itertools import count
-import networkx as nx
-import random
-
-def betweenness_centrality(G, k=None, normalized=True, weight=None,
-                           endpoints=False,
-                           seed=None):
-    betweenness = dict.fromkeys(G, 0.0)  # b[v]=0 for v in G
-    if k is None:
-        nodes = G
-    else:
-        random.seed(seed)
-        nodes = random.sample(G.nodes(), k)
-    for s in nodes:
-        # single source shortest paths
-        S, P, sigma = _single_source_dijkstra_path_basic(G, s, weight)
-        # accumulation
-        betweenness = _accumulate_endpoints(betweenness, S, P, sigma, s)
-    # rescaling
-    #betweenness = _rescale(betweenness, len(G),normalized=normalized,directed=G.is_directed(),k=k)
-    return betweenness
-
-
-
-
-
-def _single_source_dijkstra_path_basic(G, s, weight='weight'):
-    # modified from Eppstein
-    S = []
-    P = {}
-    for v in G:
-        P[v] = []
-    sigma = dict.fromkeys(G, 0.0)    # sigma[v]=0 for v in G
-    D = {}
-    sigma[s] = 1.0
-    push = heappush
-    pop = heappop
-    seen = {s: 0}
-    c = count()
-    Q = []   # use Q as heap with (distance,node id) tuples
-    push(Q, (0, next(c), s, s))
-    print s+"=> ",
-    while Q:
-        (dist, _, pred, v) = pop(Q)
-        if v in D:
-            continue  # already searched this node.
-        print v,
-        sigma[v] += sigma[pred]  # count paths
-        S.append(v)
-        D[v] = dist
-        for w, edgedata in G[v].items():
-            vw_dist = dist + edgedata.get(weight, 1)
-            print "(",edgedata.get(weight, 1),")",
-            if w not in D and (w not in seen or vw_dist < seen[w]):
-                seen[w] = vw_dist
-                #print "(",w,seen[w],vw_dist,")",
-                push(Q, (vw_dist, next(c), v, w))
-                sigma[w] = 0.0
-                P[w] = [v]
-            elif vw_dist == seen[w]:  # handle equal paths
-                sigma[w] += sigma[v]
-                P[w].append(v)
-        print
-    return S, P, sigma
-
-
-
-
-def _accumulate_endpoints(betweenness, S, P, sigma, s):
-    #print s+":",
-    betweenness[s] += len(S) - 1
-    delta = dict.fromkeys(S, 0)
-    while S:
-        w = S.pop()
-        #print w,
-        coeff = (1.0 + delta[w]) / sigma[w]
-        for v in P[w]:
-            delta[v] += sigma[v] * coeff
-        if w != s:
-            betweenness[w] += delta[w] + 1
-    #print
-    return betweenness
-
-
-
-def _rescale(betweenness, n, normalized, directed=False, k=None):
-    if normalized is True:
-        if n <= 2:
-            scale = None  # no normalization b=0 for all nodes
-        else:
-            scale = 1.0 / ((n - 1) * (n - 2))
-    else:  # rescale by 2 for undirected graphs
-        if not directed:
-            scale = 1.0 / 2.0
-        else:
-            scale = None
-    if scale is not None:
-        if k is not None:
-            scale = scale * n / k
-        for v in betweenness:
-            betweenness[v] *= scale
-    return betweenness
-
-
-
 def gen_graph(N):
     ge = Gen()
     ge.genGraph("PLAW", N)
@@ -157,20 +50,11 @@ def time_exe(is_c,heu):
         #out= {k:round(v,rounding) for k,v in out.iteritems()}
         out= {k:v for k,v in out.iteritems()}
     return elapsed,out
-"""
-G=nx.Graph()
-G.add_edge("0","3",weight=9.66453535692)
-G.add_edge("1","2",weight=4.40732599175)
-G.add_edge("1","3",weight=0.0749147005859)
-G.add_edge("2","3",weight=9.10975962449)
-print(betweenness_centrality(G,endpoints=True,weight='weight'))
-import sys
-sys.exit(0)
-"""
+
 
 rounding=20
-start,end,jump=200,1600+1,100 
-repetitions=5
+start,end,jump=100,1800+1,100 
+repetitions=10
 max=int(math.ceil(float(end-start)/jump))*repetitions
 
 res={}
@@ -237,8 +121,8 @@ plt.xlabel('size of graph (nodes)')
 plt.ylabel('execution time (s)')
 plt.legend(loc='upper center', shadow=True)
 plt.axhline(1,color='k')
-plt.savefig('res.png')
-for var in (res["c_mean"], res["c_eu_mean"]):#,res["c++_mean"],res["c++_eu_mean"]):
+for var in (res["c_mean"], res["c_eu_mean"],res["c++_mean"],res["c++_eu_mean"]):
     plt.annotate('%0.2f' % var[-1], xy=(1, var[-1]), xytext=(8, 0),
                  xycoords=('axes fraction', 'data'), textcoords='offset points')
+plt.savefig('res.png')
 plt.show()

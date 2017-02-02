@@ -382,7 +382,7 @@ bool parse_json_config(char *filepath,struct prince_handler *ph){
 int
 read_config_file(struct prince_handler *ph, char *filepath){
     if(!((strcmp(get_filename_ext(filepath),"json")==0 && parse_json_config(filepath, ph)) ||(ini_parse(filepath, handler, ph)))) {
-        printf("Cannot read con file '%s'. Exiting.\n", filepath);
+        printf("Cannot read configuration file '%s' (Either format or content not compliant or complete). Exiting.\n", filepath);
         return 0;
     }
     
