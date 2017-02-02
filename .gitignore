@@ -31,7 +31,6 @@ graph-parser/build
 *.out
 *.gch
 *.dat
-*.json
 *.graph
 
 

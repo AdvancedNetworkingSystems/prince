@@ -39,10 +39,10 @@ bc_degree_map_delete(map_id_degree_bc * map){
 * Parse jsoninfo format
 * @param char* buffer containing the serialized json
 */
-int
+struct topology *
 parse_jsoninfo(char *buffer){
 	struct topology *c_topo= _init_topo(1);
-	return 1;
+	return c_topo;
 }
 
 /**
@@ -178,7 +178,6 @@ parse_netjson(char* buffer){
 
 
 		}
-
 		if(strcmp(key, "links")==0){
 			int i;
 			json_object *jarray;

@@ -30,9 +30,19 @@ SOFTWARE.
 #define SRC_OLSR_H_
 
 
-#include "plugin_interface.h"
+
 #include "common.h"
 #include "socket.h"
+
+#ifndef unique
+/*inehrit methods from here */
+#include "plugin_interface.h"
+#else
+routing_plugin* new_plugin_olsr(char* host, int port, c_graph_parser *gp, int json_type);
+int get_topology_olsr(routing_plugin *o);
+int push_timers_olsr(routing_plugin *o, struct timers t);
+void delete_plugin_olsr(routing_plugin* o);
+#endif
 
 
 

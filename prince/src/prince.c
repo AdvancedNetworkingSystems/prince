@@ -130,7 +130,7 @@ new_prince_handler(char * conf_file){
     ph->def_t.h_timer=2.0;
     ph->def_t.tc_timer=5.0;
     ph->bc_degree_map = (map_id_degree_bc *) malloc(sizeof(map_id_degree_bc));
-    //setting to undefined all params
+    /*setting to undefined all params*/
     ph->proto=-1;
     ph->host=0;
     ph->port=-1;
@@ -155,11 +155,23 @@ new_prince_handler(char * conf_file){
     push_timers_p = (int (*)(routing_plugin *o, struct timers t)) dlsym(ph->plugin_handle, "push_timers");
     delete_plugin_p = (void (*)(routing_plugin *o)) dlsym(ph->plugin_handle, "delete_plugin");
 #else
-#include "oonf.h"
-    new_plugin_p = new_plugin;
-    get_topology_p = get_topology;
-    push_timers_p = push_timers;
-    delete_plugin_p = delete_plugin ;
+    switch(ph->proto){
+        case 0:
+        {
+            new_plugin_p = new_plugin_olsr;
+            get_topology_p = get_topology_olsr;
+            push_timers_p = push_timers_olsr;
+            delete_plugin_p = delete_plugin_olsr;
+        }
+        break;
+        case 1:{
+            new_plugin_p = new_plugin_oonf;
+            get_topology_p = get_topology_oonf;
+            push_timers_p = push_timers_oonf;
+            delete_plugin_p = delete_plugin_oonf;
+        }
+        break;
+    }
 #endif	
     return ph;
 }

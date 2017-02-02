@@ -71,7 +71,7 @@ struct neighbor{
 	struct neighbor *next;
 };
 
-
+struct topology * parse_jsoninfo(char *buffer);
 struct topology * parse_netjson(char* buffer);
 int add_node(struct topology * topo, const char *id);
 struct topology * _init_topo(int type);
