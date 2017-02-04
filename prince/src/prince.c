@@ -48,11 +48,12 @@ main(int argc, char* argv[]){
     struct prince_handler *ph= new_prince_handler(argv[1]);
     if(ph==0)
         return -1;
+    
 #ifndef unique
     /*cycle each 'refresh' seconds*/
     do{
         sleep(ph->refresh);
-        ph->gp = new_graph_parser(ph->weights, ph->heuristic);
+        ph->gp = new_graph_parser(ph->weights, ph->heuristic?1:0);
         ph->rp = new_plugin_p(ph->host, ph->port, ph->gp, ph->json_type);
         if(!get_topology_p(ph->rp)){
             printf("Error getting topology");
@@ -80,6 +81,9 @@ main(int argc, char* argv[]){
     }while(ph->refresh);
     delete_prince_handler(ph);
 #else
+    recursive=ph->recursive;
+    multithread=ph->multithreaded;
+    stop_computing_if_unchanged=ph->stop_unchanged;
     ph->gp = new_graph_parser(ph->weights, ph->heuristic);
     struct graph_parser * gp_p=(struct graph_parser *)ph->gp ;
     ph->rp = new_plugin_p(ph->host, ph->port, ph->gp, ph->json_type);

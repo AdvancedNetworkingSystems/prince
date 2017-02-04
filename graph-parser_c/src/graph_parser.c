@@ -16,20 +16,21 @@ void graph_parser_parse_simplegraph(c_graph_parser* v, struct topology *topo){
     struct node *punt;
     for(punt=topo->first; punt!=0; punt=punt->next){
         struct neighbor* neigh;
+        
         for(neigh=punt->neighbor_list; neigh!=0; neigh=neigh->next){
             const char* source = punt->id;
             const char* target = neigh->id->id;
             double cost = neigh->weight;
             add_edge_graph(&(gp->g),source,target, cost,false);
+            
         }
     }
-    
 }
 
 
 void graph_parser_calculate_bc(c_graph_parser* v){
     struct graph_parser * gp=(struct graph_parser *)v;
-    if(gp->heuristic_b){
+    if(gp->heuristic_b&&gp->g.nodes.size>80){//TODO check here
         gp->bc=(double*)betwenness_heuristic(&(gp->g),recursive);
     }else{
         gp->bc=betweeness_brandes(&(gp->g),true,0);

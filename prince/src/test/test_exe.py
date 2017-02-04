@@ -3,10 +3,11 @@ import os,json,time,math,types
 from subprocess import Popen, PIPE
 import matplotlib.pyplot as plt
 from numpy import var,mean
-from graph_generator import Gen
+from graph_lib.graph_generator import Gen
 from random import Random
 import networkx as nx
 r=Random(1234)
+
 
 def gen_graph(N):
     ge = Gen()
@@ -17,6 +18,7 @@ def gen_graph(N):
         graph2.add_edge(e[0],e[1],weight=r.uniform(0,10))
     graph=graph2
     netjson = ge.composeNetJson(graph)
+    #print(netjson)
     json_netjson = json.dumps(netjson)
     text_file = open("input.json", "w+")
     text_file.write(json_netjson)
@@ -25,12 +27,12 @@ def gen_graph(N):
 
 def time_exe(is_c,heu):
     heu=str(heu)
-    DEVNULL = open(os.devnull, 'wb', 0)
     exe="./c++.out "
     if is_c:
         exe="./c.out"
         heu=" "+heu+" 0"
     start = time.time()
+    #print(exe+heu)
     p = Popen(exe+heu,shell=True,stdout=PIPE,stderr=PIPE)
     #os.wait4(p.pid, 0)
     out, err = p.communicate()
@@ -45,16 +47,18 @@ def time_exe(is_c,heu):
     else:
         title+=" without heu"
     if out:
+        #print(out)
         out=eval(out)
         global rounding
-        #out= {k:round(v,rounding) for k,v in out.iteritems()}
-        out= {k:v for k,v in out.iteritems()}
+        out= {k:round(v,rounding) for k,v in out.iteritems()}
+        #out= {k:v for k,v in out.iteritems()}
     return elapsed,out
 
 
-rounding=20
-start,end,jump=100,1800+1,100 
-repetitions=10
+rounding=10
+#start,end,jump=100,1800+1,100
+start,end,jump=100,1200+1,100
+repetitions=1
 max=int(math.ceil(float(end-start)/jump))*repetitions
 
 res={}
@@ -87,14 +91,15 @@ for i in range(start,end,jump):
         cpp_eu.append(timer)
         #print(val1)
         actual_res=nx.betweenness_centrality(g,endpoints=True,weight='weight')
-        #actual_res= {k:round(v,rounding) for k,v in actual_res.iteritems()}
-        actual_res= {k:v for k,v in actual_res.iteritems()}
+        actual_res= {k:round(v,rounding) for k,v in actual_res.iteritems()}
+        #actual_res= {k:v for k,v in actual_res.iteritems()}
         #print(actual_res)
         if (not (actual_res==val1 and val1==val2)):
-            print(nx.is_connected(g))
-            print({k:(v-val1[k],v,val1[k]) for k,v in actual_res.iteritems() if v-val1[k]!=0})
-            print({k:(v-val2[k],v,val2[k]) for k,v in actual_res.iteritems() if v-val2[k]!=0})
-            #print("actual_res",actual_res)
+            #print({k:(v-val1[k],v,val1[k]) for k,v in actual_res.iteritems() if v-val1[k]!=0})
+            #print({k:(v-val2[k],v,val2[k]) for k,v in actual_res.iteritems() if v-val2[k]!=0})
+            print("val1",val1)
+            print("val2",val2)
+            print("actual_res",actual_res)
             #print("1",val1)
             #print("2",val2)
             #print("3",val3)

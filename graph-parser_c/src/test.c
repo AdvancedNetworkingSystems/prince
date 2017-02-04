@@ -60,11 +60,12 @@ char* read_file_content(char *filename)
  * 
  */
 int main(int argc, char** argv) {
-    if(argc<3)
-        return 0;
+     if(argc==1)
+         return 0;
     int heuristic=atoi(argv[1]);
     //to remove in case of different test
-    stop_computing_if_unchanged=atoi(argv[2])==1;
+    if(argc==3)
+        stop_computing_if_unchanged=atoi(argv[2])==1;
     c_graph_parser* cgp=new_graph_parser(1, heuristic);
     char * file_content=read_file_content("input.json");
     struct topology *topo=parse_netjson(file_content);

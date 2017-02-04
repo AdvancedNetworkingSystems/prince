@@ -6,11 +6,10 @@
 "refresh" : 1
 },
 "graph-parser":{
-"heuristic"  : 1,
+"heuristic"  : 0,
 "weights"  : 1,
 "recursive"  : 1,
 "stop_unchanged"  : 0,
 "multithreaded"  : 1
 }
 }
-
