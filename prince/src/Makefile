@@ -10,7 +10,7 @@ LIBS = -L../../graph-parser/build/lib -lgraphparser -ldl -ljson-c
 LIBC = -ldl -L../../graph-parser_c/build/lib -lgraphparser -ljson-c -pthread
 BPATH = ../build/
 
-all: all_cpp c_no_lib removecomm
+all: all_cpp removecomm
 all_cpp: preparecpp $(TARGET)  libprince_olsr.so libprince_oonf.so 
 #all_c: preparec $(TARGET_C)  libprince_olsr.so libprince_oonf.so 
 

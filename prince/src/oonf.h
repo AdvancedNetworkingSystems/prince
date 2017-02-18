@@ -32,16 +32,7 @@ SOFTWARE.
 #include "common.h"
 #include "socket.h"
 #include "parser.h"
-
-#ifndef unique
 /*inehrit methods from here */
 #include "plugin_interface.h"
-#else
-routing_plugin* new_plugin_oonf(char* host, int port, c_graph_parser *gp, int json_type);
-int get_topology_oonf(routing_plugin *o);
-int push_timers_oonf(routing_plugin *o, struct timers t);
-void delete_plugin_oonf(routing_plugin* o);
-#endif
-
 
 #endif /* SRC_OONF_H_ */

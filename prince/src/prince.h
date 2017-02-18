@@ -34,10 +34,6 @@ SOFTWARE.
 #include "common.h"
 #include "lib/ini.h"
 #include "parser.h"
-#ifdef unique
-#include "oonf.h"
-#include "olsr.h"
-#endif
 
 struct constants{
 	double O_H, O_TC, sq_lambda_H, sq_lambda_TC, R;
