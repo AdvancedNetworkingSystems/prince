@@ -15,7 +15,7 @@ If you use the main Makefile present in the base directory, the result will be a
 3. if you issue "./scripts/feeds install poprouting", it will prepare the package and make it available
 4. type "make menuconfig", choose "ARM Ltd. Realview board(qemu)" as Target System and check under Network/Routing and Redirection the entry named "poprouting". Make sure under Base System that "libpthread" is included (it should be by default).
 5. send "make" command, this step will take up to 1.5 h the first time
-6. start qemu with "qemu-system-arm -M realview-eb-mpcore -kernel ~/Downloads/openwrt/bin/realview/openwrt-realview-vmlinux-initramfs.elf -nographic -net user,hostfwd=tcp::10022-:22 -net nic" (port 10022 will be our ssh target"
+6. start qemu with "qemu-system-arm -M realview-eb-mpcore -kernel ~/Downloads/openwrt/bin/realview/openwrt-realview-vmlinux-initramfs.elf -nographic -net user,hostfwd=tcp::10022-:22 -net nic" (port 10022 will be our ssh target)
 7. inside qemu change root password to allow ssh coonection, using "passwd"
 8. outside qemu, ssh into it with "ssh root@localhost -p 10022" (it may be necessary to start dhcp on related vlan, "udhcpc -i br-lan")
 9. now you can copy the package inside qemu using "scp -P 10022 ~/Downloads/openwrt/bin/realview/packages/base/poprouting_master_realview.ipk  root@localhost:/"

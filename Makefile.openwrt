@@ -20,12 +20,19 @@ define Package/poprouting
   TITLE:=poprouting
   URL:=http://127.0.0.1
   MAINTAINER:= https://github.com/mb03
-  DEPENDS:= +libjson-c +libpthread  +boost-graph +libstdcpp
+  DEPENDS:= +libjson-c +libpthread +boost-graph +libstdcpp
 endef
 
 define Package/poprouting/install
+	$(INSTALL_DIR) $(1)/usr/lib
 	$(INSTALL_DIR) $(1)/usr/sbin
-	$(INSTALL_BIN) $(PKG_BUILD_DIR)/otuput/* $(1)/usr/sbin/
+	$(INSTALL_DATA) $(PKG_BUILD_DIR)/graph-parser/build/libgraphparser.so $(1)/usr/lib/
+	$(INSTALL_BIN) $(PKG_BUILD_DIR)/output/libprince_olsr_c.so  $(1)/usr/lib/
+	$(INSTALL_BIN) $(PKG_BUILD_DIR)/output/libprince_olsr.so  $(1)/usr/lib/
+	$(INSTALL_BIN) $(PKG_BUILD_DIR)/output/libprince_oonf_c.so  $(1)/usr/lib/
+	$(INSTALL_BIN) $(PKG_BUILD_DIR)/output/libprince_oonf.so  $(1)/usr/lib/
+	$(INSTALL_BIN) $(PKG_BUILD_DIR)/output/prince $(1)/usr/sbin/
+	$(INSTALL_BIN) $(PKG_BUILD_DIR)/output/prince_c $(1)/usr/sbin/
 endef
 
 $(eval $(call BuildPackage,poprouting))
