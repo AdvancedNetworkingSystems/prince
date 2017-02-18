@@ -5,7 +5,7 @@ TARGET = libgraphcparser
 OBJS = $(SRCS:.c=.o)
 CFLAGS = -g -fPIC -pthread
 LDFLAGS = -shared -Wl,-soname,$(TARGET).so
-BPATH = ../build/lib/
+BPATH = ../build/
 
 
 # define the C object files

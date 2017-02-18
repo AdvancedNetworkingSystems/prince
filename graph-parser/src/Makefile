@@ -8,7 +8,7 @@ TARGET = libgraphparser
 OBJS = $(SRCS:.cpp=.o)
 CXXFLAGS = -std=c++11 -fPIC -g
 LDFLAGS = -shared -Wl,-soname,$(TARGET).so
-BPATH = ../build/lib/
+BPATH = ../build/
 
 
 # define the C object files

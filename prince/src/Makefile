@@ -6,8 +6,8 @@ OBJS = $(SRCS:.c=.o)
 OBJS_C = $(SRCS:.c=.o)
 CFLAGS = -ansi -g -fPIC -D_GNU_SOURCE -DBOOST_LOG_DYN_LINK
 CCFLAGS = --std=c++11 -g 
-LIBS = -L../../graph-parser/build/lib -lgraphparser -ldl -ljson-c
-LIBC = -ldl -L../../graph-parser_c/build/lib -lgraphparser -ljson-c -pthread
+LIBS = -L../../graph-parser/build -lgraphparser -ldl -ljson-c
+LIBC = -ldl -L../../graph-parser_c/build -lgraphparser -ljson-c -pthread
 BPATH = ../build/
 
 all: all_cpp removecomm
