@@ -12,7 +12,7 @@ If you use the main Makefile present in the base directory, the result will be a
 #How To Compile and Run on OpenWRT and Qemu
 1. download latest stable versione of openWRT (e.g. git clone -b chaos_calmer git://github.com/openwrt/openwrt.git)
 2. create a folder named openwrt/package/poprouting/ and copy there the Makefile.openwrt, named simply Makefile
-3. if you issue "./scripts/feeds install poprouting", it will prepare the package and made it available
+3. if you issue "./scripts/feeds install poprouting", it will prepare the package and make it available
 4. type "make menuconfig", choose "ARM Ltd. Realview board(qemu)" as Target System and check under Network/Routing and Redirection the entry named "poprouting". Make sure under Base System that "libpthread" is included (it should be by default).
 5. send "make" command, this step will take up to 1.5 h the first time
 6. start qemu with "qemu-system-arm -M realview-eb-mpcore -kernel ~/Downloads/openwrt/bin/realview/openwrt-realview-vmlinux-initramfs.elf -nographic -net user,hostfwd=tcp::10022-:22 -net nic" (port 10022 will be our ssh target"

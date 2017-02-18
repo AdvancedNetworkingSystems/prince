@@ -24,6 +24,11 @@ define Package/poprouting
 endef
 
 
+define Build/Prepare
+	$(INSTALL_DIR) $(PKG_BUILD_DIR)/graph-parser/build
+	$(INSTALL_DIR) $(PKG_BUILD_DIR)/graph-parser/build/lib
+endef
+
 
 define Package/poprouting/install
 	$(INSTALL_DIR) $(1)/usr/sbin
