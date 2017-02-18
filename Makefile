@@ -15,5 +15,6 @@ clean:
 	rm *.o
 out:
 	mkdir -p output
+	mkdir -p prince/build/
 	
 	
