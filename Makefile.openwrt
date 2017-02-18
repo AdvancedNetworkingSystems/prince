@@ -23,13 +23,6 @@ define Package/poprouting
   DEPENDS:= +libjson-c +libpthread  +boost-graph +libstdcpp
 endef
 
-
-define Build/Prepare
-	$(INSTALL_DIR) $(PKG_BUILD_DIR)/graph-parser/build
-	$(INSTALL_DIR) $(PKG_BUILD_DIR)/graph-parser/build/lib
-endef
-
-
 define Package/poprouting/install
 	$(INSTALL_DIR) $(1)/usr/sbin
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/otuput/* $(1)/usr/sbin/

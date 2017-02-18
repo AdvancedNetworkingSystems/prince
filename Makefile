@@ -16,5 +16,6 @@ clean:
 out:
 	mkdir -p output
 	mkdir -p prince/build/
+	mkdir -p graph-parser/build/
 	
 	
