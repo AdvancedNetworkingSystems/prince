@@ -70,8 +70,8 @@ class Gen:
             Netjson['links'].append(e)
         return Netjson
 
-    def genCNGraph(self, N):
-        g = CNGenerator(N=N)
+    def genCNGraph(self, N, seed=None):
+        g = CNGenerator(N=N,seed=seed)
         r = g.gen_core_network()
         g.attach_leave_nodes()
         for node in g.graph.nodes():
