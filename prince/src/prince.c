@@ -86,6 +86,7 @@ main(int argc, char* argv[]){
     stop_computing_if_unchanged=ph->stop_unchanged;
     ph->gp = new_graph_parser(ph->weights, ph->heuristic);
     struct graph_parser * gp_p=(struct graph_parser *)ph->gp ;
+    printf("hosthosthost %s\n",ph->host);
     ph->rp = new_plugin_p(ph->host, ph->port, ph->gp, ph->json_type);
     do{
         sleep(ph->refresh);
@@ -292,7 +293,7 @@ bool parse_json_config(char *filepath,struct prince_handler *ph){
                     if(ph->proto<0&&strcmp(key_i, "protocol")==0){
                         if(json_object_get_type(val_i)==json_type_string){
                             const char * content=json_object_get_string(val_i);
-                            if(strcmp(content, "oslr")==0){
+			    if(strcmp(content, "oslr")==0){
                                 ph->proto=0;
                                 completed++;
                             }else if(strcmp(content, "oonf")==0){
@@ -300,9 +301,10 @@ bool parse_json_config(char *filepath,struct prince_handler *ph){
                                 completed++;
                             }
                         }
-                    }else if(ph->host==0<0&&strcmp(key_i, "host")==0){ 
+                    }else if(ph->host==0&&strcmp(key_i, "host")==0){ 
                         if(json_object_get_type(val_i)==json_type_string){
                             const char * content=json_object_get_string(val_i);
+                            printf("b %s\n",content);
                             ph->host=strdup(content);
                             completed++;
                             

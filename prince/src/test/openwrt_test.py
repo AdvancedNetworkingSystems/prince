@@ -70,8 +70,11 @@ def test(graph,port=1234):
             json_netjson = json.dumps(composeNetJson(graph))
             cs.send(json_netjson)
             cs.close()
+            print("a")
         else:
+            print("b")
             if data:
+                print("c")
                 toks = p.findall(data)
                 if toks:
                     exec_time = float(toks[2])
@@ -86,10 +89,13 @@ def main():
         file="data/"+str(i*100)
         mkdir(file)
         executions= []
+        print(i)
         for j in range(10):
+            print(j)
             g=nx.read_weighted_edgelist(file+"/"+str(j))
             executions.append(test(g))
         print(mean(executions),var(executions))
+        break
 
 if __name__ == "__main__":
     main()
