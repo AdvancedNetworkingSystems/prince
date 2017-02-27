@@ -129,7 +129,6 @@ main(int argc, char* argv[]){
         if(!get_topology_p(ph->rp)){
             printf("Error getting topology");
             continue;
-            
         }
         if(ph->rp->self_id){
             if(ph->self_id!=0)

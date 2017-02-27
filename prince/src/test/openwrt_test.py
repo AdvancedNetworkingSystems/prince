@@ -58,7 +58,7 @@ def composeNetJson(graph):
 
 
 class server:
-    def __init__(self,port=8080):
+    def __init__(self,port=2020):
         self.s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.s.bind(('', port))
         self.s.listen(10)
@@ -87,11 +87,12 @@ class server:
 
 def main():
     s=server()
-    for i in range(16,21):
+    for i in range(2,21):
         file="data/"+str(i*100)
         mkdir(file)
         executions= []
         for j in range(10):
+            print(str(round(float(((i-2)*10+j+1))/1.9,2))+"%")
             g=nx.read_weighted_edgelist(file+"/"+str(j))
             executions.append(s.get_timer(g))
         print(i*100,mean(executions),var(executions))
@@ -99,7 +100,7 @@ def main():
 
 if __name__ == "__main__":
     #print(datetime.datetime.now())
-    time.sleep(2)
+    time.sleep(20)
     print(datetime.datetime.now())
     main()
     print(datetime.datetime.now())
