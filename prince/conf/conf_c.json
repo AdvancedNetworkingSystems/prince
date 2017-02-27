@@ -2,7 +2,7 @@
 	"proto": {
 		"protocol": "oonf",
 		"host": "127.0.0.1",
-		"port": 1234,
+		"port": 8080,
 		"refresh": 1
 	},
 	"graph-parser": {

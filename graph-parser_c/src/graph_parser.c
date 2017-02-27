@@ -45,7 +45,7 @@ int graph_parser_compose_degree_bc_map(c_graph_parser* v, map_id_degree_bc *map)
     int i=0;
     for(nl=gp->g.nodes.head;nl!=0;nl=nl->next){
         struct node_graph * ng=(struct node_graph*)nl->content;
-        map->map[i].id = (char*)ng->name ;
+        map->map[i].id = strdup(ng->name) ;
         map->map[i].bc = gp->bc[ng->node_graph_id];
         map->n_edges+=ng->neighbours.size;
         map->map[i].degree = ng->neighbours.size;
@@ -57,7 +57,8 @@ int graph_parser_compose_degree_bc_map(c_graph_parser* v, map_id_degree_bc *map)
 void delete_graph_parser(void* v){
     struct graph_parser * gp=(struct graph_parser *)v;
     free_graph(&gp->g);
+    if(gp->bc!=0)
     free(gp->bc);
     free(gp);
-    gp->bc=0;
+    //gp->bc=0;
 }

@@ -28,6 +28,40 @@
 #include "prince.h"
 #include <unistd.h>
 #include <time.h>
+/*TODO: remove*/
+
+char* read_file_content(char *filename)
+{
+    char *buffer = NULL;
+    int string_size, read_size;
+    FILE *handler = fopen(filename, "r");
+    
+    if (handler)
+    {
+        
+        fseek(handler, 0, SEEK_END);
+        string_size = ftell(handler);
+        rewind(handler);
+        
+        buffer = (char*) malloc(sizeof(char) * (string_size + 1) );
+        
+        read_size = fread(buffer, sizeof(char), string_size, handler);
+        
+        buffer[string_size] = '\0';
+        
+        if (string_size != read_size)
+        {
+            free(buffer);
+            buffer = NULL;
+        }
+        
+        fclose(handler);
+    }
+    
+    return buffer;
+}
+
+
 
 routing_plugin* (*new_plugin_p)(char* host, int port, c_graph_parser *gp, int json_type);
 int (*get_topology_p)(routing_plugin *o);
@@ -50,6 +84,7 @@ main(int argc, char* argv[]){
         return -1;
     
 #ifndef unique
+    ph->bc_degree_map = (map_id_degree_bc *) malloc(sizeof(map_id_degree_bc));
     /*cycle each 'refresh' seconds*/
     do{
         sleep(ph->refresh);
@@ -68,10 +103,12 @@ main(int argc, char* argv[]){
         graph_parser_compose_degree_bc_map(ph->gp, ph->bc_degree_map);
         ph->opt_t.exec_time = (double)(end - start) / CLOCKS_PER_SEC;
         printf("Calculation time: %fs\n", ph->opt_t.exec_time);
+        printf("==");
         if (!compute_timers(ph)){
             delete_prince_handler(ph);
             continue;
         }
+        printf("==");
         printf("\nId of the node we are computing is: %s\n", ph->self_id);
         if (!push_timers_p(ph->rp, ph->opt_t)){
             delete_prince_handler(ph);
@@ -86,7 +123,6 @@ main(int argc, char* argv[]){
     stop_computing_if_unchanged=ph->stop_unchanged;
     ph->gp = new_graph_parser(ph->weights, ph->heuristic);
     struct graph_parser * gp_p=(struct graph_parser *)ph->gp ;
-    printf("hosthosthost %s\n",ph->host);
     ph->rp = new_plugin_p(ph->host, ph->port, ph->gp, ph->json_type);
     do{
         sleep(ph->refresh);
@@ -95,33 +131,38 @@ main(int argc, char* argv[]){
             continue;
             
         }
-        if(ph->rp->self_id)
+        if(ph->rp->self_id){
+            if(ph->self_id!=0)
+                free(ph->self_id);
             ph->self_id = strdup(ph->rp->self_id);
+        }
         clock_t start = clock();
         graph_parser_calculate_bc(ph->gp);
         clock_t end = clock();
+        ph->bc_degree_map = (map_id_degree_bc *) malloc(sizeof(map_id_degree_bc));
+        ph->bc_degree_map->size=gp_p->g.nodes.size;
+        ph->bc_degree_map->map=0;
         graph_parser_compose_degree_bc_map(ph->gp, ph->bc_degree_map);
         ph->opt_t.exec_time = (double)(end - start) / CLOCKS_PER_SEC;
-        printf("Calculation time: %fs\n", ph->opt_t.exec_time);
+        printf("\nCalculation time: %fs\n", ph->opt_t.exec_time);
         if (!compute_timers(ph)){
             delete_prince_handler(ph);
             continue;
         }
-        printf("\nId of the node we are computing is: %s\n", ph->self_id);
+        printf("Id of the node we are computing is: %s\n", ph->self_id);
         if (!push_timers_p(ph->rp, ph->opt_t)){
             delete_prince_handler(ph);
             continue;
         }
         free(gp_p->bc);
         gp_p->bc=0;
+        bc_degree_map_delete(ph->bc_degree_map);
         free_graph(&(gp_p->g));
         init_graph(&(gp_p->g));
     }while(ph->refresh);
-    delete_plugin_p(ph->rp);
     delete_prince_handler(ph);
 #endif	
     return 0;
-    
 }
 
 /**
@@ -134,29 +175,30 @@ new_prince_handler(char * conf_file){
     struct prince_handler* ph = (struct prince_handler*) malloc(sizeof(struct prince_handler));
     ph->def_t.h_timer=2.0;
     ph->def_t.tc_timer=5.0;
-    ph->bc_degree_map = (map_id_degree_bc *) malloc(sizeof(map_id_degree_bc));
+    /* ph->bc_degree_map = (map_id_degree_bc *) malloc(sizeof(map_id_degree_bc));*/
     /*setting to undefined all params*/
     ph->proto=-1;
     ph->host=0;
     ph->port=-1;
     ph->refresh=-1;
+    ph->self_id=0;
     if(read_config_file(ph, conf_file)==0)
         return 0;
     switch(ph->proto){
         case 0: /*olsr*/
             ph->json_type=0;
-	    #ifndef unique
+#ifndef unique
             ph->plugin_handle = dlopen ("libprince_olsr.so", RTLD_LAZY);
-	    #else
+#else
 	    ph->plugin_handle = dlopen ("libprince_olsr_c.so", RTLD_LAZY);
-	    #endif
+#endif
             break;
         case 1: /*oonf*/
-	    #ifndef unique
+#ifndef unique
             ph->plugin_handle = dlopen ("libprince_oonf.so", RTLD_LAZY);
-	    #else
+#else
 	    ph->plugin_handle = dlopen ("libprince_oonf_c.so", RTLD_LAZY);
-	    #endif
+#endif
             break;
     }
     if(!ph->plugin_handle)
@@ -166,6 +208,14 @@ new_prince_handler(char * conf_file){
     get_topology_p = (int (*)(routing_plugin *o)) dlsym(ph->plugin_handle, "get_topology");
     push_timers_p = (int (*)(routing_plugin *o, struct timers t)) dlsym(ph->plugin_handle, "push_timers");
     delete_plugin_p = (void (*)(routing_plugin *o)) dlsym(ph->plugin_handle, "delete_plugin");
+#ifdef unique//To remove
+#include "oonf.h" 
+    new_plugin_p = new_plugin;
+    get_topology_p = get_topology;
+    push_timers_p = push_timers;
+    delete_plugin_p =delete_plugin;
+    
+#endif
     return ph;
 }
 /**
@@ -174,8 +224,10 @@ new_prince_handler(char * conf_file){
  */
 void delete_prince_handler(struct prince_handler* ph){
     delete_plugin_p(ph->rp);
-    bc_degree_map_delete(ph->bc_degree_map);
     dlclose(ph->plugin_handle);
+    char* tmp=dlerror();
+    free(tmp);
+    /*bc_degree_map_delete(ph->bc_degree_map);*/
     free(ph->self_id);
     free(ph->host);
     free(ph);
@@ -266,22 +318,7 @@ const char *get_filename_ext(const char *filename) {
  * @return Whether the reading ended successfully 
  */
 bool parse_json_config(char *filepath,struct prince_handler *ph){
-    char * buffer = 0;
-    long length;
-    FILE * f = fopen (filepath, "rb");
-    
-    if (f)
-    {
-        fseek (f, 0, SEEK_END);
-        length = ftell (f);
-        fseek (f, 0, SEEK_SET);
-        buffer = malloc (length);
-        if (buffer)
-        {
-            fread (buffer, 1, length, f);
-        }
-        fclose (f);
-    }
+    char * buffer = read_file_content(filepath);
     int completed=0;
     bool heuristic_set=false,weights_set=false,
     recursive_set=false,stop_unchanged_set=false,multithreaded_set=false;
@@ -304,14 +341,13 @@ bool parse_json_config(char *filepath,struct prince_handler *ph){
                     }else if(ph->host==0&&strcmp(key_i, "host")==0){ 
                         if(json_object_get_type(val_i)==json_type_string){
                             const char * content=json_object_get_string(val_i);
-                            printf("b %s\n",content);
                             ph->host=strdup(content);
                             completed++;
                             
                         }
                     }else if(ph->port<0&&strcmp(key_i, "port")==0){ 
                         if(json_object_get_type(val_i)==json_type_int){
-                            ph->port=json_object_get_int(val_i);
+			    ph->port=json_object_get_int(val_i);
                             completed++;
                         }
                     }else if(strcmp(key_i, "refresh")==0){ 
@@ -356,10 +392,10 @@ bool parse_json_config(char *filepath,struct prince_handler *ph){
         }
     }
     if(jobj!=0){
-        json_object_object_del(jobj, "");
+        json_object_put(jobj);
+        /* json_object_object_del(jobj, "");*/
     }
-    if(length>0)
-        free(buffer);
+    free(buffer);
     if(completed==4&&heuristic_set && weights_set && recursive_set 
             && stop_unchanged_set && multithreaded_set)
         return true;

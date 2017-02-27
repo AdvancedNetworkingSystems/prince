@@ -1,8 +1,10 @@
 from graph_lib.graph_generator import Gen
 from random import Random
 from collections import OrderedDict
-import time,re,os,socket,json,networkx as nx
+import time,re,os,json,datetime,networkx as nx
 from numpy import var,mean
+import socket
+
 
 def mkdir(path):
     if not os.path.exists(path):
@@ -54,51 +56,53 @@ def composeNetJson(graph):
         Netjson['links'].append(e)
     return Netjson
 
-def test(graph,port=1234):
-    serversocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    serversocket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-    serversocket.bind(('localhost', port))
-    serversocket.listen(5)
-    p = re.compile(r"\d*\.\d+")
-    executions = []
-    end=False
-    exec_time=0
-    while not end:
-        (cs, address) = serversocket.accept()
-        data = cs.recv(1024).decode("utf-8")
-        if data.strip() == "/netjsoninfo filter graph ipv6_0/quit":
-            json_netjson = json.dumps(composeNetJson(graph))
-            cs.send(json_netjson)
-            cs.close()
-            print("a")
-        else:
-            print("b")
-            if data:
-                print("c")
+
+class server:
+    def __init__(self,port=8080):
+        self.s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.s.bind(('', port))
+        self.s.listen(10)
+    def get_timer(self,graph):
+        end=False
+        p = re.compile(r"\d*\.\d+")
+        exec_time=0
+        while not end:
+            #wait to accept a connection - blocking call
+            conn, addr = self.s.accept()
+            data=conn.recv(1024)
+            if data.strip() == "/netjsoninfo filter graph ipv6_0/quit":
+                json_netjson = json.dumps(composeNetJson(graph))
+                conn.send(json_netjson)
+                conn.close()
+            elif data:
                 toks = p.findall(data)
                 if toks:
                     exec_time = float(toks[2])
-                    cs.close()
+                    conn.close()
                     end=True
-    return exec_time
+        return exec_time
+    def __exit__(self):
+         self.s.close()
 
 
-#generate_graphs()
 def main():
-    for i in range(2,16):
+    s=server()
+    for i in range(16,21):
         file="data/"+str(i*100)
         mkdir(file)
         executions= []
-        print(i)
         for j in range(10):
-            print(j)
             g=nx.read_weighted_edgelist(file+"/"+str(j))
-            executions.append(test(g))
-        print(mean(executions),var(executions))
-        break
+            executions.append(s.get_timer(g))
+        print(i*100,mean(executions),var(executions))
+    s.__exit__()
 
 if __name__ == "__main__":
+    #print(datetime.datetime.now())
+    time.sleep(2)
+    print(datetime.datetime.now())
     main()
+    print(datetime.datetime.now())
 
 
 
