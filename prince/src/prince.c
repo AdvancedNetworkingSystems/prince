@@ -208,14 +208,6 @@ new_prince_handler(char * conf_file){
     get_topology_p = (int (*)(routing_plugin *o)) dlsym(ph->plugin_handle, "get_topology");
     push_timers_p = (int (*)(routing_plugin *o, struct timers t)) dlsym(ph->plugin_handle, "push_timers");
     delete_plugin_p = (void (*)(routing_plugin *o)) dlsym(ph->plugin_handle, "delete_plugin");
-#ifdef unique//To remove
-#include "oonf.h" 
-    new_plugin_p = new_plugin;
-    get_topology_p = get_topology;
-    push_timers_p = push_timers;
-    delete_plugin_p =delete_plugin;
-    
-#endif
     return ph;
 }
 /**
