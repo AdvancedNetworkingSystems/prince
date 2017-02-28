@@ -11,9 +11,12 @@
 
 #include <pthread.h>
 #include "biconnected.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
+    
+
 
 /**
  * This is the algorithm described in the linked papers.

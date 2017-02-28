@@ -50,7 +50,7 @@ struct neighbor{
 	struct neighbor *next;
 };
 
-
+struct topology * parse_jsoninfo(char *buffer);
 struct topology * parse_netjson(char* buffer);
 int add_node(struct topology * topo, const char *id);
 struct topology * _init_topo(int type);
@@ -59,5 +59,6 @@ void destroy_topo(struct topology *topo);
 struct node* find_node(struct topology *topo, const char *id);
 void bc_degree_map_delete(map_id_degree_bc * map);
 
+void destroy_topo(struct topology *topo);
 
 #endif /* SRC_PARSER_H_ */

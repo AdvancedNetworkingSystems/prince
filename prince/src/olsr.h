@@ -9,11 +9,11 @@
 #define SRC_OLSR_H_
 
 
-#include "plugin_interface.h"
+
 #include "common.h"
 #include "socket.h"
-
-
+/*inehrit methods from here */
+#include "plugin_interface.h"
 
 
 

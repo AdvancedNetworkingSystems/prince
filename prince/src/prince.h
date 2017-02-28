@@ -10,7 +10,6 @@
 
 #include <math.h>
 #include <dlfcn.h>
-#include <unistd.h>
 #include "common.h"
 #include "lib/ini.h"
 #include "parser.h"
@@ -28,14 +27,15 @@ struct prince_handler{
 	c_graph_parser *gp;
 	map_id_degree_bc *bc_degree_map;
 	routing_plugin *rp;
-	int proto, heuristic, weights, port, refresh, json_type, sleep_onfail;
+	int proto,port,refresh,json_type;
+	bool heuristic, weights, recursive, stop_unchanged, multithreaded;
 	void *plugin_handle;
 };
 
 
 int main(int argc, char *argv[]);
 
-struct prince_handler* new_prince_handler();
+struct prince_handler* new_prince_handler(char * conf_file);
 int compute_constants(struct prince_handler *ph);
 int compute_timers(struct prince_handler *ph);
 void delete_prince_handler(struct prince_handler*);
