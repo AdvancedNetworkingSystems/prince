@@ -13,7 +13,6 @@ BPATH = ../build/
 all: all_cpp removecomm
 all_cpp: preparecpp $(TARGET)  libprince_olsr.so libprince_oonf.so 
 #all_c: preparec $(TARGET_C)  libprince_olsr.so libprince_oonf.so 
-
 $(TARGET) : preparecpp $(OBJS)
 	$(CXX) $(CCFLAGS) -o $(BPATH)$(TARGET) $(OBJS) $(LIBS)
 $(TARGET_C) : preparec $(OBJS_C)
@@ -38,5 +37,3 @@ clean:
 	$(RM) *.o *.so $(TARGET)
 	$(RM) $(BPATH)*.o *.so $(BPATH)$(TARGET)
 	$(RM) lib/*.o
-
-

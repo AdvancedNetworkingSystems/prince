@@ -19,16 +19,9 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  SOFTWARE.
  */
-/*
- * prince.c
- *
- *  Created on: 12 mag 2016
- *      Author: gabriel
- */
 #include "prince.h"
 #include <unistd.h>
 #include <time.h>
-/*TODO: remove*/
 
 char* read_file_content(char *filename)
 {
@@ -60,7 +53,6 @@ char* read_file_content(char *filename)
     
     return buffer;
 }
-
 
 
 routing_plugin* (*new_plugin_p)(char* host, int port, c_graph_parser *gp, int json_type);

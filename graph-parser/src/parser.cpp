@@ -8,6 +8,7 @@
 
  void parse_simplegraph(struct topology *topo,  GraphManager &gm){
 	 struct node *punt;
+   gm.ResetVerticesAndEdgesIndexMap();
 	 for(punt=topo->first; punt!=0; punt=punt->next){
 		 struct neighbor* neigh;
 		 for(neigh=punt->neighbor_list; neigh!=0; neigh=neigh->next){
