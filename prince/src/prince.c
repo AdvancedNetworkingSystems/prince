@@ -52,18 +52,20 @@ int main(int argc, char* argv[])
 	}
 	struct prince_handler *ph= new_prince_handler(argv[1]);
 	if(ph==0)
-	return -1;
+		return -1;
 
 	recursive=ph->recursive;
 	multithread=ph->multithreaded;
 	stop_computing_if_unchanged=ph->stop_unchanged;
 	ph->gp = new_graph_parser(ph->weights, ph->heuristic);
+	int go = 1;
 	struct graph_parser * gp_p=(struct graph_parser *)ph->gp ;
 	ph->rp = new_plugin_p(ph->host, ph->port, ph->gp, ph->json_type);
 	do{
 		sleep(ph->refresh);
 		if(!get_topology_p(ph->rp)){
-			printf("Error getting topology");
+			printf("Error getting topology\n");
+			sleep(ph->sleep_onfail);
 			continue;
 		}
 		if(ph->rp->self_id){
@@ -94,7 +96,7 @@ int main(int argc, char* argv[])
 		bc_degree_map_delete(ph->bc_degree_map);
 		free_graph(&(gp_p->g));
 		init_graph(&(gp_p->g));
-	}while(ph->refresh);
+	}while(go);
 	delete_prince_handler(ph);
 	return 0;
 }
@@ -116,6 +118,7 @@ struct prince_handler* new_prince_handler(char * conf_file)
 	ph->port=-1;
 	ph->refresh=-1;
 	ph->self_id=0;
+	ph->sleep_onfail = 1;
 	if(read_config_file(ph, conf_file)==0)
 	return 0;
 	switch(ph->proto){

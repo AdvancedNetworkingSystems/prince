@@ -6,7 +6,7 @@ It fetch the topology data from the routing protocol, calculate the betweenness 
 
 #How to install it:
 ##Linux
-Dependencies: libboost, libjson-c
+Dependencies: libjson-c
 
 Clone the repository in your pc with :
 `git clone https://github.com/gabri94/poprouting.git`
@@ -14,26 +14,16 @@ Clone the repository in your pc with :
 Enter in the directory :
 `cd poprouting`
 
-Checkout the v0.1 :
-`git checkout v0.1`
-
 Compile and install:
 `make && make install`
 
 
 
 ##Openwrt / LEDE
-To use poprouting with OpenWRT you need to build yourself the openwrt image with the toolchain.
-Create a folder in the openwrt toolchain root:
-`mkdir package/poprouting`
-
-Copy the makefile for OpenWRT from the git root to the new folder
-`cp ../poprouting/Makefile.openwrt package/poprouting/Makefile`
-
-Update the feeds:
-`./scripts/feeds install poprouting`
-
-Then run `make menuconfig` select the package and build the image
+Since v0.2 prince is in the LEDE/OpenWRT routing feeds.
+You just need to type:
+opkg update
+opkg install prince
 
 #How to use it
 ## Prince Configuration
@@ -69,6 +59,7 @@ This is a configuration example that works with prince:
         stderr false
         file /var/log/olsrd2.log
         info all
+
 [interface]
         bindto        -0.0.0.0/0
         bindto        -::1/128

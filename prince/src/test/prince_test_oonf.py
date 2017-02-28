@@ -36,7 +36,7 @@ class PrinceTestOONF:
         while(self.go):
             #READ FROM SHARED FIFO QUEUE
             order = self.workers_order_q.get()
-            print ("thread "+ str(worker_id)+" got an order\n")
+            print ("thread " + str(worker_id)+" got an order\n")
             #Gen the graph
             T = int(order['N'] * 1.2)
             E = order['N'] * 1.8

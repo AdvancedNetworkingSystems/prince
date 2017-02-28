@@ -20,7 +20,7 @@ struct prince_handler{
 	c_graph_parser *gp;
 	map_id_degree_bc *bc_degree_map;
 	routing_plugin *rp;
-	int proto,port,refresh,json_type;
+	int proto,port,refresh,json_type, sleep_onfail;
 	bool heuristic, weights, recursive, stop_unchanged, multithreaded;
 	void *plugin_handle;
 };
