@@ -103,12 +103,10 @@ main(int argc, char* argv[]){
         graph_parser_compose_degree_bc_map(ph->gp, ph->bc_degree_map);
         ph->opt_t.exec_time = (double)(end - start) / CLOCKS_PER_SEC;
         printf("Calculation time: %fs\n", ph->opt_t.exec_time);
-        printf("==");
         if (!compute_timers(ph)){
             delete_prince_handler(ph);
             continue;
         }
-        printf("==");
         printf("\nId of the node we are computing is: %s\n", ph->self_id);
         if (!push_timers_p(ph->rp, ph->opt_t)){
             delete_prince_handler(ph);
