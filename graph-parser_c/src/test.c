@@ -63,7 +63,9 @@ int main(int argc, char** argv) {
     if(argc==1)
         return 0;
     int heuristic=atoi(argv[1]);
+    printf("heuristic %d\n",heuristic);
     //to remove in case of different test
+    multithread=true;
     if(argc==3){
         stop_computing_if_unchanged=atoi(argv[2])==1;
     }

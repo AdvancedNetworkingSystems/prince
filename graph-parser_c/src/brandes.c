@@ -504,8 +504,6 @@ void compute_heuristic_wo_scale(struct graph * g,
                     } 
                 } 
                 bc[i]-=weight_sum;
-            }else {
-                bc[i]=0;
             }
         }
         i++;
@@ -686,13 +684,14 @@ double * betwenness_heuristic(struct graph * g, bool recursive){
         }
         free(args);
     }else{
-        
         struct sub_graph * sg=(struct sub_graph *)dequeue_list(connected_components_subgraphs);
-        if(sg->connected_components.size>1||use_heu_on_single_biconnected){;
+        if(sg->connected_components.size>1||use_heu_on_single_biconnected){
+            
         compute_heuristic_wo_scale(g,&(sg->connected_components),
                 is_articulation_point,ret_val,connected_component_indexes,
                 sg->size,connected_component_index++);
         }else {
+            
             clear_list(connected_components_subgraphs);
             free(connected_components_subgraphs);
             free(is_articulation_point);
