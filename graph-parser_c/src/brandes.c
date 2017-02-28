@@ -504,8 +504,6 @@ void compute_heuristic_wo_scale(struct graph * g,
                     } 
                 } 
                 bc[i]-=weight_sum;
-            }else {
-                bc[i]=0;
             }
         }
         i++;
