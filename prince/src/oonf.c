@@ -35,8 +35,10 @@ int get_topology(routing_plugin *o)
 		close(sd);
 		return 0;
 	}
-	if(o->recv_buffer!=0)
+	if(o->recv_buffer!=0){
             free(o->recv_buffer);
+	    o->recv_buffer=0;
+    	}
 	if(!_telnet_receive(sd, &(o->recv_buffer))){
 		printf("cannot receive \n");
 		close(sd);

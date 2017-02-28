@@ -1,4 +1,4 @@
-/* 
+/*
  * File:   brandes.c
  * Author: principale
  *
@@ -33,7 +33,7 @@ bool use_heu_on_single_biconnected=true;
  * This is not perfectly working, i.e. compared to another language (like python
  * Networkx) some errors will be always present, and will be larger the largest
  * a graph is. So this is an imperfect solution due to different language
- * mathematical approximation. 
+ * mathematical approximation.
  */
 float decimal_places=1000000000;
 
@@ -44,17 +44,17 @@ inline double round_decimal(double d){
 
 const int INFINITY_DIST=INT_MAX;
 /**
- * This function implements brandes algorithm. Given a weighted graph, 
+ * This function implements brandes algorithm. Given a weighted graph,
  * it returns an array of value, in which for every node identifier there is
  * its betwenness centrality value. For each node, it computes all routes to all
- * other node, and since it is weighted, uses Dijkstra algorithm. 
+ * other node, and since it is weighted, uses Dijkstra algorithm.
  * After this, it computes for each link the contribute to the current node.
- * As last operation, a normalization is compute in the number of nodes ( see 
+ * As last operation, a normalization is compute in the number of nodes ( see
  * http://algo.uni-konstanz.de/publications/b-vspbc-08.pdf)
- * 
- * @param g A (undirected) graph for which we want to compute centrality 
+ *
+ * @param g A (undirected) graph for which we want to compute centrality
  * of nodes.
- * @param endpoints Whether we want to include endpoints in final value. It is 
+ * @param endpoints Whether we want to include endpoints in final value. It is
  * always used as true when calling this function with next parameter null.
  * @param traffic_matrix It is either 0 or a matrix of integers. In first case,
  * normal brandes algorithm run, in second the heuristic one, considering
@@ -78,7 +78,7 @@ double * betweeness_brandes(struct graph * g, bool endpoints,int ** traffic_matr
         init_list(pred +i);
     }
     struct node_list * n=0;
-    
+
     for(n=g->nodes.head;n!=0; n=n->next){
         struct node_graph* s=(struct node_graph*) n->content;
         for( i =0;i<node_num;i++){
@@ -114,7 +114,7 @@ double * betweeness_brandes(struct graph * g, bool endpoints,int ** traffic_matr
                 }
             }
         }
-        
+
         //accumulation
         if(traffic_matrix!=0){
             //endpoints included by default
@@ -130,8 +130,8 @@ double * betweeness_brandes(struct graph * g, bool endpoints,int ** traffic_matr
                 if(w!=s){
                     ret_val[w->node_graph_id]+=delta[w->node_graph_id]+communication_intensity;
                 }
-            }   
-            
+            }
+
         }else if(endpoints){
             ret_val[s->node_graph_id]+=(S.size-1);
             while(!is_empty_list(&S)){
@@ -177,13 +177,13 @@ double * betweeness_brandes(struct graph * g, bool endpoints,int ** traffic_matr
             //ret_val[ng->node_graph_id]=round_decimal(ret_val[ng->node_graph_id]);
             nl=nl->next;
         }
-        
+
     }
     return ret_val;
 }
 
 
-// normal defines whether the pair is (B,v) (if false, (v,B)). Since ordering 
+// normal defines whether the pair is (B,v) (if false, (v,B)). Since ordering
 // would be a major computational effort, a boolean ("normal") indicates that.
 struct cc_node_edge{
     struct connected_component * from;
@@ -195,11 +195,11 @@ struct cc_node_edge{
 /**
  * Algorithm for heuristic  (not described explicitly in the paper)
  * It initializes a link from a cutpoint to a component.
- * 
+ *
  * @param from The connected component on the end of the link
  * @param to The node (in the connected component) originating the link
  * @param weight The edge weight
- * @param normal Whether in the computation represent a normal couple 
+ * @param normal Whether in the computation represent a normal couple
  * node-component or a component-node one. Used in compute_component_tree_weights
  * @return the newly created link
  */
@@ -216,7 +216,7 @@ struct cc_node_edge * init_cc_node_edge(struct connected_component * from,struct
  * It initializes a link from a cutpoint to a component from a given one.
  * Since they are used as normal and reversed, we need to clone them to avoid
  * changing already collected link.
- * 
+ *
  * @param cne A base link to clone
  * @return a clone of the original link
  */
@@ -232,12 +232,12 @@ struct cc_node_edge * clone_cc_node_edge(struct cc_node_edge * cne){
 /**
  * Algorithm for heuristic  (not described explicitly in the paper)
  * Given a connected components list in graph and the list of articulation
- * point it creates a tree representing the inter-component traffic. It will be 
+ * point it creates a tree representing the inter-component traffic. It will be
  * used to remove redundant traffic from cutpoints in final centrality value.
- * 
- * @param g A weighted graph. It needs to be connected or either you have to 
+ *
+ * @param g A weighted graph. It needs to be connected or either you have to
  * call this function for every connected component (i.e. for every subgraph)
- * @param connected_components The list of the connected components inside 
+ * @param connected_components The list of the connected components inside
  * the graph (or either a subgraph of it)
  * @param is_articulation_point Array of boolean which tells if node with given
  * id is an articulation point
@@ -259,7 +259,7 @@ struct list*  connected_components_to_tree(struct graph * g, struct list* connec
         int art_points=0;
         struct node_graph * ng_cutpoint=0;
         int index=-1;
-        
+
         struct node_list *n;
         i=0;
         for(n=cc->g.nodes.head;n!=0;n=n->next){
@@ -288,22 +288,22 @@ struct list*  connected_components_to_tree(struct graph * g, struct list* connec
 
 //From http://algo.uni-konstanz.de/publications/pzedb-hsbcc-12.pdf
 /**
- * Algorithm for heuristic 
+ * Algorithm for heuristic
  * Computes the inter components (biconnected) traffic and removes the redundant
- * one from the final values. For each cutpoint every component value is 
+ * one from the final values. For each cutpoint every component value is
  * assessed in order to retrieve the traffic that is computed more than once on
  * it.
  * The implementation is slightly different from original, for two values, which
- * are 
+ * are
  *      size+=(v_num-(*cne_i->weight) - 1);
  * and
  *      int size= 0;
  * in which first value should be 0 and the latter should be 1.
- * 
- * 
- * @param g A weighted graph. It needs to be connected or either you have to 
+ *
+ *
+ * @param g A weighted graph. It needs to be connected or either you have to
  * call this function for every connected component (i.e. for every subgraph)
- * @param tree_edges The tree of the biconnected components, result of 
+ * @param tree_edges The tree of the biconnected components, result of
  * connected_components_to_tree
  * @param v_num number of vertex in the given graph (or connected subgraph)
  */
@@ -317,7 +317,7 @@ void compute_component_tree_weights(struct graph * g, struct list* tree_edges,in
             cne=clone_cc_node_edge(cne);
             enqueue_list(&q,cne);
         }
-    }  
+    }
     while(!is_empty_list(&q)){
         struct cc_node_edge * cne=(struct cc_node_edge *)dequeue_list(&q);
         if(cne->normal){
@@ -326,7 +326,7 @@ void compute_component_tree_weights(struct graph * g, struct list* tree_edges,in
             for(edge_iterator=tree_edges->head;edge_iterator!=0;edge_iterator=edge_iterator->next){
                 struct cc_node_edge * cne_i=(struct cc_node_edge*)edge_iterator->content;
                 if(cne_i->from==cne->from&&(*cne_i->weight)!=-1&&cne_i->to!=cne->to){
-                    size+=(v_num-(*cne_i->weight) - 1); 
+                    size+=(v_num-(*cne_i->weight) - 1);
                 }
             }
             (*cne->weight)=size;
@@ -337,7 +337,7 @@ void compute_component_tree_weights(struct graph * g, struct list* tree_edges,in
                 if(strcmp(cne_i->to->name,cne->to->name)==0&&(*cne_i->weight)==-1){
                     count++;
                     t=cne_i;
-                    
+
                 }
             }
             if(count==1){
@@ -345,7 +345,7 @@ void compute_component_tree_weights(struct graph * g, struct list* tree_edges,in
                 t->normal=false;
                 enqueue_list(&q,t);
             }
-        }else{            
+        }else{
             int size= 0;
             struct node_list * edge_iterator;
             for(edge_iterator=tree_edges->head;edge_iterator!=0;edge_iterator=edge_iterator->next){
@@ -378,13 +378,13 @@ void compute_component_tree_weights(struct graph * g, struct list* tree_edges,in
 
 /**
  * Algorithm for heuristic (not described explicitly in the paper)
- * Given a biconnected component in the graph it computes the traffic matrix and 
+ * Given a biconnected component in the graph it computes the traffic matrix and
  * finally returns the gross centrality (the redundancy of traffic is present).
  * This function runs concurrently on all biconnected components, if they are
  * more than 1.
- * 
+ *
  * @param cc The connected component
- * @param node_num The total number of node in the whole graph (not only 
+ * @param node_num The total number of node in the whole graph (not only
  * the connected subgraph amount)
  * @param is_articulation_point Array of boolean which tells if node with given
  * id is an articulation point
@@ -409,7 +409,7 @@ double * compute_traffic_matrix_and_centrality(  struct connected_component * cc
                 if(!is_i_ap&&!is_j_ap){//0 art point
                     comm_matrix[i][j]=1;
                 }else if(is_i_ap&&is_j_ap){
-                    // reverse weight for both (rweight= |V| - weight -1) 
+                    // reverse weight for both (rweight= |V| - weight -1)
                     // it should be (rweight_i+1)*(rweight_j+1)
                     // the two ones are summed
                     comm_matrix[i][j]=((node_num-cc->weights[j])*(node_num-cc->weights[i]));
@@ -421,11 +421,11 @@ double * compute_traffic_matrix_and_centrality(  struct connected_component * cc
                         comm_matrix[i][j]=(node_num-(cc->weights[j]));
                     }
                 }
-                
+
             }
         }
-    } 
-    double * ret_val=betweeness_brandes(&(cc->g),true,comm_matrix);        
+    }
+    double * ret_val=betweeness_brandes(&(cc->g),true,comm_matrix);
     for(i=0;i<cc_node_num;i++){
         free(comm_matrix[i]);
     }
@@ -444,8 +444,8 @@ struct multithread_compute_traffic_matrix_and_centrality_struct{
 /**
  * Algorithm for heuristic (not described explicitly in the paper)
  * Helper function to compute brandes centrality concurrently.
- * 
- * @param arguments struct wrapper for arguments of 
+ *
+ * @param arguments struct wrapper for arguments of
  * compute_traffic_matrix_and_centrality, i.e. connected component, node number,
  * array for betwenness value, reference thread
  * @return nothing, it respects the typing for a pthread thread
@@ -459,14 +459,14 @@ void * run_brandes_heu(void *arguments){
 /**
  *  Algorithm for heuristic (not described explicitly in the paper)
  *  It computes the centrality for every connected subgraph.
- *  Given the connected subgraph, it performs the tree decomposition of 
- *  biconnected components. Then computes the BC_inter, i.e. the inter 
- *  biconnected components traffic. Then concurrently, if possible, computes 
+ *  Given the connected subgraph, it performs the tree decomposition of
+ *  biconnected components. Then computes the BC_inter, i.e. the inter
+ *  biconnected components traffic. Then concurrently, if possible, computes
  *  the traffic matrix for each component and the precise brandes value.
  *  It may run concurrently.
- *  
+ *
  * @param g A weighted graph
- * @param connected_components List of connected components for a specific 
+ * @param connected_components List of connected components for a specific
  * connected subgraph
  * @param is_articulation_point Array of boolean which tells if node with given
  * id is an articulation point
@@ -476,14 +476,14 @@ void * run_brandes_heu(void *arguments){
  * @param cc_node_num the number of nodes in the connected subgraph
  * @param cc_index an identifier (index) of the connected subgraph
  */
-void compute_heuristic_wo_scale(struct graph * g, 
+void compute_heuristic_wo_scale(struct graph * g,
         struct list * connected_components,
-        bool * is_articulation_point,double * bc, 
+        bool * is_articulation_point,double * bc,
         int * connected_component_index,int cc_node_num, int cc_index){
     int node_num=g->nodes.size;
     int i;
     node_num=cc_node_num;
-    
+
     struct list* tree_edges=connected_components_to_tree(g,connected_components,is_articulation_point);
     compute_component_tree_weights(g,tree_edges,node_num);
     i=0;
@@ -501,16 +501,14 @@ void compute_heuristic_wo_scale(struct graph * g,
                         // weight_sum+=tree_weights[cne->index]*(node_num-1-tree_weights[cne->index]);
                         // weight_sum+=(*cne->weight)*(node_num-1-(*cne->weight));
                         weight_sum+=(*cne->weight)*(node_num-1-(*cne->weight));
-                    } 
-                } 
+                    }
+                }
                 bc[i]-=weight_sum;
-            }else {
-                bc[i]=0;
             }
         }
         i++;
     }
-    
+
     struct node_list * ccs_iterator;
     int bcc_num=connected_components->size;
     if(multithread && bcc_num>1){
@@ -526,7 +524,7 @@ void compute_heuristic_wo_scale(struct graph * g,
         }
         for( i=0;i<bcc_num;i++)
             pthread_create(&args[i].t, NULL, &run_brandes_heu, (void *)(args+i));
-        
+
         for( i=0;i<bcc_num;i++){
             pthread_join(args[i].t, NULL);
             int j;
@@ -576,10 +574,10 @@ struct multithread_subgraph_struct{
 /**
  *  Algorithm for heuristic (not described explicitly in the paper)
  *  Helper function that runs brandes heuristic on connected subgraph
- * @param arguments the list of arguments, the original graph, the list of 
- * biconnected components of current connected subgraph, the articulation point, 
- * the betwenness results array, the list of id that tells to which connected 
- * component a node belong, the size of the connected graph, the size of the 
+ * @param arguments the list of arguments, the original graph, the list of
+ * biconnected components of current connected subgraph, the articulation point,
+ * the betwenness results array, the list of id that tells to which connected
+ * component a node belong, the size of the connected graph, the size of the
  * current subgraph, the index of it and the current thread.
  * @return nothing, it respects the typing for a pthread thread
  */
@@ -589,13 +587,13 @@ void * run_subgraph(void *arguments){
     return 0;
 }
 /**
- * Algorithm for heuristic 
+ * Algorithm for heuristic
  * Wrapper for all function above. It returns the correct centrality, it is
- * semantically the same as betweeness_brandes. 
- * 
+ * semantically the same as betweeness_brandes.
+ *
  * @param g A weighted graph
  * @param recursive whether we want to use the recursive or iterative approach
- * @return  An array with betwenness centrality for each node 
+ * @return  An array with betwenness centrality for each node
  */
 double * betwenness_heuristic(struct graph * g, bool recursive){
     int node_num=g->nodes.size;
@@ -613,12 +611,12 @@ double * betwenness_heuristic(struct graph * g, bool recursive){
     }else {
         connected_components_subgraphs=tarjan_iter_undir(g,is_articulation_point,connected_component_indexes);
     }
-    
+
     int biconnected_component_num=-1,result_size=-1;
     float standard_deviation=-1;
-    
+
     if(stop_computing_if_unchanged){
-        //if we rely on old values when network 
+        //if we rely on old values when network
         //is not changed
         char ** old_names=0;
         double *  old_ret_val=is_network_changed(connected_components_subgraphs,
@@ -634,7 +632,7 @@ double * betwenness_heuristic(struct graph * g, bool recursive){
                     free(cc->weights);
                     free(cc);
                 }
-                
+
                 free(tmp);
             }
             clear_list(connected_components_subgraphs);
@@ -658,9 +656,9 @@ double * betwenness_heuristic(struct graph * g, bool recursive){
             free(old_names);
         }
     }
-    
-    
-    
+
+
+
     int connected_component_index=0;
     int cc_num=connected_components_subgraphs->size;
     if(multithread && cc_num>1){
@@ -680,13 +678,13 @@ double * betwenness_heuristic(struct graph * g, bool recursive){
         }
         for( i=0;i<cc_num;i++)
             pthread_create(&args[i].t, NULL, &run_subgraph, (void *)(args+i));
-        
+
         for( i=0;i<cc_num;i++){
             pthread_join(args[i].t, NULL);
         }
         free(args);
     }else{
-        
+
         struct sub_graph * sg=(struct sub_graph *)dequeue_list(connected_components_subgraphs);
         if(sg->connected_components.size>1||use_heu_on_single_biconnected){;
         compute_heuristic_wo_scale(g,&(sg->connected_components),
@@ -700,7 +698,7 @@ double * betwenness_heuristic(struct graph * g, bool recursive){
             free(ret_val);
             return betweeness_brandes(g,true,0);
         }
-        
+
         /*   //struct graph * g, struct list * connected_components,bool * is_articulation_point,double * ret_val
          while(!is_empty_list(connected_components_subgraphs)){
          struct sub_graph * sg=(struct sub_graph *)dequeue_list(connected_components_subgraphs);
@@ -708,33 +706,33 @@ double * betwenness_heuristic(struct graph * g, bool recursive){
          is_articulation_point,ret_val,connected_component_indexes,
          sg->size,connected_component_index++);
          }*/
-        
+
     }
-    
+
     if(node_num>2){
         double scale=1/(((double)(node_num-1))*((double)(node_num-2)));
         for( i =0;i<node_num;i++){
             ret_val[i]*=scale;
             // ret_val[i]=round_decimal(ret_val[i]);
-            
+
         }
     }
     //if we are storing values for next computation
     if(stop_computing_if_unchanged){
         write_file(biconnected_component_num,standard_deviation,node_num,ret_val,&g->nodes);
     }
-    
-    
+
+
     clear_list(connected_components_subgraphs);
     free(connected_components_subgraphs);
     free(is_articulation_point);
     free(connected_component_indexes);
-    
-    
+
+
     return ret_val;
 }
 //TODO: test this, different results on Python. Problem on compiled version?
-/* 
+/*
 int main(){
     //double d=sqrt(2);
     //int decimal_places=1000000000;
@@ -3764,28 +3762,28 @@ int main(){
     add_edge_graph(&g1,"950","967",0.66838757152,0);
     add_edge_graph(&g1,"961","968",0.428927174717,0);
     add_edge_graph(&g1,"963","980",4.63289851941,0);
-    
-    
-    
-    
-    
-    
-    
-    
+
+
+
+
+
+
+
+
     struct node_list *  nl;
     double * bh=betweeness_brandes(&g1,true,0);
     double * bh_c=betwenness_heuristic(&g1,false);
     //double * bh_c2=betwenness_heuristic(&g1,true);
-    
-    
+
+
     for(nl=g1.nodes.head;nl!=0;nl=nl->next){
         struct node_graph * ng=(struct node_graph*)nl->content;
-        
+
         //printf("%s:\t%f \t%f\t%d\t%1.50f\n",
         //printf("%s:\t%1.50f \t%1.50f\t%d\t%1.50f\n",
         printf("%s:\t%f \t%f\t%d\t%f\n",
                 ng->name,
-                bh[ng->node_graph_id], 
+                bh[ng->node_graph_id],
                 bh_c[ng->node_graph_id],
                 bh[ng->node_graph_id]==bh_c[ng->node_graph_id],
                 -bh[ng->node_graph_id]+bh_c[ng->node_graph_id]);
@@ -3794,7 +3792,7 @@ int main(){
             //printf("%s:\t%1.50f \t%1.50f\t%d\t%1.50f\n",
             //       -bh[ng->node_graph_id]+bh_c[ng->node_graph_id]);
         }
-        
+
     }
     free(bh);
     free(bh_c);
