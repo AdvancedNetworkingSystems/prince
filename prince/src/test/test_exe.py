@@ -55,10 +55,11 @@ def time_exe(is_c,heu):
     return elapsed,out
 
 
-rounding=10
+
+rounding=2
 #start,end,jump=100,1800+1,100
-start,end,jump=100,1200+1,100
-repetitions=1
+start,end,jump=200,2000+1,100
+repetitions=10
 max=int(math.ceil(float(end-start)/jump))*repetitions
 
 res={}
@@ -73,12 +74,20 @@ res["c++_eu_var"]=[]
 res["c++_eu_mean"]=[]
 index=1
 for i in range(start,end,jump):
-    g=gen_graph(i)
+    #g=nx.read_weighted_edgelist()
     c_eu=[]
     c=[]
     cpp_eu=[]
     cpp=[]
     for j in xrange(repetitions):
+        g=nx.read_weighted_edgelist("data/"+str(i)+"/"+str(j))
+        netjson = Gen().composeNetJson(g)
+        #print(netjson)
+        json_netjson = json.dumps(netjson)
+        text_file = open("input.json", "w+")
+        text_file.write(json_netjson)
+        text_file.close()
+
         print(str(round(100*float(index)/max,2))+"%")
         index+=1
         timer,val1=time_exe(1,0)
@@ -94,6 +103,7 @@ for i in range(start,end,jump):
         actual_res= {k:round(v,rounding) for k,v in actual_res.iteritems()}
         #actual_res= {k:v for k,v in actual_res.iteritems()}
         #print(actual_res)
+        continue
         if (not (actual_res==val1 and val1==val2)):
             #print({k:(v-val1[k],v,val1[k]) for k,v in actual_res.iteritems() if v-val1[k]!=0})
             #print({k:(v-val2[k],v,val2[k]) for k,v in actual_res.iteritems() if v-val2[k]!=0})
@@ -108,6 +118,7 @@ for i in range(start,end,jump):
                 print('add_edge_graph(&g1,"'+str(e[0])+'","'+str(e[1])+'",'+str(e[2])+',0);')
             import sys
             sys.exit(0)
+
     res["c_var"].append(var(c))
     res["c_mean"].append(mean(c))
     res["c_eu_var"].append(var(c_eu))
@@ -117,7 +128,8 @@ for i in range(start,end,jump):
     res["c++_eu_var"].append(var(cpp_eu))
     res["c++_eu_mean"].append(mean(cpp_eu))
     res["x"].append(i)
-
+print(res)
+exit(0)
 plt.errorbar(res["x"], res["c++_mean"], yerr=res["c++_var"], label="C++ w/o h")
 plt.errorbar(res["x"], res["c++_eu_mean"], yerr=res["c++_eu_var"], label="C++ w h")
 plt.errorbar(res["x"], res["c_mean"], yerr=res["c_var"], label="C w/o h")
@@ -125,7 +137,7 @@ plt.errorbar(res["x"], res["c_eu_mean"], yerr=res["c_eu_var"], label="C w h")
 plt.xlabel('size of graph (nodes)')
 plt.ylabel('execution time (s)')
 plt.legend(loc='upper center', shadow=True)
-plt.axhline(1,color='k')
+#plt.axhline(1,color='k')
 for var in (res["c_mean"], res["c_eu_mean"],res["c++_mean"],res["c++_eu_mean"]):
     plt.annotate('%0.2f' % var[-1], xy=(1, var[-1]), xytext=(8, 0),
                  xycoords=('axes fraction', 'data'), textcoords='offset points')

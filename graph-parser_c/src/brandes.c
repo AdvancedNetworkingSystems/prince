@@ -15,7 +15,7 @@
 
 
 //parameter initialization
-bool multithread=true;
+bool multithread=false;
 bool stop_computing_if_unchanged=false;
 
 /**

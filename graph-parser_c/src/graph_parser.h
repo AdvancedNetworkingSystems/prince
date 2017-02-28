@@ -11,7 +11,7 @@ extern bool recursive;
  * Whether we want to run on multiple threads.
  * It can be set manually or either you can set it via code, detecting number 
  * of cores. 
- * Default is true.
+ * Default is false.
  */
 extern bool multithread;
 
