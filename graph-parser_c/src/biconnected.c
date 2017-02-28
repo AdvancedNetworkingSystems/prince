@@ -7,36 +7,36 @@
 
 void strongconnect(struct node_graph* v,int * current_index, struct list * s,
         int * bcc_id,struct list* connected_components, int * index,
-        int * low_link,bool * on_stack);  
+        int * low_link,bool * on_stack);
 void DFS_iter(struct node_graph* u,int * current_index,struct list * s,
         int *bcc_id,struct list* connected_components,
         struct node_graph ** caller, struct node_list ** iterator,
         int * index,int * low_link,bool * on_stack);
 void DFS_visit(struct node_graph * u,struct list *s,int * d,int * low,
-        bool * visited,struct node_graph ** parent,int * count, bool * added, 
+        bool * visited,struct node_graph ** parent,int * count, bool * added,
         bool * is_articulation_point,int node_num,
-        struct sub_graph * sg, int * component_indexes, 
+        struct sub_graph * sg, int * component_indexes,
         int component_index);
 
 /**
  * Returns the min of two numbers. It is inline, so it simplyifies code withouth
  * degrading performance.
- * 
+ *
  * @param a An integer
  * @param b An integer
- * @return the minimum value of @a and @b. 
+ * @return the minimum value of @a and @b.
  */
-inline int min(int a, int b){
+static inline int min(int a, int b){
     if(a<b)
         return a;
     return b;
 }
 
 /**
- * Given a directed graph, it returns the biconnected components. 
+ * Given a directed graph, it returns the biconnected components.
  * The search is recursive
  * Not employed for now.
- * 
+ *
  * @param g A graph
  * @return A list of biconnected components
  */
@@ -45,7 +45,7 @@ struct list*  tarjan_rec_dir(struct graph * g){
     init_list(connected_components);
     struct list s;
     init_list(&s);
-    
+
     int current_index=0;
     int bcc_id=0;
     struct node_list * n =g->nodes.head;
@@ -59,7 +59,7 @@ struct list*  tarjan_rec_dir(struct graph * g){
         low_link[i]=-1;
         on_stack[i]=false;
     }
-    
+
     while(n!=0){
         struct node_graph* ng=(struct node_graph*) n->content;
         if(index[ng->node_graph_id]<0){
@@ -74,17 +74,17 @@ struct list*  tarjan_rec_dir(struct graph * g){
 }
 
 /**
- * Given a node, it returns all the biconnected components in the connected 
- * graph. 
- *  
+ * Given a node, it returns all the biconnected components in the connected
+ * graph.
+ *
  * Based on https://en.wikipedia.org/wiki/Tarjan's_strongly_connected_components_algorithm
- * 
+ *
  * @param v A node
  * @param current_index current index value, used for detecting component
  * @param s list working as a stack of nodes
- * @param int pointer to an integer representing the bcc_id id of the 
+ * @param int pointer to an integer representing the bcc_id id of the
  * biconnected component
- * @param connected_components list of connected_components list of 
+ * @param connected_components list of connected_components list of
  * biconnected component
  * @param index int array, actual index value for each node
  * @param low_link int array, actual low_link value for each node
@@ -105,7 +105,7 @@ void strongconnect(struct node_graph* v,int * current_index, struct list * s,int
         }else if(on_stack[w->node_graph_id]){
             low_link[v->node_graph_id]=min(low_link[v->node_graph_id],index[w->node_graph_id]);
         }
-        
+
     }
     if(low_link[v->node_graph_id]==index[v->node_graph_id]){
         struct node_graph *w=0;
@@ -127,10 +127,10 @@ void strongconnect(struct node_graph* v,int * current_index, struct list * s,int
 }
 
 /**
- * Given a directed graph, it returns the biconnected components. 
+ * Given a directed graph, it returns the biconnected components.
  * The search is iterative
  * Not employed for now.
- * 
+ *
  * @param g A graph
  * @return A list of biconnected components
  */
@@ -173,15 +173,15 @@ struct list*  tarjan_iter_dir(struct graph * g){
 //https://www.researchgate.net/profile/Oscar_Karnalim/publication/303959022_Improving_Scalability_of_Java_Archive_Search_Engine_through_Recursion_Conversion_And_Multithreading/links/57c929ed08aefc4af350b37d.pdf?origin=publication_detail
 //http://stackoverflow.com/questions/2292223/iterative-version-of-a-recursive-algorithm-is-slower
 /**
- * Given a node, it returns all the biconnected components in the connected 
- * graph. 
- * 
- * 
+ * Given a node, it returns all the biconnected components in the connected
+ * graph.
+ *
+ *
  * @param u A node
  * @param current_index  current index value, used for detecting component
  * @param s list working as a stack of nodes
  * @param bcc_id id of the current biconnected components
- * @param connected_components list of connected_components list of 
+ * @param connected_components list of connected_components list of
  * biconnected component
  * @param caller pointer to caller node, used to mimic recursive behaviour
  * @param iterator pointer to current node, used to mimic recursive behaviour
@@ -202,7 +202,7 @@ void DFS_iter(struct node_graph* u,int * current_index,struct list * s,int *bcc_
     while(true){
         if(iterator[last->node_graph_id]!=0){
             struct node_graph *w = ((struct edge_graph*)iterator[last->node_graph_id]->content)->to;
-            iterator[last->node_graph_id]=iterator[last->node_graph_id]->next; 
+            iterator[last->node_graph_id]=iterator[last->node_graph_id]->next;
             if(index[w->node_graph_id]<0){
                 caller[w->node_graph_id]=last;
                 index[w->node_graph_id]=*current_index;
@@ -224,7 +224,7 @@ void DFS_iter(struct node_graph* u,int * current_index,struct list * s,int *bcc_
                     top =(struct node_graph*)pop_list(s);
                     if(top!=0){
                         enqueue_list(cc_list,top);
-                        on_stack[top->node_graph_id]=false;                    
+                        on_stack[top->node_graph_id]=false;
                     }
                 }while(top!=0 && index[top->node_graph_id]!=index[last->node_graph_id]);
                 if(cc_list->size>0){
@@ -234,7 +234,7 @@ void DFS_iter(struct node_graph* u,int * current_index,struct list * s,int *bcc_
                 }else{
                     free(cc_list);
                 }
-                
+
             }
             struct node_graph *new_last=caller[last->node_graph_id];
             if(new_last!=0){
@@ -248,10 +248,10 @@ void DFS_iter(struct node_graph* u,int * current_index,struct list * s,int *bcc_
 }
 
 /**
- * Subgraph initializers. 
+ * Subgraph initializers.
  * It creates and initializes an empty biconnected component list
  * and set the connected component size to 0.
- * 
+ *
  * @return The newly created subgrtaph struct
  */
 struct sub_graph * init_sub_graph(){
@@ -263,16 +263,16 @@ struct sub_graph * init_sub_graph(){
 
 //From http://www.cs.umd.edu/class/fall2005/cmsc451/biconcomps.pdf
 /**
- * Given an undirected graph, it returns a list of subgraph, each one collects 
+ * Given an undirected graph, it returns a list of subgraph, each one collects
  * a list of biconnected components and the node number in it.
  * The search is recursive
- * 
+ *
  * @param g A graph
  * @param is_articulation_point An array representing whether a node is an
  * articulation point. Used as return value
  * @param component_indexes An integer array telling to which connected component a
  * node belongs to.
- * @return a list of pair, one for each connected component, of biconnected 
+ * @return a list of pair, one for each connected component, of biconnected
  * components and node number in that connected component
  */
 struct list*  tarjan_rec_undir(struct graph * g, bool * is_articulation_point,
@@ -309,7 +309,7 @@ struct list*  tarjan_rec_undir(struct graph * g, bool * is_articulation_point,
                 is_articulation_point[ng->node_graph_id]=true;
             component_index++;
             enqueue_list(connected_components_subgraph,sg);
-            
+
         }
         i++;
     }
@@ -323,12 +323,12 @@ struct list*  tarjan_rec_undir(struct graph * g, bool * is_articulation_point,
 
 struct edge_repr{
     struct node_graph *from;
-    struct node_graph *to;  
+    struct node_graph *to;
     double value;
 };
 /**
  * Edge representation which collects both source and target vertex of an edge.
- * 
+ *
  * @param from Node generating the edge
  * @param to Node in which edge terminates
  * @param value Weight of the edge
@@ -344,10 +344,10 @@ struct edge_repr * init_edge_repr(struct node_graph * from,struct node_graph * t
 
 //https://www.cs.umd.edu/class/fall2005/cmsc451/biconcomps.pdf
 /**
- * This function is similar to the one of directed graph. It performs 
- * recursively a visit to detected articulation point, biconnected components 
+ * This function is similar to the one of directed graph. It performs
+ * recursively a visit to detected articulation point, biconnected components
  * and connected components indexes.
- * 
+ *
  * @param u The current node we are starting from-
  * @param s A list, used as stck of nodes
  * @param d Int array, which are indexes for each array
@@ -360,9 +360,9 @@ struct edge_repr * init_edge_repr(struct node_graph * from,struct node_graph * t
  * articulation point. Used as return value
  * @param node_num Total number of nodes in the graph
  * @param sg Current subgraph
- * @param component_indexes Int array, tell to which connected components nodes 
+ * @param component_indexes Int array, tell to which connected components nodes
  * belong.
- * @param component_index Int value that tells current connected components 
+ * @param component_index Int value that tells current connected components
  * index.
  */
 void DFS_visit(struct node_graph * u,struct list * s,int * d,int * low,bool * visited,
@@ -435,7 +435,7 @@ void DFS_visit(struct node_graph * u,struct list * s,int * d,int * low,bool * vi
                     is_articulation_point[u->node_graph_id]=true;
                 }
                 low[u->node_graph_id]=min(low[u->node_graph_id],low[v->node_graph_id]);
-                
+
             }else if((parent[u->node_graph_id]!=v)&&(d[v->node_graph_id]<d[u->node_graph_id])){
                 struct edge_repr * er=init_edge_repr(u,v,edge->value);
                 enqueue_list(s,er);
@@ -471,16 +471,16 @@ struct cc_edge_stack * init_cc_edge_stack(struct node_graph * grandparent,struct
 
 //https://github.com/networkx/networkx/blob/master/networkx/algorithms/components/biconnected.py#L427
 /**
- * Given an undirected graph, it returns a list of subgraph, each one collects 
+ * Given an undirected graph, it returns a list of subgraph, each one collects
  * a list of biconnected components and the node number in it.
  * The search is iterative
- * 
+ *
  * @param g A graph
  * @param is_articulation_point  An array representing whether a node is an
  * articulation point. Used as return value
  * @param component_indexes An integer array telling to which connected component a
  * node belongs to.
- * @return a list of pair, one for each connected component, of biconnected 
+ * @return a list of pair, one for each connected component, of biconnected
  * components and node number in that connected component
  */
 struct list*  tarjan_iter_undir(struct graph * g, bool * is_articulation_point, int * component_indexes){
@@ -527,7 +527,7 @@ struct list*  tarjan_iter_undir(struct graph * g, bool * is_articulation_point, 
                     if(visited[child->node_graph_id]){
                         if(discovery[child->node_graph_id]<=discovery[ced->parent->node_graph_id]){
                             low[ced->parent->node_graph_id] = min(low[ced->parent->node_graph_id], discovery[child->node_graph_id]);
-                            enqueue_list(&edge_stack,init_edge_repr(ced->parent,child,edge->value)); 
+                            enqueue_list(&edge_stack,init_edge_repr(ced->parent,child,edge->value));
                         }
                     }else{
                         low[child->node_graph_id]=discovery_len;
@@ -557,10 +557,10 @@ struct list*  tarjan_iter_undir(struct graph * g, bool * is_articulation_point, 
                                 }
                                 if(!added[er->from->node_graph_id])
                                     added_count++;
-                                
+
                                 if(!added[er->to->node_graph_id])
                                     added_count++;
-                                
+
                                 added[er->from->node_graph_id]=true;
                                 added[er->to->node_graph_id]=true;
                                 pop_list(&edge_stack);
@@ -569,7 +569,7 @@ struct list*  tarjan_iter_undir(struct graph * g, bool * is_articulation_point, 
                                 }
                                 er=(struct edge_repr *) peek_last_list(&edge_stack);
                             }
-                            
+
                             if(!is_empty_list(&l)){
                                 struct connected_component * cc=(struct connected_component *)malloc(sizeof(struct connected_component));
                                 init_graph(&(cc->g));
@@ -592,7 +592,7 @@ struct list*  tarjan_iter_undir(struct graph * g, bool * is_articulation_point, 
                                 enqueue_list(&(sg->connected_components),cc);
                             }
                             is_articulation_point[ced->grandparent->node_graph_id]=true;
-                        } 
+                        }
                         low[ced->grandparent->node_graph_id]=min(low[ced->parent->node_graph_id],low[ced->grandparent->node_graph_id]);
                     }else if(s.size==1){
                         root_children++;
@@ -612,7 +612,7 @@ struct list*  tarjan_iter_undir(struct graph * g, bool * is_articulation_point, 
                                 sg->size++;
                             }
                             if(!added[er->from->node_graph_id])
-                                added_count++; 
+                                added_count++;
                             if(!added[er->to->node_graph_id])
                                 added_count++;
                             nl=nl->prev;
@@ -661,10 +661,9 @@ struct list*  tarjan_iter_undir(struct graph * g, bool * is_articulation_point, 
     }
     if(sg->size==0)
         free(sg);
-    free(added); 
-    free(low); 
+    free(added);
+    free(low);
     free(discovery);
     free(visited);
     return connected_components_subgraph;
 }
-

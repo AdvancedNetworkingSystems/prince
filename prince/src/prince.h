@@ -1,10 +1,3 @@
-/*
- * prince.h
- *
- *  Created on: 12 mag 2016
- *      Author: gabriel
- */
-
 #ifndef SRC_PRINCE_H_
 #define SRC_PRINCE_H_
 

@@ -12,7 +12,6 @@ clean:
 out:
 	mkdir -p output
 	mkdir -p prince/build/
-	mkdir -p graph-parser/build/
 install:
 	cp output/libprince_oonf_c.so /usr/lib/
 	cp output/libprince_olsr_c.so /usr/lib/
@@ -23,6 +22,3 @@ uninstall:
 	rm -f /usr/lib/libprince_olsr_c.so
 	rm -f /usr/bin/prince_c
 	rm -fr prince/build/
-	
-	
-

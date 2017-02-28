@@ -1,10 +1,3 @@
-/*
- * olsr.h
- *
- *  Created on: 25 mag 2016
- *      Author: gabriel
- */
-
 #ifndef SRC_OONF_H_
 #define SRC_OONF_H_
 
