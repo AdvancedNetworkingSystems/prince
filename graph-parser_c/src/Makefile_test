@@ -1,3 +1,0 @@
-test_c:
-	gcc -g biconnected.c brandes.c graph/list.c graph/graph.c graph_parser.c network_change.c -pthread -lm
-

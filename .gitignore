@@ -7,7 +7,7 @@
 nbproject/
 .idea/
 data/
-
+output/
 
 prince/build
 graph-parser/build

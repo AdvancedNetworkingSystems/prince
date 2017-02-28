@@ -75,39 +75,6 @@ main(int argc, char* argv[]){
     if(ph==0)
         return -1;
     
-#ifndef unique
-    ph->bc_degree_map = (map_id_degree_bc *) malloc(sizeof(map_id_degree_bc));
-    /*cycle each 'refresh' seconds*/
-    do{
-        sleep(ph->refresh);
-        ph->gp = new_graph_parser(ph->weights, ph->heuristic?1:0);
-        ph->rp = new_plugin_p(ph->host, ph->port, ph->gp, ph->json_type);
-        if(!get_topology_p(ph->rp)){
-            printf("Error getting topology");
-            continue;
-            
-        }
-        if(ph->rp->self_id)
-            ph->self_id = strdup(ph->rp->self_id);
-        clock_t start = clock();
-        graph_parser_calculate_bc(ph->gp);
-        clock_t end = clock();
-        graph_parser_compose_degree_bc_map(ph->gp, ph->bc_degree_map);
-        ph->opt_t.exec_time = (double)(end - start) / CLOCKS_PER_SEC;
-        printf("Calculation time: %fs\n", ph->opt_t.exec_time);
-        if (!compute_timers(ph)){
-            delete_prince_handler(ph);
-            continue;
-        }
-        printf("\nId of the node we are computing is: %s\n", ph->self_id);
-        if (!push_timers_p(ph->rp, ph->opt_t)){
-            delete_prince_handler(ph);
-            continue;
-        }
-        delete_plugin_p(ph->rp);
-    }while(ph->refresh);
-    delete_prince_handler(ph);
-#else
     recursive=ph->recursive;
     multithread=ph->multithreaded;
     stop_computing_if_unchanged=ph->stop_unchanged;
@@ -150,7 +117,6 @@ main(int argc, char* argv[]){
         init_graph(&(gp_p->g));
     }while(ph->refresh);
     delete_prince_handler(ph);
-#endif	
     return 0;
 }
 
@@ -176,18 +142,11 @@ new_prince_handler(char * conf_file){
     switch(ph->proto){
         case 0: /*olsr*/
             ph->json_type=0;
-#ifndef unique
-            ph->plugin_handle = dlopen ("libprince_olsr.so", RTLD_LAZY);
-#else
 	    ph->plugin_handle = dlopen ("libprince_olsr_c.so", RTLD_LAZY);
-#endif
             break;
         case 1: /*oonf*/
-#ifndef unique
-            ph->plugin_handle = dlopen ("libprince_oonf.so", RTLD_LAZY);
-#else
 	    ph->plugin_handle = dlopen ("libprince_oonf_c.so", RTLD_LAZY);
-#endif
+
             break;
     }
     if(!ph->plugin_handle)

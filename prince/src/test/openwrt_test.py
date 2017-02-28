@@ -58,7 +58,7 @@ def composeNetJson(graph):
 
 
 class server:
-    def __init__(self,port=2020):
+    def __init__(self,port=8080):
         self.s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.s.bind(('', port))
         self.s.listen(10)
