@@ -1,10 +1,3 @@
-/*
- * common.h
- *
- *  Created on: 25 mag 2016
- *      Author: gabriel
- */
-
 #ifndef SRC_COMMON_H_
 #define SRC_COMMON_H_
 

@@ -1,10 +1,3 @@
-/*
- * parser.h
- *
- *  Created on: 02 lug 2016
- *      Author: gabriel
- */
-
 #ifndef SRC_PARSER_H_
 #define SRC_PARSER_H_
 

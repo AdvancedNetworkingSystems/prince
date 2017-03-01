@@ -60,6 +60,7 @@ class TestSuite:
             measures = np.concatenate((measures_mean, measures_var), axis = 0)
             line = "%d %f %f %f %f %f %f\n" % (size, measures[0], measures[1], measures[2], measures[3], measures[4], measures[5])
             result_file.write(line)
+            result_file.flush()
             print line
             battery_measures = np.c_[battery_measures, measures]
         print("Exec Time mean  Hello relative error mean  TC relative error mean, Exec Stdev  hello std  tc std")

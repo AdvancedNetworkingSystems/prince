@@ -1,11 +1,3 @@
-/*
- * socket.h
- *
- *  Created on: 03 giu 2016
- *      Author: gabriel
- */
-
-
 #ifndef SRC_SOCKET_H
 #define SRC_SOCKET_H_
 
