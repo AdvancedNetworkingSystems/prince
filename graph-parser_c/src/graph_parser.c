@@ -3,7 +3,13 @@
 bool recursive=true;
 
 
-
+/**
+ * Wrapper function for initializing the computation
+ * 
+ * @param weight This boolean parameter is used only for backward compatibility. In the current version, graphs are all considered weighted
+ * @param heuristic This boolean parameter tells whether to use heuristic.
+ * @return a struct of type c_graph_parser that is capable of computing Brandes Betweenness centrality 
+ */
 c_graph_parser* new_graph_parser(int weight, int heuristic){
     struct graph_parser * gp=(struct graph_parser *)malloc(sizeof(struct graph_parser));
     gp->heuristic_b=heuristic==1;
@@ -11,6 +17,13 @@ c_graph_parser* new_graph_parser(int weight, int heuristic){
     init_graph(&(gp->g));
     return (c_graph_parser*)gp;
 }
+
+/**
+ * Wrapper function for loading the graph
+ *
+ * @param v A c_graph_parser struct that contains data to run the centrality algorithm
+ * @param topo A topology struct that defines the structure of a graph, in particulare the neighbours list
+ */
 void graph_parser_parse_simplegraph(c_graph_parser* v, struct topology *topo){
     struct graph_parser * gp=(struct graph_parser *)v;
     struct node *punt;
@@ -29,20 +42,31 @@ void graph_parser_parse_simplegraph(c_graph_parser* v, struct topology *topo){
     }
 }
 
-
+/**
+ * Wrapper function for actually computing the centrality
+ * @param v c_graph_parser struct that contains data to run the centrality algorithm
+ */
 void graph_parser_calculate_bc(c_graph_parser* v){
     struct graph_parser * gp=(struct graph_parser *)v;
-    if(gp->heuristic_b&&gp->g.nodes.size>80 ){//TODO check here
+    //empirical results show that in smaller graphs the 
+    //original algorithm is faster
+    if(gp->heuristic_b&&gp->g.nodes.size>80){
         gp->bc=(double*)betwenness_heuristic(&(gp->g),recursive);
     }else{
         gp->bc=betweeness_brandes(&(gp->g),true,0);
     }
 }
+/**
+ * Wrapper function that returns in a custom struct the centrality and other data.
+ * @param v c_graph_parser struct that contains data with results 
+ * @param map A custom struct that contains data relative to the centrality and
+ * @return A fixed value
+ */
 int graph_parser_compose_degree_bc_map(c_graph_parser* v, map_id_degree_bc *map){
     struct graph_parser * gp=(struct graph_parser *)v;
     map->size=gp->g.nodes.size;
     map->map = (struct _id_degree_bc *) malloc(sizeof(struct _id_degree_bc)*gp->g.nodes.size);
-    map->n_edges = 0; //Todo: add counting
+    map->n_edges = 0; 
     struct node_list *  nl;
     int i=0;
     for(nl=gp->g.nodes.head;nl!=0;nl=nl->next){
@@ -55,7 +79,10 @@ int graph_parser_compose_degree_bc_map(c_graph_parser* v, map_id_degree_bc *map)
     }
     return 1;
 }
-
+/**
+ * Function that deallocates and frees memory used for centrality computation
+ * @param v c_graph_parser struct that has to be deleted
+ */
 void delete_graph_parser(void* v){
     struct graph_parser * gp=(struct graph_parser *)v;
     free_graph(&gp->g);
