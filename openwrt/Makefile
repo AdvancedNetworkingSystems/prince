@@ -1,46 +1,45 @@
 include $(TOPDIR)/rules.mk
 
-PKG_NAME:=poprouting
-PKG_VERSION:=v0.1
-PKG_RELEASE:=1
+PKG_NAME:=prince
+PKG_VERSION:=v0.3
+PKG_RELEASE:=3
 
-PKG_BUILD_DIR:=$(BUILD_DIR)/poprouting-$(PKG_VERSION)
-PKG_USE_MIPS16:=0 
+PKG_BUILD_DIR:=$(BUILD_DIR)/prince-$(PKG_VERSION)
+PKG_USE_MIPS16:=0
 PKG_SOURCE_PROTO:=git
-PKG_SOURCE:=poprouting-$(PKG_VERSION).tar.gz
+PKG_SOURCE:=prince-$(PKG_VERSION).tar.gz
 PKG_SOURCE_URL:=https://github.com/gabri94/poprouting.git
-PKG_SOURCE_VERSION:=master
-PKG_SOURCE_SUBDIR:=poprouting-v0.1
+PKG_SOURCE_VERSION:=v0.3
+PKG_SOURCE_SUBDIR:=prince-v0.3
 include $(INCLUDE_DIR)/package.mk
-define Package/poprouting
+
+define Package/prince
 	SECTION :=net
 	CATEGORY :=Network
 	SUBMENU :=Routing and Redirection
 	Mantainer :=Gabriele Gemmi <gabriel@autistici.org>
 	TITLE :=PopRouting daemon
-	MENU :=1
-	DEPENDS := +boost-graph +libjson-c +libstdcpp
+	URL :=https://github.com/gabri94/poprouting
+	MENU :=0
+	DEPENDS := +libjson-c +libpthread +ldl +lm
 endef
 
-define Package/poprouting/description
-	TODO
+define Package/prince/description
+Prince is an open source implementation of the PopRouting Algorithm.
+It has been developed as a Google Summer of Code Project in collaboration with Freifunk and the University of Trento.
+
+It work by fetching topology data from a Link State routing demon(OONF, OLSR, OSPF, etc),
+calculating the betweenness centrality using the topology, then using these data
+the timer's value are optimized. Finally the timers are pushed back to the routing demon.
+Currently it only supports OLSRd2 (aka OONF).
 endef
 
-define Build/Prepare
-        $(Build/Prepare/Default)
-	$(INSTALL_DIR) $(PKG_BUILD_DIR)/graph-parser/build
-	$(INSTALL_DIR) $(PKG_BUILD_DIR)/graph-parser/build/lib
-	$(INSTALL_DIR) $(PKG_BUILD_DIR)/prince/build
-endef
-
-
-define Package/poprouting/install
+define Package/prince/install
 	$(INSTALL_DIR) $(1)/usr/lib
-	$(INSTALL_DATA) $(PKG_BUILD_DIR)/graph-parser/build/lib/libgraphparser.so $(1)/usr/lib/
 	$(INSTALL_DIR) $(1)/usr/sbin
-	$(INSTALL_BIN) $(PKG_BUILD_DIR)/prince/build/prince $(1)/usr/sbin/
-	$(INSTALL_DATA) $(PKG_BUILD_DIR)/prince/build/libprince_olsr.so $(1)/usr/lib/
-	$(INSTALL_DATA) $(PKG_BUILD_DIR)/prince/build/libprince_oonf.so $(1)/usr/lib/
+	$(INSTALL_BIN) $(PKG_BUILD_DIR)/output/prince $(1)/usr/sbin/
+	$(INSTALL_DATA) $(PKG_BUILD_DIR)/output/libprince_oonf_c.so $(1)/usr/lib/
 endef
-$(eval $(call BuildPackage,poprouting))
 
+
+$(eval $(call BuildPackage,prince))
