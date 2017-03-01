@@ -4,10 +4,11 @@ bool recursive=true;
 
 
 /**
+ * Wrapper function for initializing the computation
  * 
- * @param weight
- * @param heuristic
- * @return 
+ * @param weight This boolean parameter is used only for backward compatibility. In the current version, graphs are all considered weighted
+ * @param heuristic This boolean parameter tells whether to use heuristic.
+ * @return a struct of type c_graph_parser that is capable of computing Brandes Betweenness centrality 
  */
 c_graph_parser* new_graph_parser(int weight, int heuristic){
     struct graph_parser * gp=(struct graph_parser *)malloc(sizeof(struct graph_parser));
@@ -16,10 +17,12 @@ c_graph_parser* new_graph_parser(int weight, int heuristic){
     init_graph(&(gp->g));
     return (c_graph_parser*)gp;
 }
+
 /**
- * 
- * @param v
- * @param topo
+ * Wrapper function for loading the graph
+ *
+ * @param v A c_graph_parser struct that contains data to run the centrality algorithm
+ * @param topo A topology struct that defines the structure of a graph, in particulare the neighbours list
  */
 void graph_parser_parse_simplegraph(c_graph_parser* v, struct topology *topo){
     struct graph_parser * gp=(struct graph_parser *)v;
@@ -40,8 +43,8 @@ void graph_parser_parse_simplegraph(c_graph_parser* v, struct topology *topo){
 }
 
 /**
- * 
- * @param v
+ * Wrapper function for actually computing the centrality
+ * @param v c_graph_parser struct that contains data to run the centrality algorithm
  */
 void graph_parser_calculate_bc(c_graph_parser* v){
     struct graph_parser * gp=(struct graph_parser *)v;
@@ -54,10 +57,10 @@ void graph_parser_calculate_bc(c_graph_parser* v){
     }
 }
 /**
- * 
- * @param v
- * @param map
- * @return 
+ * Wrapper function that returns in a custom struct the centrality and other data.
+ * @param v c_graph_parser struct that contains data with results 
+ * @param map A custom struct that contains data relative to the centrality and
+ * @return A fixed value
  */
 int graph_parser_compose_degree_bc_map(c_graph_parser* v, map_id_degree_bc *map){
     struct graph_parser * gp=(struct graph_parser *)v;
@@ -77,8 +80,8 @@ int graph_parser_compose_degree_bc_map(c_graph_parser* v, map_id_degree_bc *map)
     return 1;
 }
 /**
- * 
- * @param v
+ * Function that deallocates and frees memory used for centrality computation
+ * @param v c_graph_parser struct that has to be deleted
  */
 void delete_graph_parser(void* v){
     struct graph_parser * gp=(struct graph_parser *)v;
