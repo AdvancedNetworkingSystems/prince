@@ -36,7 +36,7 @@ class PrinceTestOONF:
         while(self.go):
             #READ FROM SHARED FIFO QUEUE
             order = self.workers_order_q.get()
-            print ("thread "+ str(worker_id)+" got an order\n")
+            print ("thread " + str(worker_id)+" got an order\n")
             #Gen the graph
             T = int(order['N'] * 1.2)
             E = order['N'] * 1.8
@@ -118,7 +118,9 @@ class PrinceTestOONF:
 
             else:
                 # search for the timers' values using the regex
-                self.parse_data(data)
+                if(not self.parse_data(data)):
+                    print json.dumps(self.netjson)
+                    print "\n\n\n"
                 cs.close()
                 iter -= 1
 
@@ -132,12 +134,17 @@ class PrinceTestOONF:
         if data:
             toks = self.p.findall(data)
             if toks:
-                tc_cpp = float(toks[0])
-                hello_cpp = float(toks[1])
-                exec_time = float(toks[2])
+                try:
+                    tc_cpp = float(toks[0])
+                    hello_cpp = float(toks[1])
+                    exec_time = float(toks[2])
+                except IndexError:
+                    print ("ERRORE!!!\n\n\n\n")
+                    return False
                 # calculate the percentage error between the reference (py) and the measured (C[++]) values
                 tc_err = abs(tc_cpp - self.tc_py) / ((tc_cpp + self.tc_py) / 2) * 100
                 h_err = abs(hello_cpp - self.h_py) / ((hello_cpp + self.h_py) / 2) * 100
                 self.hs.append(h_err)
                 self.tcs.append(tc_err)
                 self.executions.append(exec_time)
+                return True

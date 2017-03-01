@@ -1,9 +1,3 @@
-/*
- * plugin_interface.h
- *
- *  Created on: 02 giu 2016
- *      Author: gabriel
- */
 #ifndef SRC_PLUGIN_INTERFACE_H_
 #define SRC_PLUGIN_INTERFACE_H_
 

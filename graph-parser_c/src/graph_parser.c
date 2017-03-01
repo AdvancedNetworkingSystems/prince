@@ -3,7 +3,12 @@
 bool recursive=true;
 
 
-
+/**
+ * 
+ * @param weight
+ * @param heuristic
+ * @return 
+ */
 c_graph_parser* new_graph_parser(int weight, int heuristic){
     struct graph_parser * gp=(struct graph_parser *)malloc(sizeof(struct graph_parser));
     gp->heuristic_b=heuristic==1;
@@ -11,6 +16,11 @@ c_graph_parser* new_graph_parser(int weight, int heuristic){
     init_graph(&(gp->g));
     return (c_graph_parser*)gp;
 }
+/**
+ * 
+ * @param v
+ * @param topo
+ */
 void graph_parser_parse_simplegraph(c_graph_parser* v, struct topology *topo){
     struct graph_parser * gp=(struct graph_parser *)v;
     struct node *punt;
@@ -18,18 +28,21 @@ void graph_parser_parse_simplegraph(c_graph_parser* v, struct topology *topo){
     init_graph(&(gp->g));
     for(punt=topo->first; punt!=0; punt=punt->next){
         struct neighbor* neigh;
-        
+
         for(neigh=punt->neighbor_list; neigh!=0; neigh=neigh->next){
             const char* source = punt->id;
             const char* target = neigh->id->id;
             double cost = neigh->weight;
             add_edge_graph(&(gp->g),source,target, cost,false);
-            
+
         }
     }
 }
 
-
+/**
+ * 
+ * @param v
+ */
 void graph_parser_calculate_bc(c_graph_parser* v){
     struct graph_parser * gp=(struct graph_parser *)v;
     //empirical results show that in smaller graphs the 
@@ -40,11 +53,17 @@ void graph_parser_calculate_bc(c_graph_parser* v){
         gp->bc=betweeness_brandes(&(gp->g),true,0);
     }
 }
+/**
+ * 
+ * @param v
+ * @param map
+ * @return 
+ */
 int graph_parser_compose_degree_bc_map(c_graph_parser* v, map_id_degree_bc *map){
     struct graph_parser * gp=(struct graph_parser *)v;
     map->size=gp->g.nodes.size;
     map->map = (struct _id_degree_bc *) malloc(sizeof(struct _id_degree_bc)*gp->g.nodes.size);
-    map->n_edges = 0; //Todo: add counting
+    map->n_edges = 0; 
     struct node_list *  nl;
     int i=0;
     for(nl=gp->g.nodes.head;nl!=0;nl=nl->next){
@@ -57,7 +76,10 @@ int graph_parser_compose_degree_bc_map(c_graph_parser* v, map_id_degree_bc *map)
     }
     return 1;
 }
-
+/**
+ * 
+ * @param v
+ */
 void delete_graph_parser(void* v){
     struct graph_parser * gp=(struct graph_parser *)v;
     free_graph(&gp->g);

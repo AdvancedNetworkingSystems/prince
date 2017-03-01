@@ -7,8 +7,8 @@
  * @param proto type of the remote plugin (0->netjson 1->jsoninfo)
  * @return pointer to olsr plugin handler
  */
-routing_plugin* new_plugin(char* host, int port, c_graph_parser *gp, int json_type){
-
+routing_plugin* new_plugin(char* host, int port, c_graph_parser *gp, int json_type)
+{
 	routing_plugin *o = (routing_plugin *) malloc(sizeof(routing_plugin));
 	o->port=port;
 	o->host=strdup(host);
@@ -23,8 +23,8 @@ routing_plugin* new_plugin(char* host, int port, c_graph_parser *gp, int json_ty
  * @param olsr plugin handler object
  * @return 1 if success, 0 otherwise
  */
-int get_topology(routing_plugin *o){ /*netjson & jsoninfo*/
-
+int get_topology(routing_plugin *o) /*netjson & jsoninfo*/
+{
 	int sd = _create_socket(o->host, o->port);
 	char *req;
 	int sent;
@@ -69,7 +69,8 @@ int get_topology(routing_plugin *o){ /*netjson & jsoninfo*/
  * @param olsr plugin handler object
  * @return 1 if success, 0 otherwise
  */
-int push_timers(routing_plugin *o, struct timers t){
+int push_timers(routing_plugin *o, struct timers t)
+{
 	/*TODO: push h and tc value to the daemon*/
 	printf("%f \t %f\n", t.h_timer, t.tc_timer);
 	return 1;
@@ -79,12 +80,10 @@ int push_timers(routing_plugin *o, struct timers t){
  * Delete the olsr plugin handler
  * @param olsr plugin handler object
  */
-void delete_plugin(routing_plugin* o){
-
+void delete_plugin(routing_plugin* o)
+{
 	delete_graph_parser(o->gp);
 	free(o->host);
 	free(o->recv_buffer);
 	free(o);
 }
-
-

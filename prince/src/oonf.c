@@ -22,8 +22,8 @@ routing_plugin* new_plugin(char* host, int port, c_graph_parser *gp, int json_ty
  * @param oonf plugin handler object
  * @return 1 if success, 0 otherwise
  */
-int get_topology(routing_plugin *o){
-
+int get_topology(routing_plugin *o)
+{
 	int sd, sent;
 	if((sd = _create_socket(o->host, o->port))==0){
 		printf("Cannot connect to %s:%d", o->host, o->port);
@@ -35,8 +35,10 @@ int get_topology(routing_plugin *o){
 		close(sd);
 		return 0;
 	}
-	if(o->recv_buffer!=0)
+	if(o->recv_buffer!=0){
             free(o->recv_buffer);
+	    o->recv_buffer=0;
+    	}
 	if(!_telnet_receive(sd, &(o->recv_buffer))){
 		printf("cannot receive \n");
 		close(sd);
@@ -63,7 +65,8 @@ int get_topology(routing_plugin *o){
  * @param oonf plugin handler object
  * @return 1 if success, 0 otherwise
  */
-int push_timers(routing_plugin *o, struct timers t){
+int push_timers(routing_plugin *o, struct timers t)
+{
 	int sd =_create_socket(o->host, o->port);
 	char cmd[111];
 	sprintf(cmd, "/config set olsrv2.tc_interval=%4.2f/config set interface.hello_interval=%4.2f/config commit/quit/exec=%4.6f", t.tc_timer, t.h_timer, t.exec_time);
@@ -77,7 +80,8 @@ int push_timers(routing_plugin *o, struct timers t){
  * Delete the oonf plugin handler
  * @param oonf plugin handler object
  */
-void delete_plugin(routing_plugin* o){
+void delete_plugin(routing_plugin* o)
+{
 	delete_graph_parser(o->gp);
 	free(o->host);
         if(o->recv_buffer!=0)
@@ -85,4 +89,3 @@ void delete_plugin(routing_plugin* o){
 	free(o->self_id);
 	free(o);
 }
-
