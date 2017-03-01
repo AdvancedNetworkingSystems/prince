@@ -9,20 +9,41 @@
  * completes, instead of using already computed value, you have to change this
  * function.
  * 
- * @param deviation The standard deviation of the current graph
- * @param deviation_old The standard deviation of the last computed graph
- * @param biconnected_num The number of biconnected component of the current graph
+ * @param deviation_bic The standard deviation of the biconnected components sizes in 
+ * current graph
+ * @param old_deviation_bic The standard deviation of the biconnected components sizes 
+ * of the last computed graph
+ * @param biconnected_num The number of biconnected component of the 
+ * current graph
  * @param old_biconnected_num The number of biconnected component of the last 
  * computed graph
+ * @param old_node_num The number of nodes in the last computed graph
+ * @param node_num The number of nodes in the present graph
+ * @param deviation_edge The standard deviation of the current graph edges weights
+ * @param old_deviation_edge The standard deviation of the last computed  graph edges weights
+ * 
  * @return whether we have to recompute the graph
  */
-bool is_to_recompute(double deviation, double deviation_old, int biconnected_num,int old_biconnected_num){
-    double diff=deviation-deviation_old;
-    if(diff<0)
-        diff*=-1;
-    return diff>.1 || abs((biconnected_num)-old_biconnected_num)>2 && diff>.05;
-}
 
+bool is_to_recompute(double deviation_bic, double old_deviation_bic, 
+        int biconnected_num,int old_biconnected_num, 
+        int node_num,int old_node_num,
+        double deviation_edge, double old_deviation_edge){
+    
+    float stdd=1;
+    if(old_deviation_bic>0){
+        stdd=abs(deviation_bic-old_deviation_bic)/old_deviation_bic;
+    }
+    int nn=abs(biconnected_num-old_biconnected_num);
+    float stde=1;
+    if(old_deviation_edge>0){
+        stde=abs(deviation_edge-old_deviation_edge)/old_deviation_edge;
+    }
+    int nb=abs(node_num-old_node_num);
+    //parameters are chosen from test on real and simulated networks, see
+    // py scripts for details
+    return stdd>=0.05 && nn>=4 && stde>=0.005 && nb>=0;
+}
 
 
 /**
@@ -32,13 +53,17 @@ bool is_to_recompute(double deviation, double deviation_old, int biconnected_num
  * 
  * 
  * @param connected_comp_num the number of biconnected component
- * @param standard_deviation the standard deviation 
+ * @param standard_deviation_bic the standard deviation 
  * of the size of biconnected component
+ * @param standard_deviation_edge the standard deviation 
+ * of edge weights
  * @param size the size of the result (could be 0)
  * @param ret_vals  a pointer values of the result (could be 0, null pointing)
  * @param list_of_nodes list of nodes in the graph, used for storing id
  */
-void write_file(int connected_comp_num, float standard_deviation, int size, double* ret_vals, struct list * list_of_nodes){
+void write_file(int connected_comp_num, float standard_deviation_bic, 
+        float standard_deviation_edge, int size, double* ret_vals, 
+        struct list * list_of_nodes){
     FILE *fp;
     fp = fopen("network.dat", "w+");
     if (fp == NULL) {
@@ -52,7 +77,7 @@ void write_file(int connected_comp_num, float standard_deviation, int size, doub
         int str_len_tmp=strlen(ng->name);
         str_len=(str_len>str_len_tmp?str_len:str_len_tmp);
     }
-    fprintf(fp, "%d, %f\n", connected_comp_num, (float)standard_deviation);
+    fprintf(fp, "%d, %f, %f, %d\n", connected_comp_num, (float)standard_deviation_bic,(float)standard_deviation_edge,list_of_nodes->size);
     fprintf(fp, "%d, %d\n", size,str_len+1);
     int i=0;
     for(nl=list_of_nodes->head;nl!=0;nl=nl->next){
@@ -69,14 +94,17 @@ void write_file(int connected_comp_num, float standard_deviation, int size, doub
  * 
  * @param connected_comp_num An int pointer, will store the last number of 
  * biconnected component, if any
- * @param standard_deviation A float pointer, will store the last value of 
- * standard deviation, if any
+ * @param standard_deviation_bic A float pointer, will store the last value of 
+ * standard deviation of biconnected size, if any
+ * @param standard_deviation_edge A float pointer, will store the last value of 
+ * standard deviation of edge weight, if any
+ * @param node_num A int pointer, will store the last number of nodes , if any
  * @param size An int pointer, will store the size of last result, if any.
  * @param ret_vals  A double pointer, will store the last result values, if any.
  * @param node_names Pointer to char * array, will retrieve the list of names
  * @return Whether everything was fine
  */
-bool read_file(int * connected_comp_num, float * standard_deviation,int * size, double** ret_vals, char *** node_names){
+bool read_file(int * connected_comp_num, float * standard_deviation_bic, float *standard_deviation_edge,int *node_num,int * size, double** ret_vals, char *** node_names){
     FILE *fp;
     
     
@@ -84,7 +112,7 @@ bool read_file(int * connected_comp_num, float * standard_deviation,int * size, 
     if (fp == NULL) {
         return false;
     }
-    bool ret_val=(fscanf(fp, "%d, %f\n", connected_comp_num, standard_deviation) == 2);
+    bool ret_val=(fscanf(fp, "%d, %f, %f, %d\n", connected_comp_num, standard_deviation_bic,standard_deviation_edge,node_num) == 4);
     int string_max_len=-1;
     ret_val=ret_val && (fscanf(fp, "%d, %d\n",size,&string_max_len) == 2);
     char *buffer=malloc(sizeof(char)*string_max_len);
@@ -110,8 +138,8 @@ bool read_file(int * connected_comp_num, float * standard_deviation,int * size, 
  * divided among all connected subgraphs.
  * @param connected_num An int pointer, will store the last number of 
  * biconnected component.
- * @param standard_deviation A float pointer, will store the last value of 
- * standard deviation.
+ * @param standard_deviation_bic A float pointer, will store the last value of 
+ * standard deviation of biconnected components size.
  */
 void compute_mean_number(struct list * biconnected_components_subgraph, 
         int * connected_num , float* standard_deviation){
@@ -145,8 +173,8 @@ void compute_mean_number(struct list * biconnected_components_subgraph,
 }
 
 /**
- * This function returns the result of last computation if the nework is 
- * changed, otherwise 0. In this sense dectects if the nework is changed.
+ * This function returns the result of last computation if the network is 
+ * changed, otherwise 0. In this sense detects if the network is changed.
  * This change is based on the number of biconnected component and the standard
  * deviations of biconnected component sizes. The last value is the most 
  * important. 
@@ -154,29 +182,40 @@ void compute_mean_number(struct list * biconnected_components_subgraph,
  * 
  * @param biconnected_components_subgraph The list of biconnected components, 
  * divided among all connected subgraphs.
+ * @param node_num number of nodes in the current graph
  * @param biconnected_num An int pointer, will store the number of 
  biconnected component
- * @param standard_deviation A float pointer, will store the standard deviation
+ * @param standard_deviation_bic A float pointer, will store the standard 
+ * deviation of biconnected sizes
+ * @param standard_deviation_edge A float pointer, 
+ * will store the standard deviation of edges weights
  * @param result_size A int pointer,  will store the number of last results
  * @param node_names Pointer to char * array, will retrieve the list of names
  * @return the last results if the network is not changed, o.w. a zero pointer.
  */
-double * is_network_changed(struct list * biconnected_components_subgraph,
-        int * biconnected_num,float * standard_deviation, int *result_size, 
+double * is_network_changed(struct list * biconnected_components_subgraph, int node_num,
+        int * biconnected_num,float * standard_deviation_bic, float * standard_deviation_edge, int *result_size, 
         char *** node_names){
     int biconnected_num_old=-1;
-    float standard_deviation_old=-1;
-    compute_mean_number(biconnected_components_subgraph,biconnected_num,standard_deviation);
+    float standard_deviation_bic_old=-1;
+    int node_num_old=-1;
+    float standard_deviation_edge_old=-1;
+    compute_mean_number(biconnected_components_subgraph,biconnected_num,standard_deviation_bic);
     double * ret_val;
-    if(!read_file(&biconnected_num_old,&standard_deviation_old,result_size,&ret_val,node_names)){
+    if(!read_file(&biconnected_num_old,&standard_deviation_bic_old,
+            &standard_deviation_edge_old,&node_num_old,
+            result_size,&ret_val,node_names)){
         return 0;
     }
     
-    bool recompute=is_to_recompute(*standard_deviation,standard_deviation_old,*biconnected_num,biconnected_num_old);
-
+    bool recompute=is_to_recompute(
+            *standard_deviation_bic,standard_deviation_bic_old,
+            *biconnected_num,biconnected_num_old,
+            node_num,node_num_old,
+            *standard_deviation_edge,standard_deviation_edge_old
+            );
     if(recompute){
-        free(ret_val);
-        printf("Recompute\n");
+        free(ret_val); 
         return 0;
     }else{
         return ret_val;
@@ -202,17 +241,17 @@ void copy_old_values(double * old_vals,double * vals,char ** names, int names_co
     }
 }
 
-
-/*
+/* */
+#include "graph_parser.h"
 int main(){
-    
+    stop_computing_if_unchanged=true;
     struct graph g;
     init_graph(&g);
     add_edge_graph(&g,"0","1",1,0);
-    add_edge_graph(&g,"1","2",1,0);
-    add_edge_graph(&g,"2","3",1,0);
-    add_edge_graph(&g,"3","0",1,0);
-    add_edge_graph(&g,"1","4",1,0);
+    add_edge_graph(&g,"1","2",2,0);
+    add_edge_graph(&g,"2","3",3,0);
+    add_edge_graph(&g,"3","0",2,0);
+    add_edge_graph(&g,"1","4",5,0);
     add_edge_graph(&g,"1","7",1,0);
     double * res1=0;
     res1=betwenness_heuristic(&g,true);
@@ -221,9 +260,9 @@ int main(){
     res1=betwenness_heuristic(&g,true);
     if(res1!=0)
         free(res1);
-    add_edge_graph(&g,"4","7",1,0);
+    add_edge_graph(&g,"4","7",100,0);
     res1=betwenness_heuristic(&g,true);
     if(res1!=0)
         free(res1);
     free_graph(&g);
-}*/
+}

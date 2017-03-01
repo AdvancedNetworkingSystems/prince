@@ -34,11 +34,12 @@ extern "C" {
     
     
     
-    double *  is_network_changed(struct list * biconnected_components_subgraph,
-            int * connected_num,float * standard_deviation, int *result_size, 
-            char *** node_names);
-    void write_file(int connected_comp_num, float standard_deviation, 
-            int size, double* ret_vals, struct list * list_of_nodes);
+    double * is_network_changed(struct list * biconnected_components_subgraph, int node_num,
+        int * biconnected_num,float * standard_deviation_bic, float * standard_deviation_edge, int *result_size, 
+        char *** node_names);
+    void write_file(int connected_comp_num, float standard_deviation_bic, 
+            float standard_deviation_edge, int size, double* ret_vals, 
+            struct list * list_of_nodes);
     void copy_old_values(double * old_vals,double * vals,char ** names, 
             int names_count, struct list * list_of_nodes);
     
