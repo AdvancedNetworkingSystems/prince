@@ -241,7 +241,7 @@ void copy_old_values(double * old_vals,double * vals,char ** names, int names_co
     }
 }
 
-/* */
+/* 
 #include "graph_parser.h"
 int main(){
     stop_computing_if_unchanged=true;
@@ -266,3 +266,4 @@ int main(){
         free(res1);
     free_graph(&g);
 }
+*/
