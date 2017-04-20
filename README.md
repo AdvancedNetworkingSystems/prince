@@ -44,7 +44,7 @@ weights  = 0
 ```
 
 
-##OONF
+## OONF
 To use Prince with OONF you need the following plugins: `remotecontrol, telnet, netjsoninfo`.
 
 This is a configuration example that works with prince:
