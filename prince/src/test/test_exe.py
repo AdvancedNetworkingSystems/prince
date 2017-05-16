@@ -57,9 +57,11 @@ def time_exe(is_c,heu):
 
 
 
+
 rounding=50
 #start,end,jump=200,2000+1,100
 start,end,jump=2000,2000+1,100
+
 repetitions=10
 max=int(math.ceil(float(end-start)/jump))*repetitions
 
@@ -128,6 +130,7 @@ for i in range(start,end,jump):
     res["c++_eu_mean"].append(mean(cpp_eu))
     res["x"].append(i)
 exit(0)
+
 plt.errorbar(res["x"], res["c++_mean"], yerr=res["c++_var"], label="C++ w/o h")
 plt.errorbar(res["x"], res["c++_eu_mean"], yerr=res["c++_eu_var"], label="C++ w h")
 plt.errorbar(res["x"], res["c_mean"], yerr=res["c_var"], label="C w/o h")

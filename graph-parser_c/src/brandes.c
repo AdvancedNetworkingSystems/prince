@@ -37,7 +37,7 @@ bool use_heu_on_single_biconnected=true;
  */
 float decimal_places=1000000000;
 
-inline double round_decimal(double d){
+static inline double round_decimal(double d){
     return roundf(d*decimal_places)/decimal_places;
 }
 
@@ -585,7 +585,6 @@ void compute_heuristic_wo_scale(struct graph * g,
             int i;
             for(i=0;i<cc->g.nodes.size;i++){
                 bc[cc->mapping[i]] += partial[i];
-                
             }
             free(partial);
         }
@@ -660,7 +659,7 @@ double * betwenness_heuristic(struct graph * g, bool recursive){
     int biconnected_component_num=-1,result_size=-1;
     float standard_deviation_bic=-1;
     float standard_deviation_edge=0;
-    
+
     if(stop_computing_if_unchanged){
         int edge_num=0;
         struct node_list * nl=g->nodes.head;
@@ -674,7 +673,8 @@ double * betwenness_heuristic(struct graph * g, bool recursive){
             }
         }
         standard_deviation_edge/=edge_num;
-        //if we rely on old values when network 
+
+        //if we rely on old values when network
         //is not changed
         char ** old_names=0;
         double *  old_ret_val=is_network_changed(connected_components_subgraphs,g->nodes.size,
