@@ -25,7 +25,7 @@ extern "C" {
  * http://www.algo.uni-konstanz.de/publications/b-fabc-01.pdf
  * http://algo.uni-konstanz.de/publications/b-vspbc-08.pdf
  */
-double * betweeness_brandes(struct graph * g, bool endpoints,int ** traffic_matrix);
+double * betweeness_brandes(struct graph * g, bool endpoints,int * articulation_point_val);
 /**
  * This is the algorithm described in the linked paper.
  * It reaches the exact results of the previous one, but it is implemented

@@ -72,9 +72,13 @@ class server:
             data=conn.recv(1024)
             if data.strip() == "/netjsoninfo filter graph ipv6_0/quit":
                 #g=nx.read_weighted_edgelist("input.json")
+<<<<<<< HEAD
+                json_netjson = json.dumps(composeNetJson(graph))
+=======
                 #json_netjson = json.dumps(composeNetJson(graph))
                 with open('error_graph.json', 'r') as myfile:
                     json_netjson=myfile.read().replace('\n', '')
+>>>>>>> a0773cd7cb7ed63cc621a3cd4756c452683ef2ac
                 conn.send(json_netjson)
                 conn.close()
             elif data:
