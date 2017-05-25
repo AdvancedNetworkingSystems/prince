@@ -1,38 +1,4 @@
 #include "prince.h"
-#include <unistd.h>
-#include <time.h>
-
-char* read_file_content(char *filename)
-{
-	char *buffer = NULL;
-	int string_size, read_size;
-	FILE *handler = fopen(filename, "r");
-
-	if (handler)
-	{
-
-		fseek(handler, 0, SEEK_END);
-		string_size = ftell(handler);
-		rewind(handler);
-
-		buffer = (char*) malloc(sizeof(char) * (string_size + 1) );
-
-		read_size = fread(buffer, sizeof(char), string_size, handler);
-
-		buffer[string_size] = '\0';
-
-		if (string_size != read_size)
-		{
-			free(buffer);
-			buffer = NULL;
-		}
-
-		fclose(handler);
-	}
-
-	return buffer;
-}
-
 
 routing_plugin* (*new_plugin_p)(char* host, int port, c_graph_parser *gp, int json_type);
 int (*get_topology_p)(routing_plugin *o);
@@ -120,20 +86,21 @@ struct prince_handler* new_prince_handler(char * conf_file)
 	ph->self_id=0;
 	ph->sleep_onfail = 1;
 	if(read_config_file(ph, conf_file)==0)
-	return 0;
+		return 0;
 	switch(ph->proto){
 		case 0: /*olsr*/
 		ph->json_type=0;
-		ph->plugin_handle = dlopen ("libprince_olsr_c.so", RTLD_LAZY);
+		ph->plugin_handle = dlopen ("libprince_olsr.so", RTLD_LAZY);
 		break;
 		case 1: /*oonf*/
-		ph->plugin_handle = dlopen ("libprince_oonf_c.so", RTLD_LAZY);
-
+		ph->plugin_handle = dlopen ("libprince_oonf.so", RTLD_LAZY);
+		break;
+		case 2: /*ospf*/
+		ph->plugin_handle = dlopen ("libprince_ospf.so", RTLD_LAZY);
 		break;
 	}
 	if(!ph->plugin_handle)
-	return 0;
-
+		return 0;
 	new_plugin_p = (routing_plugin* (*)(char* host, int port, c_graph_parser *gp, int json_type)) dlsym(ph->plugin_handle, "new_plugin");
 	get_topology_p = (int (*)(routing_plugin *o)) dlsym(ph->plugin_handle, "get_topology");
 	push_timers_p = (int (*)(routing_plugin *o, struct timers t)) dlsym(ph->plugin_handle, "push_timers");
@@ -205,142 +172,3 @@ int compute_timers(struct prince_handler *ph)
 	ph->opt_t.tc_timer = sqrt(ph->c.R/ph->bc_degree_map->map[my_index].bc)*ph->c.sq_lambda_TC;
 	return 1;
 }
-
-/**
-* Given a file, return its extension
-*
-* @param filename A file name
-* @return The file extension
-*/
-const char *get_filename_ext(const char *filename)
-{
-	const char *dot = strrchr(filename, '.');
-	if(!dot || dot == filename) return "";
-	return dot + 1;
-}
-
-/**
-* Given a json in the following format:
-* {
-*    "proto":{
-*       "protocol":"oonf",
-*       "host":"127.0.0.1",
-*       "port":2019,
-*       "refresh":1
-*    },
-*    "graph-parser":{
-*       "heuristic":1,
-*       "weights":0,
-*       "recursive":1,
-*       "stop_unchanged":0,
-*       "multithreaded":1
-*    }
-* }
-* it parses it and initializes the program parameter
-* @param filepath A json file path
-* @param ph The prince_handler, for saving the configuration
-* @return Whether the reading ended successfully
-*/
-bool parse_json_config(char *filepath,struct prince_handler *ph)
-{
-	char * buffer = read_file_content(filepath);
-	int completed=0;
-	bool heuristic_set=false,weights_set=false,
-	recursive_set=false,stop_unchanged_set=false,multithreaded_set=false;
-	struct json_object *jobj = json_tokener_parse(buffer);
-	json_object_object_foreach(jobj, key, val) {
-		if(strcmp(key, "proto")==0){
-			if(json_object_get_type(val)==json_type_object){
-				json_object_object_foreach(val, key_i, val_i) {
-					if(ph->proto<0&&strcmp(key_i, "protocol")==0){
-						if(json_object_get_type(val_i)==json_type_string){
-							const char * content=json_object_get_string(val_i);
-							if(strcmp(content, "oslr")==0){
-								ph->proto=0;
-								completed++;
-							}else if(strcmp(content, "oonf")==0){
-								ph->proto=1;
-								completed++;
-							}
-						}
-					}else if(ph->host==0&&strcmp(key_i, "host")==0){
-						if(json_object_get_type(val_i)==json_type_string){
-							const char * content=json_object_get_string(val_i);
-							ph->host=strdup(content);
-							completed++;
-
-						}
-					}else if(ph->port<0&&strcmp(key_i, "port")==0){
-						if(json_object_get_type(val_i)==json_type_int){
-							ph->port=json_object_get_int(val_i);
-							completed++;
-						}
-					}else if(strcmp(key_i, "refresh")==0){
-						if(ph->refresh<0&&json_object_get_type(val_i)==json_type_int){
-							ph->refresh=json_object_get_int(val_i);
-							completed++;
-						}
-					}
-				}
-			}
-		}else if(strcmp(key, "graph-parser")==0){
-			if(json_object_get_type(val)==json_type_object){
-				json_object_object_foreach(val, key_i, val_i) {
-					if(!heuristic_set&&strcmp(key_i, "heuristic")==0){
-						if(json_object_get_type(val_i)==json_type_int){
-							ph->heuristic=json_object_get_int(val_i)==1;
-							heuristic_set=true;
-						}
-					}else if(strcmp(key_i, "weights")==0){
-						if(!weights_set&&json_object_get_type(val_i)==json_type_int){
-							ph->weights=json_object_get_int(val_i)==1;
-							weights_set=true;
-						}
-					}else if(strcmp(key_i, "recursive")==0){
-						if(!recursive_set&&json_object_get_type(val_i)==json_type_int){
-							ph->recursive=json_object_get_int(val_i)==1;
-							recursive_set=true;
-						}
-					}else if(strcmp(key_i, "stop_unchanged")==0){
-						if(!stop_unchanged_set&&json_object_get_type(val_i)==json_type_int){
-							ph->stop_unchanged=json_object_get_int(val_i);
-							stop_unchanged_set=true;
-						}
-					}else if(strcmp(key_i, "multithreaded")==0){
-						if(!multithreaded_set&&json_object_get_type(val_i)==json_type_int){
-							ph->multithreaded=json_object_get_int(val_i);
-							multithreaded_set=true;
-						}
-					}
-				}
-			}
-		}
-	}
-	if(jobj!=0){
-		json_object_put(jobj);
-		/* json_object_object_del(jobj, "");*/
-	}
-	free(buffer);
-	if(completed==4&&heuristic_set && weights_set && recursive_set
-		&& stop_unchanged_set && multithreaded_set)
-		return true;
-		return false;
-
-	}
-
-	/**
-	* Read the ini configuration and populate struct prince_handler
-	* @param *ph pinter to the prince_handler object
-	* @param *filepath path to the configuration file
-	* @return 1 if success, 0 if fail
-	*/
-	int
-	read_config_file(struct prince_handler *ph, char *filepath){
-		if(!((strcmp(get_filename_ext(filepath),"json")==0 && parse_json_config(filepath, ph)) ||(ini_parse(filepath, handler, ph)))) {
-			printf("Cannot read configuration file '%s' (Either format or content not compliant or complete). Exiting.\n", filepath);
-			return 0;
-		}
-
-		printf("Config loaded from %s\n", filepath);
-		return 1;
-	}

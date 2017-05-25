@@ -7,11 +7,7 @@
 nbproject/
 .idea/
 data/
-output/
 
-prince/build
-graph-parser/build
-prince/src/common.h
 #files being edited
 *~
 

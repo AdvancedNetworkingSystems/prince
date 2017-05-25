@@ -3,10 +3,10 @@
 
 
 
-#include "common.h"
-#include "socket.h"
+#include "../common.h"
+#include "../socket.h"
 /*inehrit methods from here */
-#include "plugin_interface.h"
+#include "../plugin_interface.h"
 
 
 

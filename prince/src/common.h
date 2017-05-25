@@ -7,6 +7,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stddef.h>
+#include <stdbool.h>
+
 #include "../../graph-parser_c/src/graph_parser.h"
 
 /*DEFINES*/
