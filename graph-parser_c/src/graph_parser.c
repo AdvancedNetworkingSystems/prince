@@ -17,7 +17,6 @@ c_graph_parser * new_graph_parser(int weight,
 {
     struct graph_parser *gp = (struct graph_parser*) malloc(sizeof(struct graph_parser));
 
-
     gp -> heuristic_b = heuristic == 1;
     gp -> bc          = 0;
 
@@ -38,8 +37,6 @@ void graph_parser_parse_simplegraph(c_graph_parser * v,
         struct topology                              *topo)
 {
     struct graph_parser *gp = (struct graph_parser*) v;
-
-
     struct node *punt;
 
 
@@ -113,7 +110,6 @@ int graph_parser_compose_degree_bc_map(c_graph_parser * v,
         map -> map[i].bc     = gp -> bc[ng -> node_graph_id];
         map -> n_edges       += ng -> neighbours.size;
         map -> map[i].degree = ng -> neighbours.size;
-
         i++;
     }
 
@@ -135,6 +131,7 @@ void delete_graph_parser(void * v)
     {
         free(gp -> bc);
     }
+
 
     free(gp);
 

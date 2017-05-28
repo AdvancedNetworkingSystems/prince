@@ -58,6 +58,7 @@ extern "C"
                          int         names_count,
                          struct list *list_of_nodes);
 
+
 #ifdef __cplusplus
 }
 #endif

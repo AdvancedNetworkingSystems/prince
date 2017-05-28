@@ -36,9 +36,9 @@ bool use_heu_on_single_biconnected = true;
  */
 float decimal_places = 1000000000;
 
-inline double round_decimal(double d)
-{
-    return roundf(d * decimal_places) / decimal_places;
+
+static inline double round_decimal(double d){
+    return roundf(d*decimal_places)/decimal_places;
 }
 
 const int INFINITY_DIST = INT_MAX;
@@ -772,7 +772,6 @@ void compute_heuristic_wo_scale(struct graph *g,
                         weight_sum += (*cne -> weight) * (node_num - 1 - (*cne -> weight));
                     }
                 }
-
                 bc[i] -= weight_sum;
             }
         }
@@ -1146,6 +1145,7 @@ double * betwenness_heuristic(struct graph *g,
         }
 
         free(args);
+
     }
     else
     {
@@ -1192,6 +1192,11 @@ double * betwenness_heuristic(struct graph *g,
         }
     }
 
+    //if we are storing values for next computation
+    if(stop_computing_if_unchanged){
+        write_file(biconnected_component_num,standard_deviation_bic,standard_deviation_edge,node_num,ret_val,&g->nodes);
+    }
+
     // if we are storing values for next computation
     if (stop_computing_if_unchanged)
     {
@@ -1210,5 +1215,4 @@ double * betwenness_heuristic(struct graph *g,
 
     return ret_val;
 }
-
 
