@@ -12,7 +12,8 @@ cpp:
 	$(MAKE) -C prince/src
 	 cp prince/build/* output/
 clean:
-	rm *.o
+	rm -f *.o
+	rm -fr output
 out:
 	mkdir -p output
 	mkdir -p prince/build/
