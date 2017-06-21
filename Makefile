@@ -1,5 +1,6 @@
-CFLAGS+=-lm -ldl -ljson-c -pthread
-poprouting:out libs cpp
+CFLAGS+=-lm -ldl -ljson-c -pthread -g
+poprouting:out libs cpp cc
+cc: libs
 	cp prince/src/common_c.h prince/src/common.h
 	$(CC) $(LDFLAGS) -Dunique prince/src/prince.c prince/src/lib/ini.c prince/src/parser.c prince/src/socket.c graph-parser_c/src/brandes.c graph-parser_c/src/biconnected.c  graph-parser_c/src/graph_parser.c graph-parser_c/src/graph/graph.c graph-parser_c/src/graph/list.c graph-parser_c/src/network_change.c -o output/prince_c   $(CFLAGS)
 libs:

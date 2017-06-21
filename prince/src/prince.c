@@ -22,6 +22,15 @@
 #include "prince.h"
 #include <unistd.h>
 #include <time.h>
+#include <sys/time.h>
+
+long long current_timestamp() {
+    struct timeval te; 
+    gettimeofday(&te, NULL); // get current time
+    long long milliseconds = te.tv_sec*1000LL + te.tv_usec/1000; // caculate milliseconds
+    // printf("milliseconds: %lld\n", milliseconds);
+    return milliseconds;
+}
 
 char* read_file_content(char *filename)
 {
@@ -74,7 +83,6 @@ main(int argc, char* argv[]){
     struct prince_handler *ph= new_prince_handler(argv[1]);
     if(ph==0)
         return -1;
-    
 #ifndef unique
     ph->bc_degree_map = (map_id_degree_bc *) malloc(sizeof(map_id_degree_bc));
     /*cycle each 'refresh' seconds*/
@@ -125,15 +133,15 @@ main(int argc, char* argv[]){
                 free(ph->self_id);
             ph->self_id = strdup(ph->rp->self_id);
         }
-        clock_t start = clock();
+        long long time=current_timestamp();
         graph_parser_calculate_bc(ph->gp);
-        clock_t end = clock();
+        time=current_timestamp()-time;
         ph->bc_degree_map = (map_id_degree_bc *) malloc(sizeof(map_id_degree_bc));
         ph->bc_degree_map->size=gp_p->g.nodes.size;
         ph->bc_degree_map->map=0;
         graph_parser_compose_degree_bc_map(ph->gp, ph->bc_degree_map);
-        ph->opt_t.exec_time = (double)(end - start) / CLOCKS_PER_SEC;
-        printf("\nCalculation time: %fs\n", ph->opt_t.exec_time);
+        ph->opt_t.exec_time = time;
+        printf("\nCalculation time: %llu ms\n", ph->opt_t.exec_time);
         if (!compute_timers(ph)){
             delete_prince_handler(ph);
             continue;
