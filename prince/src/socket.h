@@ -1,4 +1,4 @@
-#ifndef SRC_SOCKET_H
+#ifndef SRC_SOCKET_H_
 #define SRC_SOCKET_H_
 
 #include <sys/types.h>

@@ -60,6 +60,7 @@ bool parse_json_config(char *filepath,struct prince_handler *ph)
 	int completed=0;
 	bool heuristic_set=false,weights_set=false,
 	recursive_set=false,stop_unchanged_set=false,multithreaded_set=false;
+	if(!buffer) return false;
 	struct json_object *jobj = json_tokener_parse(buffer);
 	json_object_object_foreach(jobj, key, val) {
 		if(strcmp(key, "proto")==0){
@@ -73,6 +74,9 @@ bool parse_json_config(char *filepath,struct prince_handler *ph)
 								completed++;
 							}else if(strcmp(content, "oonf")==0){
 								ph->proto=1;
+								completed++;
+							}else if(strcmp(content, "ospf")==0){
+								ph->proto=2;
 								completed++;
 							}
 						}

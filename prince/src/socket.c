@@ -45,13 +45,13 @@ int _telnet_receive(int sd, char **buffer)
 		i+=amntRecvd;
 		if(!(page=realloc(page, i+SIZE_TO_READ))){
 			free(page);
-			return 0;
+			return false;
 		}
 	}
-	if(!i) return 0;
+	if(!i) return false;
 	page[i]='\0';
 	*buffer=page;
-	return 1;
+	return true;
 
 }
 /**
