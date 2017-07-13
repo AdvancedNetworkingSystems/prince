@@ -32,6 +32,7 @@ routing_plugin_{
 	struct topology *t;
 	short port;
 	int json_type;
+	int sd;
 	c_graph_parser *gp;
 
 }routing_plugin;

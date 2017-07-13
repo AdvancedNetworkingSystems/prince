@@ -8,7 +8,7 @@
 /*inehrit methods from here */
 #include "../plugin_interface.h"
 #define SERVER_READ_BUF_LEN 4096
-
+#define NETJSON_CODE 100
 #include <stdio.h>
 #include <stdlib.h>
 #include <fcntl.h>
@@ -20,6 +20,7 @@
 #include <stdint.h>
 typedef uint8_t byte;
 
-void bird_connect(int *server_fd, char *server_path);
+void bird_connect(routing_plugin *o);
+int receive_netjson(routing_plugin *o);
 
 #endif /* SRC_OSPF_H_ */

@@ -18,6 +18,7 @@ struct prince_handler{
 	struct timers def_t, opt_t;
 	struct constants c;
 	char *self_id, *host;
+	char *command;
 	c_graph_parser *gp;
 	map_id_degree_bc *bc_degree_map;
 	routing_plugin *rp;
