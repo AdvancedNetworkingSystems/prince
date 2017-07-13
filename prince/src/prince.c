@@ -34,6 +34,11 @@ int main(int argc, char* argv[])
 			sleep(ph->sleep_onfail);
 			continue;
 		}
+		graph_parser_parse_simplegraph(ph->rp->gp, ph->rp->t);
+		if(ph->rp->self_id!=0)
+			free(ph->rp->self_id);
+		ph->rp->self_id=strdup(ph->rp->t->self_id);
+
 		if(ph->rp->self_id){
 			if(ph->self_id!=0)
 			free(ph->self_id);
@@ -113,6 +118,7 @@ struct prince_handler* new_prince_handler(char * conf_file)
 */
 void delete_prince_handler(struct prince_handler* ph)
 {
+	delete_graph_parser(ph->gp);
 	delete_plugin_p(ph->rp);
 	dlclose(ph->plugin_handle);
 	char* tmp=dlerror();

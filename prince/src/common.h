@@ -29,6 +29,7 @@ routing_plugin_{
 	char *recv_buffer;
 	char *self_id;
 	char *host;
+	struct topology *t;
 	short port;
 	int json_type;
 	c_graph_parser *gp;

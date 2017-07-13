@@ -24,7 +24,6 @@ routing_plugin* new_plugin(char* host, int port, c_graph_parser *gp, int json_ty
 int get_topology(routing_plugin *o)
 {
 	int server_fd;
-	struct topology *t;
 	char cmd[] = "show ospf topology netjson\n";
 	int c;
 	bird_connect(&server_fd, o->host);
@@ -37,17 +36,41 @@ int get_topology(routing_plugin *o)
 	if(!_telnet_receive(server_fd , &(o->recv_buffer))){
 		return false;
 	}
-	char * json_beg = strstr(o->recv_buffer, "\n")+6;
-	t = parse_netjson(json_beg);
-	if(!t){
-		printf("can't parse netjson\n %s \n", json_beg);
+
+	char *token;
+
+	/* get the first token */
+	token = strtok(o->recv_buffer, "\n");
+	char *lines[20];
+	int i=0;
+	/* walk through other tokens */
+	while( token != NULL )
+	{
+		lines[i]=token;
+		//printf( " %s\n", token );
+		token = strtok(NULL, "\n");
+		i++;
+	}
+	int n=i;
+	int lenght=0;
+	char *netjson;
+	for(i=0;i<n; i++){
+		char code[5];
+		strncpy(code, lines[i], 4);
+		if(atoi(code)==100){
+			printf("%s\n", lines[i]+5);
+			int line_len = strlen(lines[i]+5);
+			lenght += line_len;
+			netjson = realloc(netjson, lenght);
+			strcpy(netjson+lenght-line_len, lines[i]+5);
+		}
+	}
+
+	o->t = parse_netjson(netjson);
+	if(!o->t){
+		printf("can't parse netjson\n %s \n", netjson );
 		return false;
 	}
-	graph_parser_parse_simplegraph(o->gp, t);
-  if(o->self_id!=0)
-    free(o->self_id);
-	o->self_id=strdup(t-> self_id);
-	destroy_topo(t);
 	return true;
 }
 
@@ -60,7 +83,7 @@ int get_topology(routing_plugin *o)
 int push_timers(routing_plugin *o, struct timers t)
 {
 	//TODO
-	return false;
+	return true;
 }
 
 /**
@@ -69,7 +92,6 @@ int push_timers(routing_plugin *o, struct timers t)
  */
 void delete_plugin(routing_plugin* o)
 {
-	delete_graph_parser(o->gp);
 	free(o->host);
   if(o->recv_buffer!=0)
     free(o->recv_buffer);
