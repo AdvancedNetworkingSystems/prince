@@ -69,7 +69,7 @@ int push_timers(routing_plugin *o, struct timers t)
 {
 	int sd =_create_socket(o->host, o->port);
 	char cmd[111];
-	sprintf(cmd, "/config set olsrv2.tc_interval=%4.2f/config set interface.hello_interval=%4.2f/config commit/quit/exec=%4.6f", t.tc_timer, t.h_timer, t.exec_time);
+	sprintf(cmd, "/config set olsrv2.tc_interval=%4.2f/config set interface.hello_interval=%4.2f/config commit/quit/exec=%llu", t.tc_timer, t.h_timer, t.exec_time);
 	write(sd, cmd, strlen(cmd));
 	printf("Pushed Timers %4.2f  %4.2f\n", t.tc_timer, t.h_timer);
 	close(sd);
