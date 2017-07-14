@@ -125,7 +125,6 @@ void delete_graph_parser(void * v)
     struct graph_parser *gp = (struct graph_parser*) v;
 
 
-
     if (gp -> bc != 0)
     {
         free(gp -> bc);
