@@ -1174,7 +1174,9 @@ double * betwenness_heuristic(struct graph *g,
     }
     else
     {
-        if ((cc_num > 1) || use_heu_on_single_biconnected)
+	int bcc_num = ((struct sub_graph *)connected_components_subgraphs->head->content)
+				->connected_components.size;
+        if( cc_num>1|| use_heu_on_single_biconnected || bcc_num > 1)
         {
             struct node_list *subgraph_iterator = connected_components_subgraphs -> head;
 
