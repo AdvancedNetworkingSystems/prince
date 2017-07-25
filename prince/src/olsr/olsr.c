@@ -73,6 +73,12 @@ int push_timers(routing_plugin *o, struct timers t)
 {
 	/*TODO: push h and tc value to the daemon*/
 	printf("%f \t %f\n", t.h_timer, t.tc_timer);
+	o->sd =_create_socket(o->host, o->port);
+	char cmd[111];
+	sprintf(cmd, "/HelloTimer=%4.2f/TcTimer=%4.2f", t.h_timer, t.tc_timer);
+	write(o->sd, cmd, strlen(cmd));
+	printf("Pushed Timers %4.2f  %4.2f\n", t.tc_timer, t.h_timer);
+	close(o->sd);
 	return 1;
 }
 
