@@ -94,7 +94,7 @@ struct prince_handler* new_prince_handler(char * conf_file)
 		return 0;
 	switch(ph->proto){
 		case 0: /*olsr*/
-		ph->json_type=0;
+		ph->json_type=1;
 		ph->plugin_handle = dlopen ("libprince_olsr.so", RTLD_LAZY);
 		break;
 		case 1: /*oonf*/

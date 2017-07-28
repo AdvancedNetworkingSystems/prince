@@ -69,7 +69,7 @@ bool parse_json_config(char *filepath,struct prince_handler *ph)
 					if(ph->proto<0&&strcmp(key_i, "protocol")==0){
 						if(json_object_get_type(val_i)==json_type_string){
 							const char * content=json_object_get_string(val_i);
-							if(strcmp(content, "oslr")==0){
+							if(strcmp(content, "olsr")==0){
 								ph->proto=0;
 								completed++;
 							}else if(strcmp(content, "oonf")==0){
@@ -90,6 +90,12 @@ bool parse_json_config(char *filepath,struct prince_handler *ph)
 					}else if(ph->port<0&&strcmp(key_i, "port")==0){
 						if(json_object_get_type(val_i)==json_type_int){
 							ph->port=json_object_get_int(val_i);
+							completed++;
+						}
+					}
+					else if(strcmp(key_i, "timer_port")==0){
+						if(json_object_get_type(val_i)==json_type_int){
+							ph->timer_port=json_object_get_int(val_i);
 							completed++;
 						}
 					}else if(strcmp(key_i, "refresh")==0){
@@ -138,7 +144,7 @@ bool parse_json_config(char *filepath,struct prince_handler *ph)
 		/* json_object_object_del(jobj, "");*/
 	}
 	free(buffer);
-	if(completed==4&&heuristic_set && weights_set && recursive_set
+	if(completed==5&&heuristic_set && weights_set && recursive_set
 		&& stop_unchanged_set && multithreaded_set)
 		return true;
 	return false;

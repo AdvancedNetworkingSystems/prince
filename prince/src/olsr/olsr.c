@@ -13,6 +13,8 @@ routing_plugin* new_plugin(char* host, int port, c_graph_parser *gp, int json_ty
 	o->port=port;
 	o->host=strdup(host);
 	o->gp = gp;
+	o->recv_buffer=0;
+	o->self_id=0;
 	o->json_type=json_type;
 	return o;
 }
@@ -25,30 +27,46 @@ routing_plugin* new_plugin(char* host, int port, c_graph_parser *gp, int json_ty
  */
 int get_topology(routing_plugin *o) /*netjson & jsoninfo*/
 {
-	int sd = _create_socket(o->host, o->port);
-	char *req;
 	int sent;
+	if((o->sd= _create_socket(o->host, o->port))==0){
+		printf("Cannot connect to %s:%d", o->host, o->port);
+		return 0;
+	}
 	switch(o->json_type){
-	case 1:
-		{
+	case 1:{
 		/*netjson*/
-		req = "/NetworkGraph";
-		sent = write(sd,req,strlen(req));
-		if(!_receive_data(sd, &(o->recv_buffer)))
+		char *req = "/NetworkGraph";
+		if( (sent = send(o->sd,req,strlen(req),MSG_NOSIGNAL))==-1){
+			printf("Cannot send to %s:%d", o->host, o->port);
+			close(o->sd);
 			return 0;
-		struct topology *t = parse_netjson(o->recv_buffer);
-		graph_parser_parse_simplegraph(o->gp, t);
-		destroy_topo(t);
+		}
+		if(o->recv_buffer!=0){
+			free(o->recv_buffer);
+			o->recv_buffer=0;
+		}
+		if(!_telnet_receive(o->sd, &(o->recv_buffer))){
+			printf("cannot receive \n");
+			close(o->sd);
+			return 0;
+		}
+		o->t = parse_netjson(o->recv_buffer);
+		if(!o->t){
+			printf("can't parse netjson\n %s \n", o->recv_buffer);
+			close(o->sd);
+			return 0;
+		}
 		}
 		break;
 
-	case 0:
-		{
+	case 0:{
 		/*jsoninfo*/
-		req = "/topology";
-		sent = write(sd,req,strlen(req));
-		if(!_receive_data(sd, &(o->recv_buffer)))
+		char *req = "/topology";
+		sent = write(o->sd,req,strlen(req));
+		if(!_receive_data(o->sd, &(o->recv_buffer))){
+			close(o->sd);
 			return 0;
+		}
 		struct topology *t = parse_jsoninfo(o->recv_buffer);
 		graph_parser_parse_simplegraph(o->gp, t);
 		destroy_topo(t);
@@ -56,8 +74,10 @@ int get_topology(routing_plugin *o) /*netjson & jsoninfo*/
 		break;
 
 	default:
+		close(o->sd);
 		return 0;
 	}
+	close(o->sd);
 	return 1;
 }
 
@@ -88,8 +108,9 @@ int push_timers(routing_plugin *o, struct timers t)
  */
 void delete_plugin(routing_plugin* o)
 {
-	delete_graph_parser(o->gp);
 	free(o->host);
-	free(o->recv_buffer);
+	if(o->recv_buffer!=0)
+  	free(o->recv_buffer);
+	free(o->self_id);
 	free(o);
 }
