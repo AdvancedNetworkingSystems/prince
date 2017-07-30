@@ -1,7 +1,7 @@
 {
 	"proto": {
 		"protocol": "olsr",
-		"host": "127.0.0.1",
+		"host": "ninux.unifi.it",
 		"port": 2010,
 		"timer_port": 1234,
 		"refresh": 1

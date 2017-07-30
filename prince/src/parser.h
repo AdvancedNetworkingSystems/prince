@@ -34,6 +34,7 @@ struct node{
 	char *id;
 	struct neighbor *neighbor_list;
 	struct node *next;
+	struct local_address *addresses;
 };
 
 
@@ -43,6 +44,10 @@ struct neighbor{
 	struct neighbor *next;
 };
 
+struct local_address{
+	const char *id;
+	struct local_address *next;
+};
 struct topology * parse_jsoninfo(char *buffer);
 struct topology * parse_netjson(char* buffer);
 int add_node(struct topology * topo, const char *id);
