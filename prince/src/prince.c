@@ -16,6 +16,7 @@ int main(int argc, char* argv[])
 		printf("No conf file specified. Exiting.\n");
 		return -1;
 	}
+	printf("Prince Started\n");
 	struct prince_handler *ph= new_prince_handler(argv[1]);
 	if(ph==0)
 		return -1;
@@ -34,6 +35,7 @@ int main(int argc, char* argv[])
 			sleep(ph->sleep_onfail);
 			continue;
 		}
+		printf("Got Topology\n");
 		graph_parser_parse_simplegraph(ph->rp->gp, ph->rp->t);
 		if(ph->rp->self_id!=0)
 			free(ph->rp->self_id);
@@ -69,6 +71,7 @@ int main(int argc, char* argv[])
 		init_graph(&(gp_p->g));
 	}while(go);
 	delete_prince_handler(ph);
+	printf("Prince Exited\n");
 	return 0;
 }
 
