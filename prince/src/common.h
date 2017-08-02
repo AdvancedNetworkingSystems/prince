@@ -31,6 +31,7 @@ routing_plugin_{
 	char *host;
 	struct topology *t;
 	short port;
+	short timer_port;
 	int json_type;
 	int sd;
 	c_graph_parser *gp;

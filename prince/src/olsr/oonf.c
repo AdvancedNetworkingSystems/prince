@@ -6,7 +6,7 @@
  * @param host host address as a string
  * @return pointer to oonf plugin handler
  */
-routing_plugin* new_plugin(char* host, int port, c_graph_parser *gp, int json_type){
+routing_plugin* new_plugin(char* host, int port, c_graph_parser *gp, int json_type, int timer_port){
 	routing_plugin *o =(routing_plugin*) malloc(sizeof(routing_plugin));
 	o->port=port;
 	o->host=strdup(host);
@@ -14,6 +14,7 @@ routing_plugin* new_plugin(char* host, int port, c_graph_parser *gp, int json_ty
 	o->json_type=json_type;
 	o->recv_buffer=0;
 	o->self_id=0;
+	o->timer_port = port; // the port is the same for netjson and poprouting
 	return o;
 }
 

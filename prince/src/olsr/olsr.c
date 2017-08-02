@@ -7,7 +7,7 @@
  * @param proto type of the remote plugin (0->netjson 1->jsoninfo)
  * @return pointer to olsr plugin handler
  */
-routing_plugin* new_plugin(char* host, int port, c_graph_parser *gp, int json_type)
+routing_plugin* new_plugin(char* host, int port, c_graph_parser *gp, int json_type, int timer_port)
 {
 	routing_plugin *o = (routing_plugin *) malloc(sizeof(routing_plugin));
 	o->port=port;
@@ -16,6 +16,7 @@ routing_plugin* new_plugin(char* host, int port, c_graph_parser *gp, int json_ty
 	o->recv_buffer=0;
 	o->self_id=0;
 	o->json_type=json_type;
+	o->timer_port = timer_port;
 	return o;
 }
 
@@ -93,7 +94,7 @@ int push_timers(routing_plugin *o, struct timers t)
 {
 	/*TODO: push h and tc value to the daemon*/
 	printf("%f \t %f\n", t.h_timer, t.tc_timer);
-	o->sd =_create_socket(o->host, o->port);
+	o->sd =_create_socket(o->host, o->timer_port);
 	char cmd[111];
 	sprintf(cmd, "/HelloTimer=%4.2f/TcTimer=%4.2f", t.h_timer, t.tc_timer);
 	write(o->sd, cmd, strlen(cmd));

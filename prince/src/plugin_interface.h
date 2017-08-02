@@ -4,7 +4,7 @@
 #include "common.h"
 
 
-routing_plugin* new_plugin(char* host, int port, c_graph_parser *gp, int json_type);
+routing_plugin* new_plugin(char* host, int port, c_graph_parser *gp, int json_type, int timer_port);
 int get_topology(routing_plugin *o);
 int push_timers(routing_plugin *o, struct timers t);
 void delete_plugin(routing_plugin* o);

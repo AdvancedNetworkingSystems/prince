@@ -1,6 +1,6 @@
 #include "prince.h"
 
-routing_plugin* (*new_plugin_p)(char* host, int port, c_graph_parser *gp, int json_type);
+routing_plugin* (*new_plugin_p)(char* host, int port, c_graph_parser *gp, int json_type, int timer_port);
 int (*get_topology_p)(routing_plugin *o);
 int (*push_timers_p)(routing_plugin *o, struct timers t);
 void (*delete_plugin_p)(routing_plugin* o);
@@ -27,7 +27,7 @@ int main(int argc, char* argv[])
 	ph->gp = new_graph_parser(ph->weights, ph->heuristic);
 	int go = 1;
 	struct graph_parser * gp_p=(struct graph_parser *)ph->gp ;
-	ph->rp = new_plugin_p(ph->host, ph->port, ph->gp, ph->json_type);
+	ph->rp = new_plugin_p(ph->host, ph->port, ph->gp, ph->json_type, ph->timer_port);
 	do{
 		sleep(ph->refresh);
 		if(!get_topology_p(ph->rp)){
@@ -109,7 +109,7 @@ struct prince_handler* new_prince_handler(char * conf_file)
 	}
 	if(!ph->plugin_handle)
 		return 0;
-	new_plugin_p = (routing_plugin* (*)(char* host, int port, c_graph_parser *gp, int json_type)) dlsym(ph->plugin_handle, "new_plugin");
+	new_plugin_p = (routing_plugin* (*)(char* host, int port, c_graph_parser *gp, int json_type, int timer_port)) dlsym(ph->plugin_handle, "new_plugin");
 	get_topology_p = (int (*)(routing_plugin *o)) dlsym(ph->plugin_handle, "get_topology");
 	push_timers_p = (int (*)(routing_plugin *o, struct timers t)) dlsym(ph->plugin_handle, "push_timers");
 	delete_plugin_p = (void (*)(routing_plugin *o)) dlsym(ph->plugin_handle, "delete_plugin");
