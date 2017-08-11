@@ -54,12 +54,11 @@ int main(int argc, char* argv[])
 		ph->bc_degree_map->map=0;
 		graph_parser_compose_degree_bc_map(ph->gp, ph->bc_degree_map);
 		ph->opt_t.exec_time = (double)(end - start) / CLOCKS_PER_SEC;
-		printf("\nCalculation time: %fs\n", ph->opt_t.exec_time);
+		ph->opt_t.centrality = get_self_bc(ph);
 		if (!compute_timers(ph)){
 			delete_prince_handler(ph);
 			continue;
 		}
-		printf("Id of the node we are computing is: %s\n", ph->self_id);
 		if (!push_timers_p(ph->rp, ph->opt_t)){
 			delete_prince_handler(ph);
 			continue;
@@ -87,7 +86,6 @@ struct prince_handler* new_prince_handler(char * conf_file)
 	ph->def_t.tc_timer=5.0;
 	/* ph->bc_degree_map = (map_id_degree_bc *) malloc(sizeof(map_id_degree_bc));*/
 	/*setting to undefined all params*/
-	ph->proto=-1;
 	ph->host=0;
 	ph->port=-1;
 	ph->refresh=-1;
@@ -95,18 +93,8 @@ struct prince_handler* new_prince_handler(char * conf_file)
 	ph->sleep_onfail = 1;
 	if(read_config_file(ph, conf_file)==0)
 		return 0;
-	switch(ph->proto){
-		case 0: /*olsr*/
-		ph->json_type=1;
-		ph->plugin_handle = dlopen ("libprince_olsr.so", RTLD_LAZY);
-		break;
-		case 1: /*oonf*/
-		ph->plugin_handle = dlopen ("libprince_oonf.so", RTLD_LAZY);
-		break;
-		case 2: /*ospf*/
-		ph->plugin_handle = dlopen ("libprince_ospf.so", RTLD_LAZY);
-		break;
-	}
+	char *libname = strcat("libprince_", strcat(ph->proto, ".so"));
+	ph->plugin_handle = dlopen (libname, RTLD_LAZY);
 	if(!ph->plugin_handle)
 		return 0;
 	new_plugin_p = (routing_plugin* (*)(char* host, int port, c_graph_parser *gp, int json_type, int timer_port)) dlsym(ph->plugin_handle, "new_plugin");
@@ -180,4 +168,15 @@ int compute_timers(struct prince_handler *ph)
 	ph->opt_t.h_timer = sqrt(ph->bc_degree_map->map[my_index].degree / ph->bc_degree_map->map[my_index].bc) * ph->c.sq_lambda_H;
 	ph->opt_t.tc_timer = sqrt(ph->c.R/ph->bc_degree_map->map[my_index].bc)*ph->c.sq_lambda_TC;
 	return 1;
+}
+
+double get_self_bc(struct prince_handler *ph)
+{
+	map_id_degree_bc *m_degree_bc = ph->bc_degree_map;
+	int i;
+	for(i=0; i<m_degree_bc->size;i++){
+		if(strcmp(ph->self_id, m_degree_bc->map[i].id)==0)
+			return m_degree_bc->map[i].bc;
+	}
+	return 0;
 }

@@ -18,11 +18,11 @@ struct prince_handler{
 	struct timers def_t, opt_t;
 	struct constants c;
 	char *self_id, *host;
-	char *command;
+	char *command, *proto;
 	c_graph_parser *gp;
 	map_id_degree_bc *bc_degree_map;
 	routing_plugin *rp;
-	int proto,port,refresh,json_type, sleep_onfail, timer_port;
+	int port,refresh,json_type, sleep_onfail, timer_port;
 	bool heuristic, weights, recursive, stop_unchanged, multithreaded;
 	void *plugin_handle;
 };
@@ -35,4 +35,5 @@ int compute_constants(struct prince_handler *ph);
 int compute_timers(struct prince_handler *ph);
 void delete_prince_handler(struct prince_handler*);
 int read_config_file(struct prince_handler *ph, char *filepath);
+double get_self_bc(struct prince_handler *ph);
 #endif /* SRC_PRINCE_H_ */

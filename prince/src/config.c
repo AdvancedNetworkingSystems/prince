@@ -69,16 +69,8 @@ bool parse_json_config(char *filepath,struct prince_handler *ph)
 					if(ph->proto<0&&strcmp(key_i, "protocol")==0){
 						if(json_object_get_type(val_i)==json_type_string){
 							const char * content=json_object_get_string(val_i);
-							if(strcmp(content, "olsr")==0){
-								ph->proto=0;
-								completed++;
-							}else if(strcmp(content, "oonf")==0){
-								ph->proto=1;
-								completed++;
-							}else if(strcmp(content, "ospf")==0){
-								ph->proto=2;
-								completed++;
-							}
+							ph->proto = strdup(content);
+							completed++;
 						}
 					}else if(ph->host==0&&strcmp(key_i, "host")==0){
 						if(json_object_get_type(val_i)==json_type_string){
