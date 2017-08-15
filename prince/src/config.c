@@ -66,7 +66,7 @@ bool parse_json_config(char *filepath,struct prince_handler *ph)
 		if(strcmp(key, "proto")==0){
 			if(json_object_get_type(val)==json_type_object){
 				json_object_object_foreach(val, key_i, val_i) {
-					if(ph->proto<0&&strcmp(key_i, "protocol")==0){
+					if(strcmp(key_i, "protocol")==0){
 						if(json_object_get_type(val_i)==json_type_string){
 							const char * content=json_object_get_string(val_i);
 							ph->proto = strdup(content);
@@ -94,6 +94,11 @@ bool parse_json_config(char *filepath,struct prince_handler *ph)
 						if(ph->refresh<0&&json_object_get_type(val_i)==json_type_int){
 							ph->refresh=json_object_get_int(val_i);
 							completed++;
+						}
+					}else if(strcmp(key_i, "log_file")==0){
+						if(json_object_get_type(val_i)==json_type_string){
+							const char * content=json_object_get_string(val_i);
+							ph->log_file=strdup(content);
 						}
 					}
 				}

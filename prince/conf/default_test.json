@@ -1,0 +1,17 @@
+{
+	"proto": {
+		"protocol": "test",
+		"host": "ninux.unifi.it",
+		"port": 2010,
+		"timer_port": 1234,
+		"refresh": 1,
+		"log_file" : "/home/gabriel/git/poprouting/prova.log"
+	},
+	"graph-parser": {
+		"heuristic": 1,
+		"weights": 1,
+		"recursive": 0,
+		"stop_unchanged": 0,
+		"multithreaded": 0
+	}
+}

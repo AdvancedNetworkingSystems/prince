@@ -188,6 +188,8 @@ struct topology * parse_netjson(char* buffer)
 			json_object *jarray;
 			json_object_object_get_ex(topo, key, &jarray);
 			int arraylen = json_object_array_length(jarray);
+			if(arraylen ==0)
+				return 0;
 			for(i=0; i<arraylen; i++){
 				const char *source=0, *target=0;
 				double cost=0;

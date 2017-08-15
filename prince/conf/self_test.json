@@ -1,10 +1,11 @@
 {
 	"proto": {
-		"protocol": "olsr",
-		"host": "ninux.unifi.it",
+		"protocol": "test",
+		"host": "127.0.0.1",
 		"port": 2010,
 		"timer_port": 1234,
-		"refresh": 1
+		"refresh": 1,
+		"log_file" : "/home/gabriel/git/poprouting/prova.log"
 	},
 	"graph-parser": {
 		"heuristic": 1,

@@ -12,6 +12,7 @@ void (*delete_plugin_p)(routing_plugin* o);
 */
 int main(int argc, char* argv[])
 {
+	FILE *log=0;
 	if(argc<2){
 		printf("No conf file specified. Exiting.\n");
 		return -1;
@@ -20,6 +21,15 @@ int main(int argc, char* argv[])
 	struct prince_handler *ph= new_prince_handler(argv[1]);
 	if(ph==0)
 		return -1;
+	if(ph->log_file){
+		log = fopen(ph->log_file, "a+");
+		if(log == NULL){
+			printf("Can't open log file\n");
+			free(ph->log_file);
+			ph->log_file = 0;
+		}else
+			printf("Logging in %s\n", ph->log_file);
+	}
 
 	recursive=ph->recursive;
 	multithread=ph->multithreaded;
@@ -35,7 +45,6 @@ int main(int argc, char* argv[])
 			sleep(ph->sleep_onfail);
 			continue;
 		}
-		printf("Got Topology\n");
 		graph_parser_parse_simplegraph(ph->rp->gp, ph->rp->t);
 		if(ph->rp->self_id!=0)
 			free(ph->rp->self_id);
@@ -55,6 +64,13 @@ int main(int argc, char* argv[])
 		graph_parser_compose_degree_bc_map(ph->gp, ph->bc_degree_map);
 		ph->opt_t.exec_time = (double)(end - start) / CLOCKS_PER_SEC;
 		ph->opt_t.centrality = get_self_bc(ph);
+		if(log){
+			log = fopen(ph->log_file, "a+");
+			struct timeval tv;
+			gettimeofday(&tv,NULL);
+			fprintf(log, "%i\t%4.4f\t%4.4f\t%4.4f\t%4.4f\n",tv.tv_sec, ph->opt_t.tc_timer, ph->opt_t.h_timer, ph->opt_t.exec_time, ph->opt_t.centrality);
+			fclose(log);
+		}
 		if (!compute_timers(ph)){
 			delete_prince_handler(ph);
 			continue;
@@ -68,9 +84,15 @@ int main(int argc, char* argv[])
 		bc_degree_map_delete(ph->bc_degree_map);
 		free_graph(&(gp_p->g));
 		init_graph(&(gp_p->g));
+		fflush(stdout);
 	}while(go);
 	delete_prince_handler(ph);
 	printf("Prince Exited\n");
+	if(log){
+		log = fopen(ph->log_file, "a+");
+		fprintf(log, "Prince Exited\n");
+		fclose(log);
+	}
 	return 0;
 }
 
@@ -93,7 +115,9 @@ struct prince_handler* new_prince_handler(char * conf_file)
 	ph->sleep_onfail = 1;
 	if(read_config_file(ph, conf_file)==0)
 		return 0;
-	char *libname = strcat("libprince_", strcat(ph->proto, ".so"));
+	char libname[20] = "libprince_";
+	strcat(libname, ph->proto);
+	strcat(libname, ".so");
 	ph->plugin_handle = dlopen (libname, RTLD_LAZY);
 	if(!ph->plugin_handle)
 		return 0;

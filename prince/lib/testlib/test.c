@@ -11,7 +11,7 @@ routing_plugin* new_plugin(char* host, int port, c_graph_parser *gp, int json_ty
 	o->port=port;
 	o->host=strdup(host);
 	o->gp = gp;
-	o->json_type=json_type;
+	o->json_type=1;
 	o->recv_buffer=0;
 	o->self_id=0;
 	o->timer_port = port; // the port is the same for netjson and poprouting
@@ -26,12 +26,16 @@ routing_plugin* new_plugin(char* host, int port, c_graph_parser *gp, int json_ty
 int get_topology(routing_plugin *o)
 {
 	int sent;
+	if((o->sd= _create_socket(o->host, o->port))==0){
+		printf("Cannot connect to %s:%d", o->host, o->port);
+		return 0;
+	}
 	switch(o->json_type){
 	case 1:{
 		/*olsrd netjson*/
 		char *req = "/NetworkGraph";
 		if( (sent = send(o->sd,req,strlen(req),MSG_NOSIGNAL))==-1){
-			printf("Cannot send to %s:%d", o->host, o->port);
+			printf("Cannot send to %s:%d\n", o->host, o->port);
 			close(o->sd);
 			return 0;
 		}
@@ -68,7 +72,7 @@ int get_topology(routing_plugin *o)
 		break;
 	case 2:{ // OONF
 		if((o->sd = _create_socket(o->host, o->port))==0){
-			printf("Cannot connect to %s:%d", o->host, o->port);
+			printf("Cannot connect to %s:%d\n", o->host, o->port);
 			return 0;
 		}
 		char *req = "/netjsoninfo filter graph ipv6_0/quit\n";
@@ -109,13 +113,11 @@ int get_topology(routing_plugin *o)
  */
 int push_timers(routing_plugin *o, struct timers t)
 {
-	o->sd =_create_socket(o->host, o->port);
+	o->sd =_create_socket(o->host, o->timer_port);
 	char cmd[111];
 	sprintf(cmd, "tc_interval=%4.4f/hello_interval=%4.4f/exec_time=%4.4f/centrality=%4.4f", t.tc_timer, t.h_timer, t.exec_time, t.centrality);
 	write(o->sd, cmd, strlen(cmd));
-	printf("Pushed Timers %4.2f  %4.2f\n", t.tc_timer, t.h_timer);
-	printf("\nCalculation time: %fs\n", t.exec_time);
-	printf("Centrality of the node we are computing is: %4.4f\n", t.centrality);
+	printf("%4.4f\t%4.4f\t%4.4f\t%4.4f\n", t.tc_timer, t.h_timer, t.exec_time, t.centrality);
 	close(o->sd);
 	return 1;
 }
