@@ -14,21 +14,31 @@ class TestSuite:
         self.sample_interval = sample_interval
         self.iterations = iterations
         self.g_type = g_type
-        self.test_id = "data/" + implementation + "_" + str(heuristic) + "_" + str(iterations*sample_interval) + "_" + str(g_type)
+        self.test_id = "data/" + implementation + "_" + str(heuristic) + "_" + str(iterations * sample_interval) + "_" + str(g_type)
 
     def write_config(self):
-        cfg_file = open(self.cfg_filename, 'w')
-        oonf_cfg = ConfigParser.ConfigParser()
-        oonf_cfg.add_section('proto')
-        oonf_cfg.set('proto', 'protocol', 'oonf')
-        oonf_cfg.set('proto', 'host', '127.0.0.1')
-        oonf_cfg.set('proto', 'port', self.port)
-        oonf_cfg.set('proto', 'refresh', 0)
-        oonf_cfg.add_section('graph-parser')
-        oonf_cfg.set('graph-parser', 'heuristic', self.heuristic)
-        oonf_cfg.set('graph-parser', 'weights', self.weight)
-        oonf_cfg.write(cfg_file)
-        cfg_file.close()
+        json_config = '''
+{
+    "proto": {
+        "protocol": "oonf",
+        "host": "127.0.0.1",
+        "port": %i,
+        "timer_port": %i,
+        "refresh": 0,
+        "log_file": "data/prova.log"
+    },
+    "graph-parser": {
+        "heuristic": %i,
+        "weights": %i,
+        "recursive": 0,
+        "stop_unchanged": 0,
+        "multithreaded": 0
+    }
+}
+        '''
+        with open(self.cfg_filename, 'w') as cfg_file:
+            print >> cfg_file, json_config % (self.port, self.port, self.heuristic, self.weight)
+
 
     def battery(self):
         '''
@@ -39,14 +49,14 @@ class TestSuite:
         sample_size:
         sample_interval:
         iter:
-        g_type: 0 for CN, 1 for PLAW, 2 for NPART
+        g_type: 0 for CN, 1 for PLAW, 2 for NPART 3 for GRID
         '''
         p = PrinceTestOONF()
         x = []
         result_file = open(self.test_id + ".dat", 'a')
         weight = 0
         # run prince w heuristic
-        self.cfg_filename = self.test_id + ".ini"
+        self.cfg_filename =self.test_id + ".json"
         self.write_config()
         proc = subprocess.Popen("exec" + " " + self.implementation + " " + self.cfg_filename, shell=True)
         # cycle till the max values
@@ -57,7 +67,7 @@ class TestSuite:
             measures_mtx = p.test(self.g_type, size, self.sample_size, self.port)
             measures_mean = measures_mtx.mean(axis=0)
             measures_var = measures_mtx.std(axis=0)
-            measures = np.concatenate((measures_mean, measures_var), axis = 0)
+            measures = np.concatenate((measures_mean, measures_var), axis=0)
             line = "%d %f %f %f %f %f %f\n" % (size, measures[0], measures[1], measures[2], measures[3], measures[4], measures[5])
             result_file.write(line)
             result_file.flush()

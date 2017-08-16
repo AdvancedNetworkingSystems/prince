@@ -23,9 +23,10 @@ import json
 import re
 import socket
 import subprocess
-
+from os import kill
+import signal
 import numpy as np
-#from poprouting import ComputeTheoreticalValues
+# from poprouting import ComputeTheoreticalValues
 from graph_lib.graph_generator import Gen
 import matplotlib.pyplot as plt
 import sys
@@ -51,7 +52,7 @@ class PrinceTestOONF:
         self.graph = ge.graph
         self.netjson = ge.composeNetJson(self.graph)
         self.json_netjson = json.dumps(self.netjson)
-        #self.h_py, self.tc_py = self.calculateTimers()
+        # self.h_py, self.tc_py = self.calculateTimers()
         cs.send(self.json_netjson)
         cs.close()
 
@@ -61,7 +62,7 @@ class PrinceTestOONF:
     '''
     def calculateTimers(self):
         # compute the timers values using the poprouting python lib
-        #ctv = ComputeTheoreticalValues(graph=self.graph)
+        # ctv = ComputeTheoreticalValues(graph=self.graph)
         hello_py = tc_py = 0
         # search for the timer we are calculating (the 'router_id' one)
         for node in ctv.node_list:
@@ -88,7 +89,7 @@ class PrinceTestOONF:
         executions = []
         hs = []
         tcs = []
-        total_repeat=1
+        total_repeat = 1
         while repeat:
             # accept connections
             (cs, address) = serversocket.accept()
@@ -122,26 +123,26 @@ class PrinceTestOONF:
                         """
                         executions.append(exec_time)
 
-                        output=  str(total_repeat)+" test for C"
-                        total_repeat+=1
+                        output = str(total_repeat) + " test for C"
+                        total_repeat += 1
                         if port < 2015:
-                            output+="++"
-                        if port % 10 !=0:
-                            output +=" with heuristic"
-                        output+=" exec time "+str(exec_time) +" on graph with "+str(N)+" nodes."
+                            output += "++"
+                        if port % 10 != 0:
+                            output += " with heuristic"
+                        output + =" exec time " + str(exec_time) + " on graph with " + str(N) + " nodes."
                         print(output)
                         cs.close()
                         repeat = repeat - 1
         measures = {}
         measures['exec_mean'] = np.mean(executions)
         measures['exec_var'] = np.std(executions)
-        #measures['h_mean'] = np.mean(hs)
-        #measures['tc_mean'] = np.mean(tcs)
-        #measures['h_var'] = np.std(hs)
-        #measures['tc_var'] = np.std(tcs)
-        #print "Average execution time with " + str(N) + " nodes is " + str(measures['exec_mean']) + "s   variance: " + str(measures['exec_var'])
-        #print "Average tc difference is " + str(measures['tc_mean']) + " variance: " + str(measures['tc_var'])
-        #print "Average h difference is " + str(measures['h_mean']) + " variance: " + str(measures['h_var'])
+        # measures['h_mean'] = np.mean(hs)
+        # measures['tc_mean'] = np.mean(tcs)
+        # measures['h_var'] = np.std(hs)
+        # measures['tc_var'] = np.std(tcs)
+        # print "Average execution time with " + str(N) + " nodes is " + str(measures['exec_mean']) + "s   variance: " + str(measures['exec_var'])
+        # print "Average tc difference is " + str(measures['tc_mean']) + " variance: " + str(measures['tc_var'])
+        # print "Average h difference is " + str(measures['h_mean']) + " variance: " + str(measures['h_var'])
         return measures
     '''
     Run a test without heuristic
@@ -150,7 +151,7 @@ class PrinceTestOONF:
     repeat: number of batch tests
     '''
     def test_noh(self, type, N, repeat):
-        return self.test_p(type,N,repeat,2010)
+        return self.test_p(type, N, repeat, 2010)
     '''
     Run a test with the heuristic
     type: see below
@@ -158,7 +159,7 @@ class PrinceTestOONF:
     repeat: number of batch tests
     '''
     def test(self, type, N, repeat):
-	return self.test_p(type,N,repeat,2009)
+        return self.test_p(type, N, repeat, 2009)
     '''
     Run a test without heuristic
     type: see below
@@ -166,7 +167,7 @@ class PrinceTestOONF:
     repeat: number of batch tests
     '''
     def test_noh_c(self, type, N, repeat):
-        return self.test_p(type,N,repeat,2020)
+        return self.test_p(type, N, repeat, 2020)
     '''
     Run a test with the heuristic
     type: see below
@@ -174,8 +175,7 @@ class PrinceTestOONF:
     repeat: number of batch tests
     '''
     def test_c(self, type, N, repeat):
-	return self.test_p(type,N,repeat,2019)
-
+        return self.test_p(type, N, repeat, 2019)
 
 
 p = PrinceTestOONF()
@@ -189,10 +189,10 @@ measures_plaw_c = []
 measures_plaw_noh_var_c = []
 measures_plaw_var_c = []
 x = []
-jump = 10#20
-max =20 #500
-min=10
-repeat=10
+jump = 10
+max = 20
+min = 10
+repeat = 10
 # run prince w & w/o heuristic
 proc_noh = subprocess.Popen("exec ../../build/prince ../../input/test_noh.ini", shell=True)
 proc = subprocess.Popen("exec ../../build/prince ../../input/test.ini", shell=True)
@@ -203,17 +203,10 @@ proc_c = subprocess.Popen("exec ../../build/prince_c ../../input/conf_c_h.json",
 
 # cycle till the max values
 try:
-    for size in range(min, max+1,jump):
+    for size in range(min, max + 1, jump):
         # run tests with and w/o heuristic
-        #t = p.test(1, size, repeat)
-        #tnoh = p.test_noh(1, size, repeat)
         t_c = p.test_c(1, size, repeat)
         tnoh_c = p.test_noh_c(1, size, repeat)
-        # append the values in lists to plot them
-        #measures_plaw_noh.append(tnoh['exec_mean'])
-        #measures_plaw_noh_var.append(tnoh['exec_var'])
-        #measures_plaw.append(t['exec_mean'])
-        #measures_plaw_var.append(t['exec_var'])
         measures_plaw_noh_c.append(tnoh_c['exec_mean'])
         measures_plaw_noh_var_c.append(tnoh_c['exec_var'])
         measures_plaw_c.append(t_c['exec_mean'])
@@ -222,29 +215,22 @@ try:
 except:
     print "Unexpected error:", sys.exc_info()
     exit(-1)
-    #print("1====> ",proc_noh_c.stdout.read())
-    #print("2====> ",proc_c.stdout.read())
     import sys
     kill(proc_noh_c.pid, signal.SIGTERM)
     kill(proc_c.pid, signal.SIGTERM)
 
 
-from os import kill
-import signal
 kill(proc_noh.pid, signal.SIGTERM)
 kill(proc.pid, signal.SIGTERM)
 kill(proc_noh_c.pid, signal.SIGTERM)
 kill(proc_c.pid, signal.SIGTERM)
 
 # plot the values and the error bars with pyplot
-#plt.errorbar(x, measures_plaw_noh, yerr=measures_plaw_noh_var, label="C++ w/o h")
-#plt.errorbar(x, measures_plaw, yerr=measures_plaw_var, label="C++ w h")
 plt.errorbar(x, measures_plaw_noh_c, yerr=measures_plaw_noh_var_c, label="C w/o h")
 plt.errorbar(x, measures_plaw_c, yerr=measures_plaw_var_c, label="C w h")
 plt.xlabel('size of graph (nodes)')
 plt.ylabel('execution time (s)')
 plt.legend(loc='upper center', shadow=True)
-#plt.axhline(1,color='k')
+
 plt.savefig('res.png')
 plt.show()
-

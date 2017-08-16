@@ -11,7 +11,7 @@ routing_plugin* new_plugin(char* host, int port, c_graph_parser *gp, int json_ty
 	o->port=port;
 	o->host=strdup(host);
 	o->gp = gp;
-	o->json_type=1;
+	o->json_type=0;
 	o->recv_buffer=0;
 	o->self_id=0;
 	o->timer_port = port; // the port is the same for netjson and poprouting
@@ -59,22 +59,30 @@ int get_topology(routing_plugin *o)
 
 	case 0:{
 		/*olsrd jsoninfo*/
-		char *req = "/topology";
-		sent = write(o->sd,req,strlen(req));
-		if(!_receive_data(o->sd, &(o->recv_buffer))){
+		char *req = "/topology/config";
+		if((sent = send(o->sd,req,strlen(req),MSG_NOSIGNAL))==-1){
+			printf("Cannot send to %s:%d", o->host, o->port);
 			close(o->sd);
 			return 0;
 		}
-		struct topology *t = parse_jsoninfo(o->recv_buffer);
-		graph_parser_parse_simplegraph(o->gp, t);
-		destroy_topo(t);
+		if(o->recv_buffer!=0){
+			free(o->recv_buffer);
+			o->recv_buffer=0;
 		}
-		break;
-	case 2:{ // OONF
-		if((o->sd = _create_socket(o->host, o->port))==0){
-			printf("Cannot connect to %s:%d\n", o->host, o->port);
+		if(!_telnet_receive(o->sd, &(o->recv_buffer))){
+			printf("cannot receive \n");
+			close(o->sd);
 			return 0;
 		}
+		o->t = parse_jsoninfo(o->recv_buffer);
+		if(!o->t){
+			printf("can't parse jsoninfo\n %s \n", o->recv_buffer);
+			close(o->sd);
+			return 0;
+		}
+	}
+		break;
+	case 2:{ // OONF
 		char *req = "/netjsoninfo filter graph ipv6_0/quit\n";
 		if( (sent = send(o->sd,req,strlen(req),MSG_NOSIGNAL))==-1){
 			printf("Cannot send to %s:%d", o->host, o->port);

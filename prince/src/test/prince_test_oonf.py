@@ -9,7 +9,6 @@ from graph_generator import Gen
 import threading
 
 
-
 class PrinceTestOONF:
     '''
     Generate a topology in netjson format and send it to a client
@@ -23,8 +22,8 @@ class PrinceTestOONF:
         self.workers_result_q = Queue.Queue()
         self.workers = []
         self.go = 1
-        for i in range(1,5):
-            t = threading.Thread(target = self.generatorWorker, args=[i])
+        for i in range(1, 2):
+            t = threading.Thread(target=self.generatorWorker, args=[i])
             self.workers.append(t)
             t.daemon = True
             t.start()
@@ -34,10 +33,10 @@ class PrinceTestOONF:
 
     def generatorWorker(self, worker_id):
         while(self.go):
-            #READ FROM SHARED FIFO QUEUE
+            # READ FROM SHARED FIFO QUEUE
             order = self.workers_order_q.get()
-            print ("thread " + str(worker_id)+" got an order\n")
-            #Gen the graph
+            print ("thread " + str(worker_id) + " got an order\n")
+            # Gen the graph
             T = int(order['N'] * 1.2)
             E = order['N'] * 1.8
             ge = Gen()
@@ -47,17 +46,18 @@ class PrinceTestOONF:
                 ge.genGraph("PLAW", order['N'])
             if order['type'] == 2:
                 ge.genMeshGraph(order['N'], 23)
-            #Calculate the timers
+            if order['type'] == 3:
+                ge.genGraph("GRID", order['N'])
+            # Calculate the timers
             netjson = Gen.composeNetJson(ge.graph)
-            print ("thread "+ str(worker_id)+" calc timers with nx\n")
+            print ("thread " + str(worker_id) + " calc timers with nx\n")
             h_py, tc_py = self.calculateTimers(ge.graph, netjson['router_id'])
-            #WRITE TO SHARED FIFO QUEUE
+            # WRITE TO SHARED FIFO QUEUE
             result = (netjson, h_py, tc_py)
-            print ("thread "+ str(worker_id)+" put result\n")
+            print ("thread " + str(worker_id) + " put result\n")
             self.workers_result_q.put(result)
             print "ORDER QSIZE " + str(self.workers_order_q.qsize())
             print "RESULT QSIZE " + str(self.workers_result_q.qsize())
-
 
     '''
     Calculate timers using the poprouting function CalculateTheoreticalValues
@@ -95,7 +95,7 @@ class PrinceTestOONF:
         self.tcs = []
         ge = Gen()
         # Order iter graphs of size 'N' and type to the workers
-        for i in range(1, iter+1):
+        for i in range(1, iter + 1):
             order = {}
             order['type'] = type
             order['N'] = N
@@ -108,7 +108,7 @@ class PrinceTestOONF:
             data = cs.recv(1024).decode("utf-8")
             # simulate the oonf's netjson command to get the topology
             if data.strip() == "/netjsoninfo filter graph ipv6_0/quit":
-                #Pop the generated graph from the workers queue, push topology to prince and calculate timers(python)
+                # Pop the generated graph from the workers queue, push topology to prince and calculate timers(python)
                 result = self.workers_result_q.get()
                 self.netjson = result[0]
                 self.h_py = result[1]
@@ -137,9 +137,10 @@ class PrinceTestOONF:
                 try:
                     tc_cpp = float(toks[0])
                     hello_cpp = float(toks[1])
-                    exec_time = float(toks[2])
+                    exec_time = 0#float(toks[2])
                 except IndexError:
                     print ("ERRORE!!!\n\n\n\n")
+                    print data
                     return False
                 # calculate the percentage error between the reference (py) and the measured (C[++]) values
                 tc_err = abs(tc_cpp - self.tc_py) / ((tc_cpp + self.tc_py) / 2) * 100

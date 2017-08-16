@@ -2,7 +2,7 @@
 	"proto": {
 		"protocol": "test",
 		"host": "ninux.unifi.it",
-		"port": 2010,
+		"port": 8080,
 		"timer_port": 1234,
 		"refresh": 1,
 		"log_file" : "/home/gabriel/git/poprouting/prova.log"

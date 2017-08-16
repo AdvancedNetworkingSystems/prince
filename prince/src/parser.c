@@ -24,6 +24,55 @@ void bc_degree_map_delete(map_id_degree_bc * map)
 struct topology * parse_jsoninfo(char *buffer)
 {
 	struct topology *c_topo= _init_topo(1);
+	json_object *topo = json_tokener_parse(buffer);
+	if(!topo) return 0;
+	json_object_object_foreach(topo, key, val) {
+		if(strcmp(key,"config")==0){
+			json_object *config;
+			json_object_object_get_ex(topo, key, &config);
+			json_object_object_foreach(config, key, val)
+				if(strcmp(key, "mainIp")==0)
+					c_topo->self_id=strdup(json_object_get_string(val));
+		}
+		if(strcmp(key, "topology")==0){
+			int i;
+			json_object *jarray;
+			json_object_object_get_ex(topo, key, &jarray);
+			int arraylen = json_object_array_length(jarray);
+			if(arraylen ==0)
+				return 0;
+			for(i=0; i<arraylen; i++){
+				const char *source=0, *target=0;
+				double cost=0;
+				json_object *elem =json_object_array_get_idx(jarray,i);
+				json_object_object_foreach(elem, key, val) {
+					if(strcmp(key, "lastHopIP")==0){
+						source=strdup(json_object_get_string(val));
+					}
+					if(strcmp(key, "destinationIP")==0){
+						target=strdup(json_object_get_string(val));
+					}
+					if(strcmp(key, "tcEdgeCost")==0){
+						cost=json_object_get_double(val);
+					}
+					if(source && target && cost){
+						if(!find_node(c_topo, source))
+							add_node(c_topo, source);
+						if(!find_node(c_topo, target))
+							add_node(c_topo, target);
+						//printf("%s\t%s\t%f\n", source, target, cost);
+						if(!add_neigh(c_topo, source, target, cost)){
+							printf("error\n");
+							return 0;
+						}
+						source = target =0;
+						cost =0;
+					}
+				}
+			}
+		}
+	}
+	json_object_put(topo);
 	return c_topo;
 }
 
@@ -42,6 +91,15 @@ int add_node(struct topology * topo, const char *id)
 	topo->first->neighbor_list=0;
 	topo->first->addresses=0;
 	return 1;
+}
+
+struct node* find_neigh(struct node *source, struct node *target){
+	struct neighbor *punt;
+	for(punt=source->neighbor_list; punt!=0; punt=punt->next){
+		if(punt->id==target)
+			return target;
+	}
+	return 0;
 }
 
 /**
@@ -78,16 +136,20 @@ struct node* find_node(struct topology *topo,const char *id)
 int add_neigh(struct topology *topo, const char *source, const char *id, const double weight)
 {
 	struct neighbor *temp;
-	struct node* n;
-	if((n=find_node(topo, source))==0)
-		return 0;
+	struct node *s, *t;
+	if((s=find_node(topo, source))==0)
+		return 0; // check if source node exists
 
-	temp=n->neighbor_list;
-	n->neighbor_list=(struct neighbor*)malloc(sizeof(struct neighbor));
-	if((n->neighbor_list->id=find_node(topo, id))==0)
-		return 0;
-	n->neighbor_list->weight=weight;
-	n->neighbor_list->next=temp;
+	temp=s->neighbor_list;
+	s->neighbor_list=(struct neighbor*)malloc(sizeof(struct neighbor));
+
+	if((t=find_node(topo, id))==0)
+		return 0; //check if target node exists
+	//if(find_neigh(t, s))
+		//return 1; //check if the reverse link already exists
+	s->neighbor_list->id=t; // add node to source neighbor list
+	s->neighbor_list->weight=weight;
+	s->neighbor_list->next=temp;
 	return 1;
 }
 

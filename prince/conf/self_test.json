@@ -3,13 +3,13 @@
 		"protocol": "test",
 		"host": "127.0.0.1",
 		"port": 2010,
-		"timer_port": 1234,
+		"timer_port": 2010,
 		"refresh": 1,
 		"log_file" : "/home/gabriel/git/poprouting/prova.log"
 	},
 	"graph-parser": {
-		"heuristic": 1,
-		"weights": 1,
+		"heuristic": 0,
+		"weights": 0,
 		"recursive": 0,
 		"stop_unchanged": 0,
 		"multithreaded": 0
