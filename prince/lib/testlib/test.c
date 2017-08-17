@@ -14,7 +14,7 @@ routing_plugin* new_plugin(char* host, int port, c_graph_parser *gp, int json_ty
 	o->json_type=0;
 	o->recv_buffer=0;
 	o->self_id=0;
-	o->timer_port = port; // the port is the same for netjson and poprouting
+	o->timer_port = timer_port; // the port is the same for netjson and poprouting
 	return o;
 }
 
@@ -122,8 +122,13 @@ int get_topology(routing_plugin *o)
 int push_timers(routing_plugin *o, struct timers t)
 {
 	o->sd =_create_socket(o->host, o->timer_port);
-	char cmd[111];
-	sprintf(cmd, "tc_interval=%4.4f/hello_interval=%4.4f/exec_time=%4.4f/centrality=%4.4f", t.tc_timer, t.h_timer, t.exec_time, t.centrality);
+	char cmd[25];
+	//sprintf(cmd, "/HelloTimer=%4.4f/TcTimer=%4.4f/exec_time=%4.4f/centrality=%4.4f", t.tc_timer, t.h_timer, t.exec_time, t.centrality);
+	sprintf(cmd, "/HelloTimer=%4.4f", t.h_timer);
+	write(o->sd, cmd, strlen(cmd));
+	close(o->sd);
+	o->sd =_create_socket(o->host, o->timer_port);
+	sprintf(cmd, "/TcTimer=%4.4f", t.tc_timer);
 	write(o->sd, cmd, strlen(cmd));
 	printf("%4.4f\t%4.4f\t%4.4f\t%4.4f\n", t.tc_timer, t.h_timer, t.exec_time, t.centrality);
 	close(o->sd);

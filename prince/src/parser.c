@@ -23,7 +23,7 @@ void bc_degree_map_delete(map_id_degree_bc * map)
 */
 struct topology * parse_jsoninfo(char *buffer)
 {
-	struct topology *c_topo= _init_topo(1);
+	struct topology *c_topo= _init_topo(0);
 	json_object *topo = json_tokener_parse(buffer);
 	if(!topo) return 0;
 	json_object_object_foreach(topo, key, val) {
@@ -145,8 +145,8 @@ int add_neigh(struct topology *topo, const char *source, const char *id, const d
 
 	if((t=find_node(topo, id))==0)
 		return 0; //check if target node exists
-	//if(find_neigh(t, s))
-		//return 1; //check if the reverse link already exists
+	//if(find_neigh(s, t))
+	//	return 1; //check if the link already exists
 	s->neighbor_list->id=t; // add node to source neighbor list
 	s->neighbor_list->weight=weight;
 	s->neighbor_list->next=temp;
@@ -174,6 +174,7 @@ struct topology * _init_topo(int type)
 	}else if(type ==1){
 		topo->id_lenght=15;
 	}
+	topo->protocol=0;
 	topo->first=0;
 	return topo;
 }

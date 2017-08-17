@@ -72,11 +72,12 @@ int main(int argc, char* argv[])
 			fclose(log);
 		}
 		if (!compute_timers(ph)){
-			delete_prince_handler(ph);
+			printf("Can't find myself in topology! Help i'm lost\n");
+			sleep(ph->sleep_onfail);
 			continue;
 		}
 		if (!push_timers_p(ph->rp, ph->opt_t)){
-			delete_prince_handler(ph);
+			sleep(ph->sleep_onfail);
 			continue;
 		}
 		free(gp_p->bc);
