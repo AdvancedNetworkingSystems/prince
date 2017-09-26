@@ -7,7 +7,4 @@
 /*inehrit methods from here */
 #include "../../src/plugin_interface.h"
 
-
-
-
 #endif /* SRC_OLSR_H_ */

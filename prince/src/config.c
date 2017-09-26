@@ -38,7 +38,8 @@ char* read_file_content(char *filename)
 *    "proto":{
 *       "protocol":"oonf",
 *       "host":"127.0.0.1",
-*       "port":2019,
+*       "port":2009,
+*				"timer_port": 1234,
 *       "refresh":1
 *    },
 *    "graph-parser":{
@@ -82,6 +83,19 @@ bool parse_json_config(char *filepath,struct prince_handler *ph)
 					}else if(ph->port<0&&strcmp(key_i, "port")==0){
 						if(json_object_get_type(val_i)==json_type_int){
 							ph->port=json_object_get_int(val_i);
+							completed++;
+						}
+					}
+					else if(ph->port<0&&strcmp(key_i, "json_type")==0){
+						if(json_object_get_type(val_i)==json_type_string){
+							const char * content=json_object_get_string(val_i);
+							if(strcmp(content, "netjson")==0){
+								ph->json_type = 1;
+							}else if(strcmp(content, "jsoninfo")==0){
+								ph->json_type = 0;
+							}else ph->json_type = 0;
+						}else if(json_object_get_type(val_i)==json_type_int){
+							ph->json_type=json_object_get_int(val_i);
 							completed++;
 						}
 					}

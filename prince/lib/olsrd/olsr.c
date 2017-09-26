@@ -34,52 +34,62 @@ int get_topology(routing_plugin *o) /*netjson & jsoninfo*/
 		return 0;
 	}
 	switch(o->json_type){
-	case 1:{
-		/*netjson*/
-		char *req = "/NetworkGraph";
-		if( (sent = send(o->sd,req,strlen(req),MSG_NOSIGNAL))==-1){
-			printf("Cannot send to %s:%d", o->host, o->port);
+		case 0:{
+			/*olsrd jsoninfo*/
+			char *req = "/topology/config";
+			if((sent = send(o->sd,req,strlen(req),MSG_NOSIGNAL))==-1){
+				printf("Cannot send to %s:%d", o->host, o->port);
+				close(o->sd);
+				return 0;
+			}
+			if(o->recv_buffer!=0){
+				free(o->recv_buffer);
+				o->recv_buffer=0;
+			}
+			if(!_telnet_receive(o->sd, &(o->recv_buffer))){
+				printf("cannot receive \n");
+				close(o->sd);
+				return 0;
+			}
+			o->t = parse_jsoninfo(o->recv_buffer);
+			if(!o->t){
+				printf("can't parse jsoninfo\n %s \n", o->recv_buffer);
+				close(o->sd);
+				return 0;
+			}
+		}
+			break;
+			case 1:{
+				/*olsrd netjson*/
+				char *req = "/NetworkGraph";
+				if( (sent = send(o->sd,req,strlen(req),MSG_NOSIGNAL))==-1){
+					printf("Cannot send to %s:%d\n", o->host, o->port);
+					close(o->sd);
+					return 0;
+				}
+				if(o->recv_buffer!=0){
+					free(o->recv_buffer);
+					o->recv_buffer=0;
+				}
+				if(!_telnet_receive(o->sd, &(o->recv_buffer))){
+					printf("cannot receive \n");
+					close(o->sd);
+					return 0;
+				}
+				o->t = parse_netjson(o->recv_buffer);
+				if(!o->t){
+					printf("can't parse netjson\n %s \n", o->recv_buffer);
+					close(o->sd);
+					return 0;
+				}
+				}
+				break;
+		default:
 			close(o->sd);
 			return 0;
 		}
-		if(o->recv_buffer!=0){
-			free(o->recv_buffer);
-			o->recv_buffer=0;
-		}
-		if(!_telnet_receive(o->sd, &(o->recv_buffer))){
-			printf("cannot receive \n");
-			close(o->sd);
-			return 0;
-		}
-		o->t = parse_netjson(o->recv_buffer);
-		if(!o->t){
-			printf("can't parse netjson\n %s \n", o->recv_buffer);
-			close(o->sd);
-			return 0;
-		}
-		}
-		break;
-
-	case 0:{
-		/*jsoninfo*/
-		char *req = "/topology";
-		sent = write(o->sd,req,strlen(req));
-		if(!_receive_data(o->sd, &(o->recv_buffer))){
-			close(o->sd);
-			return 0;
-		}
-		struct topology *t = parse_jsoninfo(o->recv_buffer);
-		graph_parser_parse_simplegraph(o->gp, t);
-		destroy_topo(t);
-		}
-		break;
-
-	default:
 		close(o->sd);
-		return 0;
-	}
-	close(o->sd);
-	return 1;
+		return 1;
 }
 
 
@@ -92,13 +102,15 @@ int get_topology(routing_plugin *o) /*netjson & jsoninfo*/
  */
 int push_timers(routing_plugin *o, struct timers t)
 {
-	/*TODO: push h and tc value to the daemon*/
-	printf("%f \t %f\n", t.h_timer, t.tc_timer);
 	o->sd =_create_socket(o->host, o->timer_port);
-	char cmd[111];
-	sprintf(cmd, "/HelloTimer=%4.2f/TcTimer=%4.2f", t.h_timer, t.tc_timer);
+	char cmd[25];
+	sprintf(cmd, "/HelloTimer=%4.4f", t.h_timer);
 	write(o->sd, cmd, strlen(cmd));
-	printf("Pushed Timers %4.2f  %4.2f\n", t.tc_timer, t.h_timer);
+	close(o->sd);
+	o->sd =_create_socket(o->host, o->timer_port);
+	sprintf(cmd, "/TcTimer=%4.4f", t.tc_timer);
+	write(o->sd, cmd, strlen(cmd));
+	printf("%4.4f\t%4.4f\t%4.4f\t%4.4f\n", t.tc_timer, t.h_timer, t.exec_time, t.centrality);
 	close(o->sd);
 	return 1;
 }
