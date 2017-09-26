@@ -1,11 +1,11 @@
 {
 	"proto": {
-		"protocol": "test",
+		"protocol": "oonf",
 		"host": "127.0.0.1",
 		"port": 2010,
-		"timer_port": 2010,
+		"timer_port": 1234,
 		"refresh": 1,
-		"log_file" : "/home/gabriel/git/poprouting/prova.log"
+		"log_file" : "/tmp/prince.log"
 	},
 	"graph-parser": {
 		"heuristic": 0,

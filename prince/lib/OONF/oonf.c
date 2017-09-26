@@ -14,7 +14,7 @@ routing_plugin* new_plugin(char* host, int port, c_graph_parser *gp, int json_ty
 	o->json_type=json_type;
 	o->recv_buffer=0;
 	o->self_id=0;
-	o->timer_port = port; // the port is the same for netjson and poprouting
+	o->timer_port = port; // the port is the same for netjson topolgy and timer update
 	return o;
 }
 
@@ -63,7 +63,7 @@ int get_topology(routing_plugin *o)
  */
 int push_timers(routing_plugin *o, struct timers t)
 {
-	o->sd =_create_socket(o->host, o->port);
+	o->sd =_create_socket(o->host, o->timer_port);
 	char cmd[111];
 	sprintf(cmd, "/config set olsrv2.tc_interval=%4.2f/config set interface.hello_interval=%4.2f/config commit/quit", t.tc_timer, t.h_timer);
 	write(o->sd, cmd, strlen(cmd));

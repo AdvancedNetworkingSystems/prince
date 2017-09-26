@@ -96,7 +96,6 @@ int main(int argc, char* argv[])
 	}
 	return 0;
 }
-
 /**
 * Initalize a new prince handler
 * @param host host address as a string
@@ -105,8 +104,8 @@ int main(int argc, char* argv[])
 struct prince_handler* new_prince_handler(char * conf_file)
 {
 	struct prince_handler* ph = (struct prince_handler*) malloc(sizeof(struct prince_handler));
-	ph->def_t.h_timer=2.0;
-	ph->def_t.tc_timer=5.0;
+	ph->def_t.h_timer=2.00;
+	ph->def_t.tc_timer=5.00;
 	/* ph->bc_degree_map = (map_id_degree_bc *) malloc(sizeof(map_id_degree_bc));*/
 	/*setting to undefined all params*/
 	ph->host=0;
