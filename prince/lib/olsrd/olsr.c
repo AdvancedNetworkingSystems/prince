@@ -19,7 +19,26 @@ routing_plugin* new_plugin(char* host, int port, c_graph_parser *gp, int json_ty
 	o->timer_port = timer_port;
 	return o;
 }
+int get_initial_timers(routing_plugin *o, struct timers *t){
+	o->sd =_create_socket(o->host, o->timer_port);
+	char page[32];
+	char cmd[25];
+	sprintf(cmd, "/HelloTimer");
+	write(o->sd, cmd, strlen(cmd));
+	recv(o->sd, page, 32, 0);
+	t->h_timer = atof(page);
+	close(o->sd);
 
+	o->sd =_create_socket(o->host, o->timer_port);
+	sprintf(cmd, "/TcTimer");
+	write(o->sd, cmd, strlen(cmd));
+	write(o->sd, cmd, strlen(cmd));
+	recv(o->sd, page, 32, 0);
+	t->tc_timer = atof(page);
+	close(o->sd);
+	printf("Inital timers:%f\t %f", t->h_timer, t->tc_timer);
+	return 1;
+}
 
 /**
  * Get the topology data from host
