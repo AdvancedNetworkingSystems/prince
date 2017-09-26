@@ -16,7 +16,7 @@ test:
 
 
 clean:
-	rm output/*
+	rm -fr output/*
 
 out:
 	mkdir -p output

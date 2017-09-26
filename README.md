@@ -6,11 +6,11 @@ It fetch the topology data from the routing protocol, calculate the betweenness 
 
 # How to install it:
 ## Linux
-Install the dependencies: 
+Install the dependencies:
 `apt-get install libjson-c-dev`
 
 Clone the repository in your pc with :
-`git clone https://github.com/gabri94/poprouting.git`
+`git clone https://github.com/AdvancedNetworkingSystems/poprouting/`
 
 Enter in the directory :
 `cd poprouting`
@@ -31,18 +31,31 @@ opkg install prince
 ## Prince Configuration
 Prince can be configured with a configuration file, this is an example:
 ```
-[proto]
-protocol = oonf
-host  = 127.0.0.1
-port = 2009
-refresh = 1
+{
+  "proto":{
+    "protocol": "oonf",
+    "host": "127.0.0.1",
+    "port": 2009,
+    "timer_port": 2009,
+    "refresh": 1,
+    "json_type": "netjson"
+    "log_file" : ""
 
-[graph-parser]
-heuristic  = 1
-weights  = 0
+  },
+  "graph-parser":{
+    "heuristic": 1,
+    "weights": 0,
+    "recursive": 1,
+    "stop_unchanged": 0,
+    "multithreaded": 1
+  }
+}
 
 ```
 
+`log_file` is used just used to benchmark PRINCE and to check if the timers and the centrality are correct, thus it should not be used in production environment.
+
+`json_type` is used to specify which format of json topology we are parsing. It is used only by OLSRv1 plugin, and the values can be: `netjson` or `jsoninfo`.
 
 ## OONF
 To use Prince with OONF you need the following plugins: `remotecontrol, telnet, netjsoninfo`.
