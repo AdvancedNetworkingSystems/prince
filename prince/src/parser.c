@@ -149,12 +149,13 @@ int add_neigh(struct topology *topo, const char *source, const char *id, const d
 		return 0; // check if source node exists
 	if((t=find_node(topo, id))==0)
 		return 0; //check if target node exists
-		found=find_neigh(s, t);
+	found=find_neigh(s, t);
 	if(found){
-		if(found->validity < validity)
+		if(found->validity > validity)
 			found->weight = weight; //if the link found is older, i update the weight
+		return 1; //The link is already present
 	}
-	return 1; //otherwise the found is the newer and i don't update it.
+
 	temp=s->neighbor_list;
 	s->neighbor_list=(struct neighbor*)malloc(sizeof(struct neighbor));
 	s->neighbor_list->id=t; // add node to source neighbor list
