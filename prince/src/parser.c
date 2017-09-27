@@ -99,6 +99,10 @@ struct node* find_neigh(struct node *source, struct node *target){
 		if(punt->id==target)
 			return target;
 	}
+	for(punt=target->neighbor_list; punt!=0; punt=punt->next){
+		if(punt->id==source)
+			return source;
+	}
 	return 0;
 }
 
@@ -139,14 +143,12 @@ int add_neigh(struct topology *topo, const char *source, const char *id, const d
 	struct node *s, *t;
 	if((s=find_node(topo, source))==0)
 		return 0; // check if source node exists
-
-	temp=s->neighbor_list;
-	s->neighbor_list=(struct neighbor*)malloc(sizeof(struct neighbor));
-
 	if((t=find_node(topo, id))==0)
 		return 0; //check if target node exists
-	//if(find_neigh(s, t))
-	//	return 1; //check if the link already exists
+	if(find_neigh(s, t))
+		return 1; //check if the inverse link already exists
+	temp=s->neighbor_list;
+	s->neighbor_list=(struct neighbor*)malloc(sizeof(struct neighbor));
 	s->neighbor_list->id=t; // add node to source neighbor list
 	s->neighbor_list->weight=weight;
 	s->neighbor_list->next=temp;

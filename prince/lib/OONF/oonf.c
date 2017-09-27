@@ -14,7 +14,7 @@ routing_plugin* new_plugin(char* host, int port, c_graph_parser *gp, int json_ty
 	o->json_type=json_type;
 	o->recv_buffer=0;
 	o->self_id=0;
-	o->timer_port = port; // the port is the same for netjson topolgy and timer update
+	o->timer_port = timer_port; // the port is the same for netjson topolgy and timer update
 	return o;
 }
 

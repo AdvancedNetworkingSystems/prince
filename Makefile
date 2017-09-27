@@ -27,6 +27,12 @@ install: prince
 	cp output/libprince_olsr.so /usr/lib/
 	cp output/prince /usr/bin/
 
+install_test: test
+	cp output/libprince_oonf.so /usr/lib/
+	cp output/libprince_test.so /usr/lib/
+	cp output/libprince_olsr.so /usr/lib/
+	cp output/prince /usr/bin/
+
 uninstall:
 	rm -f /usr/lib/libprince_oonf.so
 	rm -f /usr/lib/libprince_olsr.so
