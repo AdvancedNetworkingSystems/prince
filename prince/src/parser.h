@@ -41,6 +41,7 @@ struct node{
 struct neighbor{
 	struct node *id;
 	float weight;
+	int validity;
 	struct neighbor *next;
 };
 
@@ -52,10 +53,10 @@ struct topology * parse_jsoninfo(char *buffer);
 struct topology * parse_netjson(char* buffer);
 int add_node(struct topology * topo, const char *id);
 struct topology * _init_topo(int type);
-int add_neigh(struct topology *topo, const char *source, const char *id, const double weight);
+int add_neigh(struct topology *topo, const char *source, const char *id, const double weight, int validity);
 void destroy_topo(struct topology *topo);
 struct node* find_node(struct topology *topo, const char *id);
-struct node* find_neigh(struct node *source, struct node *target);
+struct neighbor* find_neigh(struct node *source, struct node *target);
 void bc_degree_map_delete(map_id_degree_bc * map);
 
 void destroy_topo(struct topology *topo);

@@ -44,6 +44,7 @@ struct topology * parse_jsoninfo(char *buffer)
 			for(i=0; i<arraylen; i++){
 				const char *source=0, *target=0;
 				double cost=0;
+				int validity=0;
 				json_object *elem =json_object_array_get_idx(jarray,i);
 				json_object_object_foreach(elem, key, val) {
 					if(strcmp(key, "lastHopIP")==0){
@@ -55,13 +56,16 @@ struct topology * parse_jsoninfo(char *buffer)
 					if(strcmp(key, "tcEdgeCost")==0){
 						cost=json_object_get_double(val);
 					}
-					if(source && target && cost){
+					if(strcmp(key, "validityTime")==0){
+						validity=json_object_get_int(val);
+					}
+					if(source && target && cost && validity){
 						if(!find_node(c_topo, source))
 							add_node(c_topo, source);
 						if(!find_node(c_topo, target))
 							add_node(c_topo, target);
 						//printf("%s\t%s\t%f\n", source, target, cost);
-						if(!add_neigh(c_topo, source, target, cost)){
+						if(!add_neigh(c_topo, source, target, cost, validity)){
 							printf("error\n");
 							return 0;
 						}
@@ -93,15 +97,15 @@ int add_node(struct topology * topo, const char *id)
 	return 1;
 }
 
-struct node* find_neigh(struct node *source, struct node *target){
+struct neighbor* find_neigh(struct node *source, struct node *target){
 	struct neighbor *punt;
 	for(punt=source->neighbor_list; punt!=0; punt=punt->next){
 		if(punt->id==target)
-			return target;
+			return punt;
 	}
 	for(punt=target->neighbor_list; punt!=0; punt=punt->next){
 		if(punt->id==source)
-			return source;
+			return punt;
 	}
 	return 0;
 }
@@ -137,20 +141,25 @@ struct node* find_node(struct topology *topo,const char *id)
 * @param const double  cost of the edge
 * @return 1 on success, 0 otherwise
 */
-int add_neigh(struct topology *topo, const char *source, const char *id, const double weight)
+int add_neigh(struct topology *topo, const char *source, const char *id, const double weight, int validity)
 {
-	struct neighbor *temp;
+	struct neighbor *temp, *found;
 	struct node *s, *t;
 	if((s=find_node(topo, source))==0)
 		return 0; // check if source node exists
 	if((t=find_node(topo, id))==0)
 		return 0; //check if target node exists
-	if(find_neigh(s, t))
-		return 1; //check if the inverse link already exists
+		found=find_neigh(s, t);
+	if(found){
+		if(found->validity < validity)
+			found->weight = weight; //if the link found is older, i update the weight
+	}
+	return 1; //otherwise the found is the newer and i don't update it.
 	temp=s->neighbor_list;
 	s->neighbor_list=(struct neighbor*)malloc(sizeof(struct neighbor));
 	s->neighbor_list->id=t; // add node to source neighbor list
 	s->neighbor_list->weight=weight;
+	s->neighbor_list->validity = validity;
 	s->neighbor_list->next=temp;
 	return 1;
 }
@@ -271,7 +280,7 @@ struct topology * parse_netjson(char* buffer)
 					}
 					if(source && target && cost){
 						/*printf("   %s %s %f\n", source, target, cost);*/
-						if(!add_neigh(c_topo, source, target, cost)){
+						if(!add_neigh(c_topo, source, target, cost, 0)){
 							printf("error\n");
 							return 0;
 						}
