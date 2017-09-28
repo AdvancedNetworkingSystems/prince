@@ -36,14 +36,14 @@ int main(int argc, char* argv[])
 	recursive=ph->recursive;
 	multithread=ph->multithreaded;
 	stop_computing_if_unchanged=ph->stop_unchanged;
+	signal(SIGPIPE, signal_callback_handler);
 	ph->gp = new_graph_parser(ph->weights, ph->heuristic);
 	int go = 1;
 	struct graph_parser * gp_p=(struct graph_parser *)ph->gp ;
 	ph->rp = new_plugin_p(ph->host, ph->port, ph->gp, ph->json_type, ph->timer_port);
 	do{
 		sleep(ph->refresh);
-		get_initial_timers_p(ph->rp, &ph->def_t);
-	}while(!ph->def_t.h_timer);
+	}while(!get_initial_timers_p(ph->rp, &ph->def_t));
 
 	do{
 		sleep(ph->refresh);
@@ -211,4 +211,8 @@ double get_self_bc(struct prince_handler *ph)
 			return m_degree_bc->map[i].bc;
 	}
 	return 0;
+}
+
+void signal_callback_handler(int signum){
+        printf("Caught signal SIGPIPE %d\n",signum);
 }

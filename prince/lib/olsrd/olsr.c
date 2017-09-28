@@ -19,25 +19,32 @@ routing_plugin* new_plugin(char* host, int port, c_graph_parser *gp, int json_ty
 	o->timer_port = timer_port;
 	return o;
 }
-int get_initial_timers(routing_plugin *o, struct timers *t){
-	o->sd =_create_socket(o->host, o->timer_port);
-	char page[32];
-	char cmd[25];
-	sprintf(cmd, "/HelloTimer");
-	write(o->sd, cmd, strlen(cmd));
-	recv(o->sd, page, 32, 0);
-	t->h_timer = atof(page);
-	close(o->sd);
 
+int get_initial_timers(routing_plugin *o, struct timers *t){
+	t->h_timer = get_initial_timer(o, "/HelloTimer");
+	t->tc_timer = get_initial_timer(o, "/TcTimer");
+	if(t->h_timer && t->tc_timer){
+		printf("Inital timers:%f\t %f\n", t->h_timer, t->tc_timer);
+		return 1;
+	}
+	return 0;
+}
+
+float get_initial_timer(routing_plugin* o, char* cmd){
 	o->sd =_create_socket(o->host, o->timer_port);
-	sprintf(cmd, "/TcTimer");
-	write(o->sd, cmd, strlen(cmd));
-	write(o->sd, cmd, strlen(cmd));
-	recv(o->sd, page, 32, 0);
-	t->tc_timer = atof(page);
-	close(o->sd);
-	printf("Inital timers:%f\t %f", t->h_timer, t->tc_timer);
-	return 1;
+		char *page;
+		char *token;
+		ssize_t n_rec=0;
+		page = (char*)malloc(sizeof(char)*24);
+		write(o->sd, cmd, strlen(cmd));
+		n_rec = recv(o->sd, page, 32, 0);
+	if(n_rec>0){
+		token = strsep(&page, ":");
+		token = strsep(&page, ":");
+		close(o->sd);
+		return atof(token);
+	}
+	return 0;
 }
 
 /**
