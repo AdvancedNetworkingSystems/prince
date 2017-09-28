@@ -48,10 +48,10 @@ struct topology * parse_jsoninfo(char *buffer)
 				json_object *elem =json_object_array_get_idx(jarray,i);
 				json_object_object_foreach(elem, key, val) {
 					if(strcmp(key, "lastHopIP")==0){
-						source=strdup(json_object_get_string(val));
+						source=json_object_get_string(val);
 					}
 					if(strcmp(key, "destinationIP")==0){
-						target=strdup(json_object_get_string(val));
+						target=json_object_get_string(val);
 					}
 					if(strcmp(key, "tcEdgeCost")==0){
 						cost=json_object_get_double(val);

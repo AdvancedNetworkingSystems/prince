@@ -32,19 +32,19 @@ int get_initial_timers(routing_plugin *o, struct timers *t){
 
 float get_initial_timer(routing_plugin* o, char* cmd){
 	o->sd =_create_socket(o->host, o->timer_port);
-		char *page;
-		char *token;
-		ssize_t n_rec=0;
-		page = (char*)malloc(sizeof(char)*24);
-		write(o->sd, cmd, strlen(cmd));
-		n_rec = recv(o->sd, page, 32, 0);
-	if(n_rec>0){
-		token = strsep(&page, ":");
-		token = strsep(&page, ":");
-		close(o->sd);
-		return atof(token);
+	char *page;
+	char *token;
+	float value=0;
+	page = (char*)malloc(sizeof(char)*24);
+	write(o->sd, cmd, strlen(cmd));
+	if(recv(o->sd, page, strlen(cmd), 0)>0){
+		token = strtok(page, ":");
+		token = strtok(NULL, ":");
+		value = atof(token);
 	}
-	return 0;
+	close(o->sd);
+	free(page);
+	return value;
 }
 
 /**

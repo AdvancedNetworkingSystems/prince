@@ -53,6 +53,7 @@ int main(int argc, char* argv[])
 			continue;
 		}
 		graph_parser_parse_simplegraph(ph->rp->gp, ph->rp->t);
+		destroy_topo(ph->rp->t);
 		if(ph->rp->self_id!=0)
 			free(ph->rp->self_id);
 		ph->rp->self_id=strdup(ph->rp->t->self_id);
