@@ -8,6 +8,7 @@
 #include "common.h"
 #include "parser.h"
 #include "config.h"
+#include <signal.h>
 
 struct constants{
 	double O_H, O_TC, sq_lambda_H, sq_lambda_TC, R;
@@ -37,4 +38,5 @@ int compute_timers(struct prince_handler *ph);
 int read_config_file(struct prince_handler *ph, char *filepath);
 double get_self_bc(struct prince_handler *ph);
 void log_line(char *text, struct prince_handler* ph);
+void signal_callback_handler(int signum);
 #endif /* SRC_PRINCE_H_ */

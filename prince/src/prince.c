@@ -1,9 +1,11 @@
 #include "prince.h"
 
 routing_plugin* (*new_plugin_p)(char* host, int port, c_graph_parser *gp, int json_type, int timer_port);
+int (*get_initial_timers_p)(routing_plugin *o, struct timers *t);
 int (*get_topology_p)(routing_plugin *o);
 int (*push_timers_p)(routing_plugin *o, struct timers t);
 void (*delete_plugin_p)(routing_plugin* o);
+
 
 /**
 * Main routine of Prince. Collect topology, parse it, calculate bc and timers, push them back.
@@ -34,10 +36,15 @@ int main(int argc, char* argv[])
 	recursive=ph->recursive;
 	multithread=ph->multithreaded;
 	stop_computing_if_unchanged=ph->stop_unchanged;
+	signal(SIGPIPE, signal_callback_handler);
 	ph->gp = new_graph_parser(ph->weights, ph->heuristic);
 	int go = 1;
 	struct graph_parser * gp_p=(struct graph_parser *)ph->gp ;
 	ph->rp = new_plugin_p(ph->host, ph->port, ph->gp, ph->json_type, ph->timer_port);
+	do{
+		sleep(ph->refresh);
+	}while(!get_initial_timers_p(ph->rp, &ph->def_t));
+
 	do{
 		sleep(ph->refresh);
 		if(!get_topology_p(ph->rp)){
@@ -68,7 +75,7 @@ int main(int argc, char* argv[])
 			log = fopen(ph->log_file, "a+");
 			struct timeval tv;
 			gettimeofday(&tv,NULL);
-			fprintf(log, "%i\t%4.4f\t%4.4f\t%4.4f\t%4.4f\n",tv.tv_sec, ph->opt_t.tc_timer, ph->opt_t.h_timer, ph->opt_t.exec_time, ph->opt_t.centrality);
+			fprintf(log, "%i\t%4.4f\t%4.4f\t%4.4f\t%4.4f\n", tv.tv_sec, ph->opt_t.tc_timer, ph->opt_t.h_timer, ph->opt_t.exec_time, ph->opt_t.centrality);
 			fclose(log);
 		}
 		if (!compute_timers(ph)){
@@ -104,8 +111,8 @@ int main(int argc, char* argv[])
 struct prince_handler* new_prince_handler(char * conf_file)
 {
 	struct prince_handler* ph = (struct prince_handler*) malloc(sizeof(struct prince_handler));
-	ph->def_t.h_timer=2.00;
-	ph->def_t.tc_timer=5.00;
+	ph->def_t.h_timer=0;
+	ph->def_t.tc_timer=0;
 	/* ph->bc_degree_map = (map_id_degree_bc *) malloc(sizeof(map_id_degree_bc));*/
 	/*setting to undefined all params*/
 	ph->host=0;
@@ -122,6 +129,7 @@ struct prince_handler* new_prince_handler(char * conf_file)
 	if(!ph->plugin_handle)
 		return 0;
 	new_plugin_p = (routing_plugin* (*)(char* host, int port, c_graph_parser *gp, int json_type, int timer_port)) dlsym(ph->plugin_handle, "new_plugin");
+	get_initial_timers_p =(int (*)(routing_plugin *o, struct timers *t)) dlsym(ph->plugin_handle, "get_initial_timers");
 	get_topology_p = (int (*)(routing_plugin *o)) dlsym(ph->plugin_handle, "get_topology");
 	push_timers_p = (int (*)(routing_plugin *o, struct timers t)) dlsym(ph->plugin_handle, "push_timers");
 	delete_plugin_p = (void (*)(routing_plugin *o)) dlsym(ph->plugin_handle, "delete_plugin");
@@ -203,4 +211,8 @@ double get_self_bc(struct prince_handler *ph)
 			return m_degree_bc->map[i].bc;
 	}
 	return 0;
+}
+
+void signal_callback_handler(int signum){
+        printf("Caught signal SIGPIPE %d\n",signum);
 }
