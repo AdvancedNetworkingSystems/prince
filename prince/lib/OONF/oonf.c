@@ -30,7 +30,7 @@ int get_topology(routing_plugin *o)
 		printf("Cannot connect to %s:%d", o->host, o->port);
 		return 0;
 	}
-	char *req = "/netjsoninfo filter graph ipv6_0/quit\n";
+	char *req = "/netjsoninfo filter graph ipv4_0/quit\n";
 	if( (sent = send(o->sd,req,strlen(req),MSG_NOSIGNAL))==-1){
 		printf("Cannot send to %s:%d", o->host, o->port);
 		close(o->sd);

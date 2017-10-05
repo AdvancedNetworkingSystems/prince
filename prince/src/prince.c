@@ -39,7 +39,6 @@ int main(int argc, char* argv[])
 	struct graph_parser * gp_p=(struct graph_parser *)ph->gp ;
 	ph->rp = new_plugin_p(ph->host, ph->port, ph->gp, ph->json_type, ph->timer_port);
 	do{
-		sleep(ph->refresh);
 		if(!get_topology_p(ph->rp)){
 			printf("Error getting topology\n");
 			sleep(ph->sleep_onfail);
@@ -64,17 +63,17 @@ int main(int argc, char* argv[])
 		graph_parser_compose_degree_bc_map(ph->gp, ph->bc_degree_map);
 		ph->opt_t.exec_time = (double)(end - start) / CLOCKS_PER_SEC;
 		ph->opt_t.centrality = get_self_bc(ph);
-		if(log){
-			log = fopen(ph->log_file, "a+");
-			struct timeval tv;
-			gettimeofday(&tv,NULL);
-			fprintf(log, "%i\t%4.4f\t%4.4f\t%4.4f\t%4.4f\n",tv.tv_sec, ph->opt_t.tc_timer, ph->opt_t.h_timer, ph->opt_t.exec_time, ph->opt_t.centrality);
-			fclose(log);
-		}
 		if (!compute_timers(ph)){
 			printf("Can't find myself in topology! Help i'm lost\n");
 			sleep(ph->sleep_onfail);
 			continue;
+		}
+		if(log){
+			log = fopen(ph->log_file, "a+");
+			struct timeval tv;
+			gettimeofday(&tv,NULL);
+			fprintf(log, "%i\t%4.9f\t%4.9f\t%4.9f\t%4.9f\n",tv.tv_sec, ph->opt_t.tc_timer, ph->opt_t.h_timer, ph->opt_t.exec_time, ph->opt_t.centrality);
+			fclose(log);
 		}
 		if (!push_timers_p(ph->rp, ph->opt_t)){
 			sleep(ph->sleep_onfail);
@@ -86,6 +85,7 @@ int main(int argc, char* argv[])
 		free_graph(&(gp_p->g));
 		init_graph(&(gp_p->g));
 		fflush(stdout);
+		sleep(ph->refresh);
 	}while(go);
 	delete_prince_handler(ph);
 	printf("Prince Exited\n");
