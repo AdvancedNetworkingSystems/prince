@@ -157,7 +157,10 @@ int compute_constants(struct prince_handler *ph)
 	struct timers t = ph->def_t;
 	int degrees=0, i;
 	for(i=0; i<m_degree_bc->size;i++){
-		degrees+=m_degree_bc->map[i].degree;
+		if (ph->degree)
+			degrees+=m_degree_bc->map[i].degree;
+		else
+			degrees+=1;
 		/*printf("%s %f\n", m_degree_bc->map[i].id, m_degree_bc->map[i].bc);*/
 	}
 	ph->c.R = m_degree_bc->n_edges;
@@ -165,7 +168,10 @@ int compute_constants(struct prince_handler *ph)
 	ph->c.O_TC = m_degree_bc->size*ph->c.R/t.tc_timer;
 	double sqrt_sum1=0, sqrt_sum2=0;
 	for(i=0; i<m_degree_bc->size; i++){
-		sqrt_sum1+=sqrt(m_degree_bc->map[i].degree * m_degree_bc->map[i].bc);
+		if (ph->degree)
+			sqrt_sum1+=sqrt(m_degree_bc->map[i].degree * m_degree_bc->map[i].bc);
+		else
+			sqrt_sum1+=sqrt(m_degree_bc->map[i].bc);
 		sqrt_sum2+=sqrt(ph->c.R*m_degree_bc->map[i].bc);
 	}
 	ph->c.sq_lambda_H = sqrt_sum1/ph->c.O_H;
@@ -189,7 +195,10 @@ int compute_timers(struct prince_handler *ph)
 		}
 	}
 	if(my_index==-1) return 0;
-	ph->opt_t.h_timer = sqrt(ph->bc_degree_map->map[my_index].degree / ph->bc_degree_map->map[my_index].bc) * ph->c.sq_lambda_H;
+	if (ph->degree)
+		ph->opt_t.h_timer = sqrt(ph->bc_degree_map->map[my_index].degree / ph->bc_degree_map->map[my_index].bc) * ph->c.sq_lambda_H;
+	else
+		ph->opt_t.h_timer = sqrt(1.0 / ph->bc_degree_map->map[my_index].bc) * ph->c.sq_lambda_H;
 	ph->opt_t.tc_timer = sqrt(ph->c.R/ph->bc_degree_map->map[my_index].bc)*ph->c.sq_lambda_TC;
 	return 1;
 }

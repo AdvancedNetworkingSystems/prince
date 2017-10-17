@@ -23,7 +23,7 @@ struct prince_handler{
 	map_id_degree_bc *bc_degree_map;
 	routing_plugin *rp;
 	int port,refresh,json_type, sleep_onfail, timer_port;
-	bool heuristic, weights, recursive, stop_unchanged, multithreaded;
+	bool heuristic, weights, recursive, stop_unchanged, multithreaded, degree;
 	void *plugin_handle;
 };
 

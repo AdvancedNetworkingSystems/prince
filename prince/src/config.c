@@ -47,7 +47,8 @@ char* read_file_content(char *filename)
 *       "weights":0,
 *       "recursive":1,
 *       "stop_unchanged":0,
-*       "multithreaded":1
+*       "multithreaded":1,
+*       "degree":1,
 *    }
 * }
 * it parses it and initializes the program parameter
@@ -63,6 +64,7 @@ bool parse_json_config(char *filepath,struct prince_handler *ph)
 	recursive_set=false,stop_unchanged_set=false,multithreaded_set=false;
 	if(!buffer) return false;
 	struct json_object *jobj = json_tokener_parse(buffer);
+	ph->degree = 1;
 	json_object_object_foreach(jobj, key, val) {
 		if(strcmp(key, "proto")==0){
 			if(json_object_get_type(val)==json_type_object){
@@ -144,6 +146,10 @@ bool parse_json_config(char *filepath,struct prince_handler *ph)
 						if(!multithreaded_set&&json_object_get_type(val_i)==json_type_int){
 							ph->multithreaded=json_object_get_int(val_i);
 							multithreaded_set=true;
+						}
+					}else if(strcmp(key_i, "degree")==0){
+						if(json_object_get_type(val_i)==json_type_int){
+							ph->degree=json_object_get_int(val_i);
 						}
 					}
 				}
