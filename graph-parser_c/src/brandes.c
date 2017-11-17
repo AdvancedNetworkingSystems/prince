@@ -43,6 +43,8 @@ static inline double round_decimal(double d){
 
 const int INFINITY_DIST = INT_MAX;
 
+double scale=1;
+
 /**
  * This function implements brandes algorithm. Given a weighted graph,
  * it returns an array of value, in which for every node identifier there is
@@ -63,7 +65,8 @@ const int INFINITY_DIST = INT_MAX;
  */
 double * betweeness_brandes(struct graph *g,
                             bool         endpoints,
-                            int *        articulation_point_val)
+                            int *        articulation_point_val,
+                            bool         normalized)
 {
     struct priority_queue q;
 
@@ -288,10 +291,18 @@ double * betweeness_brandes(struct graph *g,
     free(sigma);
     free(delta);
     struct node_list *nl = g -> nodes.head;
-    if ((node_num > 2) && (articulation_point_val == 0))
-    {    
-        double scale = 1 / (((double) (node_num - 1)) * ((double) (node_num - 2)));
 
+    if((normalized==true)&&(endpoints==true))
+        scale = 1 / (((double) (node_num - 1)) * ((double) (node_num - 2)));
+
+    else if((normalized==true)&&(endpoints==false))
+        scale = 1 / (((double) (node_num)) * ((double) (node_num - 1)));
+
+    else
+        scale = 0.5;
+
+    if ((node_num > 2) && (articulation_point_val == 0))
+    {
         for (i = 0; i < node_num; i++)
         {
             struct node_graph *ng = (struct node_graph*) nl -> content;
@@ -665,7 +676,7 @@ double * compute_traffic_matrix_and_centrality(
         }
     }
 
-    double * ret_val = betweeness_brandes(&(cc -> g), true, art_point_val);
+    double * ret_val = betweeness_brandes(&(cc -> g), true, art_point_val,false);
 
     free(art_point_val);
 
@@ -1184,13 +1195,13 @@ double * betwenness_heuristic(struct graph *g,
             free(connected_component_indexes);
             free(ret_val);
 
-            return betweeness_brandes(g, true, 0);
+            return betweeness_brandes(g, true, 0,false);
         }
     }
 
     if (node_num > 2)
     {
-        double scale = 1 / (((double) (node_num - 1)) * ((double) (node_num - 2)));
+        //double scale = 1 / (((double) (node_num - 1)) * ((double) (node_num - 2)));
 
         for (i = 0; i < node_num; i++)
         {
@@ -1223,4 +1234,3 @@ double * betwenness_heuristic(struct graph *g,
 
     return ret_val;
 }
-

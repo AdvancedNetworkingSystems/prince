@@ -77,7 +77,7 @@ void graph_parser_calculate_bc(c_graph_parser * v)
     }
     else
     {
-        gp -> bc = betweeness_brandes(&(gp -> g), true, 0);
+        gp -> bc = betweeness_brandes(&(gp -> g),true, 0,false);
     }
 }
 
@@ -135,5 +135,3 @@ void delete_graph_parser(void * v)
 
     // gp->bc=0;
 }
-
-

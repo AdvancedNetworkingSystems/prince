@@ -25,7 +25,8 @@ extern "C"
      */
     double * betweeness_brandes(struct graph *g,
                                 bool         endpoints,
-                                int *        articulation_point_val);
+                                int *        articulation_point_val,
+                                bool         normalized);
 
     /**
      * This is the algorithm described in the linked paper.
@@ -42,4 +43,3 @@ extern "C"
 #endif
 
 #endif /* ALGORITHMS_H */
-
