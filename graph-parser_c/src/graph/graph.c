@@ -63,8 +63,7 @@ void add_edge_graph(struct graph *g, const char *name_from, const char *name_to,
                     double value, bool directed)
 {
         g->directed = g->directed && directed;
-        struct node_graph *from = 0;
-        *to = 0, *current = 0;
+        struct node_graph *from = 0, *to = 0, *current = 0;
 
         struct node_list *n = g->nodes.head;
 
