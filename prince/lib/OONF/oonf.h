@@ -2,8 +2,8 @@
 #define SRC_OONF_H_
 
 #include "../../src/common.h"
-#include "../../src/socket.h"
 #include "../../src/parser.h"
+#include "../../src/socket.h"
 /*inehrit methods from here */
 #include "../../src/plugin_interface.h"
 
