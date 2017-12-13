@@ -21,40 +21,40 @@ c_conf_heu="../prince/input/test_h_c.ini"
 r=Random(1234)
 
 def test(exe_p,conf_p,port,repetitions=2,start=10,end=10,step=1):
-    print(exe_p+" "+conf_p)
-    Popen("exec "+exe_p+" "+conf_p,shell=True, stdout=PIPE)
-    serversocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    serversocket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-    serversocket.bind(('localhost', port))
-    serversocket.listen(5)
-    means=[]
-    variances=[]
-    indexes=[]
-    for i in range(start,end+1,step):
-        repeat=repetitions
-        exec_times=[]
-        print(i,repeat)
-        while repeat:
-            (cs, address) = serversocket.accept()
-            data=cs.recv(1024).decode("utf-8")
-            if data.strip() == "/netjsoninfo filter graph ipv6_0/quit":
-                ge = Gen()
-                ge.genGraph("PLAW", i)
-                graph=ge.graph
-                graph2=nx.Graph()
-                for e in graph.edges():
-                    graph2.add_edge(e[0],e[1],weight=r.uniform(0,10))
-                graph=graph2
-                cs.send(dumps(ge.composeNetJson(graph)))
-            else:
-                exec_times.append(float(data[data.rfind("=")+1:]))
-                repeat-=1
-            cs.close()
-        indexes.append(i)
-        print("exec_times",exec_times)
-        variances.append(var(exec_times))
-        means.append(mean(exec_times))
-    return indexes, means, variances
+        print(exe_p+" "+conf_p)
+        Popen("exec "+exe_p+" "+conf_p,shell=True, stdout=PIPE)
+        serversocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        serversocket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        serversocket.bind(('localhost', port))
+        serversocket.listen(5)
+        means=[]
+        variances=[]
+        indexes=[]
+        for i in range(start,end+1,step):
+                repeat=repetitions
+                exec_times=[]
+                print(i,repeat)
+                while repeat:
+                        (cs, address) = serversocket.accept()
+                        data=cs.recv(1024).decode("utf-8")
+                        if data.strip() == "/netjsoninfo filter graph ipv6_0/quit":
+                                ge = Gen()
+                                ge.genGraph("PLAW", i)
+                                graph=ge.graph
+                                graph2=nx.Graph()
+                                for e in graph.edges():
+                                        graph2.add_edge(e[0],e[1],weight=r.uniform(0,10))
+                                graph=graph2
+                                cs.send(dumps(ge.composeNetJson(graph)))
+                        else:
+                                exec_times.append(float(data[data.rfind("=")+1:]))
+                                repeat-=1
+                        cs.close()
+                indexes.append(i)
+                print("exec_times",exec_times)
+                variances.append(var(exec_times))
+                means.append(mean(exec_times))
+        return indexes, means, variances
 
 
 #x,measures_plaw,measures_plaw_var = test(prince,conf,2009)

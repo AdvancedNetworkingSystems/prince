@@ -1,17 +1,15 @@
 {
-	"proto": {
-		"protocol": "oonf",
-		"host": "127.0.0.1",
-		"port": 2010,
-		"timer_port": 1234,
-		"refresh": 1,
-		"log_file" : "/tmp/prince.log"
-	},
-	"graph-parser": {
-		"heuristic": 0,
-		"weights": 0,
-		"recursive": 0,
-		"stop_unchanged": 0,
-		"multithreaded": 0
-	}
+        "proto" : {
+                "protocol" : "oonf",
+                "host" : "127.0.0.1",
+                "port" : 2010,
+                "timer_port" : 1234,
+                "refresh" : 1,
+                "log_file" : "/tmp/prince.log"
+        },
+                  "graph-parser":
+        {
+                "heuristic" : 0, "weights" : 0, "recursive" : 0,
+                    "stop_unchanged" : 0, "multithreaded" : 0
+        }
 }

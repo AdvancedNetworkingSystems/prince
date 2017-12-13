@@ -1,15 +1,13 @@
 {
-"proto": {
-"protocol": "ospf",
-"host": "/usr/var/run/bird.ctl",
-"port": 0,
-"refresh": 1
-},
-"graph-parser": {
-"heuristic": 1,
-"weights": 1,
-"recursive": 0,
-"stop_unchanged": 0,
-"multithreaded": 0
-}
+        "proto" : {
+                "protocol" : "ospf",
+                "host" : "/usr/var/run/bird.ctl",
+                "port" : 0,
+                "refresh" : 1
+        },
+                  "graph-parser":
+        {
+                "heuristic" : 1, "weights" : 1, "recursive" : 0,
+                    "stop_unchanged" : 0, "multithreaded" : 0
+        }
 }
