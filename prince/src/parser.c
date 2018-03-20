@@ -21,9 +21,9 @@ void bc_degree_map_delete(map_id_degree_bc * map)
 * Parse jsoninfo format
 * @param char* buffer containing the serialized json
 */
-struct topology * parse_jsoninfo(char *buffer)
+topology_t parse_jsoninfo(char *buffer)
 {
-	struct topology *c_topo= _init_topo(0);
+	topology_t c_topo= new_topo(0);
 	json_object *topo = json_tokener_parse(buffer);
 	if(!topo) return 0;
 	json_object_object_foreach(topo, key, val) {
@@ -86,10 +86,10 @@ struct topology * parse_jsoninfo(char *buffer)
 * @param const char* string containing the id of the new node
 * @return 1 on success, 0 otherwise
 */
-int add_node(struct topology * topo, const char *id)
+int add_node(topology_t topo, const char *id)
 {
-	struct node *temp = topo->first;
-	topo->first=(struct node*)malloc(sizeof(struct node));
+	node_t temp = topo->first;
+	topo->first=(node_t) malloc(sizeof(struct node));
 	topo->first->next=temp;
 	topo->first->id=strdup(id);
 	topo->first->neighbor_list=0;
@@ -97,7 +97,7 @@ int add_node(struct topology * topo, const char *id)
 	return 1;
 }
 
-struct neighbor* find_neigh(struct node *source, struct node *target){
+struct neighbor* find_neigh(node_t source, node_t target){
 	struct neighbor *punt;
 	for(punt=source->neighbor_list; punt!=0; punt=punt->next){
 		if(punt->id==target)
@@ -116,9 +116,9 @@ struct neighbor* find_neigh(struct node *source, struct node *target){
 * @param const char* string containing the id of the searched node
 * @return pointer to the node on success, 0 otherwise
 */
-struct node* find_node(struct topology *topo,const char *id)
+node_t find_node(topology_t topo,const char *id)
 {
-	struct node *punt;
+	node_t punt;
 	for(punt=topo->first; punt!=0; punt=punt->next){
 		if(strcmp(punt->id, id)==0){
 			return punt;
@@ -141,10 +141,10 @@ struct node* find_node(struct topology *topo,const char *id)
 * @param const double  cost of the edge
 * @return 1 on success, 0 otherwise
 */
-int add_neigh(struct topology *topo, const char *source, const char *id, const double weight, int validity)
+int add_neigh(topology_t topo, const char *source, const char *id, const double weight, int validity)
 {
 	struct neighbor *temp, *found;
-	struct node *s, *t;
+	node_t s, t;
 	if((s=find_node(topo, source))==0)
 		return 0; // check if source node exists
 	if((t=find_node(topo, id))==0)
@@ -165,7 +165,7 @@ int add_neigh(struct topology *topo, const char *source, const char *id, const d
 	return 1;
 }
 
-int add_local_address(struct node *node, const char* address){
+int add_local_address(node_t node, const char* address){
 	struct local_address *la_temp;
 	la_temp = node->addresses;
 	node->addresses =(struct local_address*)malloc(sizeof(struct local_address));
@@ -178,9 +178,9 @@ int add_local_address(struct node *node, const char* address){
 * @param int number of chars of the id (0 ipv6, 1 ipv4)
 * @return pointer to the topology
 */
-struct topology * _init_topo(int type)
+topology_t new_topo(int type)
 {
-	struct topology *topo = (struct topology*)malloc(sizeof(struct topology));
+	topology_t topo = (topology_t) malloc(sizeof(struct topology));
 	if(type==0){
 		topo->id_lenght=39;
 	}else if(type ==1){
@@ -196,10 +196,10 @@ struct topology * _init_topo(int type)
 * Destroy topology and dealloc
 * @param struct topology * pointer to the structure
 **/
-void destroy_topo(struct topology *topo)
+void free_topo(topology_t topo)
 {
-	struct node *n_temp, *punt=topo->first;
-	while(punt){
+	node_t n_temp, punt=topo->first;
+	while (punt) {
 		struct neighbor *n=punt->neighbor_list;
 		while(n){
 			struct neighbor *temp=n->next;
@@ -215,14 +215,15 @@ void destroy_topo(struct topology *topo)
 	free(topo->self_id);
 	free(topo);
 }
+
 /**
 * Parse NetJson format
 * @param char* buffer containing the serialized json
 * @return representation of the graph as "struct topology*" type
 */
-struct topology * parse_netjson(char* buffer)
+topology_t parse_netjson(char* buffer)
 {
-	struct topology *c_topo= _init_topo(0);
+	topology_t c_topo= new_topo(0);
 	json_object *topo = json_tokener_parse(buffer);
 	if(!topo) return 0;
 	json_object_object_foreach(topo, key, val) {
@@ -250,7 +251,7 @@ struct topology * parse_netjson(char* buffer)
 						la_len = json_object_array_length(la_array);
 							for(j=0; j<la_len; j++){
 								json_object *la_elem =json_object_array_get_idx(la_array, j);
-								struct node *node = find_node(c_topo, node_id);
+								node_t node = find_node(c_topo, node_id);
 								add_local_address(node, json_object_get_string(la_elem));
 							}
 					}

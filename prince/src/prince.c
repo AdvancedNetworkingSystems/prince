@@ -23,7 +23,7 @@ int main(int argc, char* argv[])
 		return -1;
 	}
 	printf("Prince Started\n");
-	struct prince_handler *ph= new_prince_handler(argv[1]);
+	prince_handler_t ph= new_prince_handler(argv[1]);
 	if(ph==0)
 		return -1;
 	if(ph->log_file){
@@ -56,7 +56,7 @@ int main(int argc, char* argv[])
 			continue;
 		}
 		graph_parser_parse_simplegraph(ph->rp->gp, ph->rp->t);
-		destroy_topo(ph->rp->t);
+		free_topo(ph->rp->t);
 		if(ph->rp->self_id!=0)
 			free(ph->rp->self_id);
 		ph->rp->self_id=strdup(ph->rp->t->self_id);
@@ -112,9 +112,9 @@ int main(int argc, char* argv[])
 * @param host host address as a string
 * @return pointer to prince handler
 */
-struct prince_handler* new_prince_handler(char * conf_file)
+prince_handler_t new_prince_handler(char * conf_file)
 {
-	struct prince_handler* ph = (struct prince_handler*) malloc(sizeof(struct prince_handler));
+	prince_handler_t ph = (prince_handler_t) malloc(sizeof(struct prince_handler));
 	ph->def_t.h_timer=0;
 	ph->def_t.tc_timer=0;
 	/* ph->bc_degree_map = (map_id_degree_bc *) malloc(sizeof(map_id_degree_bc));*/
@@ -143,7 +143,7 @@ struct prince_handler* new_prince_handler(char * conf_file)
 * Delete a Prince handler and free all the memory
 * @param struct prince_handler* pointer to the prince_handler struct.
 */
-void delete_prince_handler(struct prince_handler* ph)
+void delete_prince_handler( prince_handler_t ph)
 {
 	delete_graph_parser(ph->gp);
 	delete_plugin_p(ph->rp);
@@ -191,7 +191,7 @@ int compute_constants(struct prince_handler *ph)
 * @param pointer to the prince_handler object
 * @return 1 if success, 0 if fail
 */
-int compute_timers(struct prince_handler *ph)
+int compute_timers(prince_handler_t ph)
 {
 	compute_constants(ph);
 	int my_index=-1, i;
@@ -206,7 +206,7 @@ int compute_timers(struct prince_handler *ph)
 	return 1;
 }
 
-double get_self_bc(struct prince_handler *ph)
+double get_self_bc(prince_handler_t ph)
 {
 	map_id_degree_bc *m_degree_bc = ph->bc_degree_map;
 	int i;

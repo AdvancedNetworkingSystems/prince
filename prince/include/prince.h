@@ -1,14 +1,16 @@
 #ifndef SRC_PRINCE_H_
 #define SRC_PRINCE_H_
-#include <math.h>
-#include <dlfcn.h>
-#include <unistd.h>
-#include <time.h>
-#include <sys/time.h>
 #include "common.h"
-#include "parser.h"
 #include "config.h"
+#include "parser.h"
+#include <dlfcn.h>
+#include <math.h>
 #include <signal.h>
+#include <sys/time.h>
+#include <time.h>
+#include <unistd.h>
+
+typedef struct prince_handler * prince_handler_t;
 
 struct constants{
 	double O_H, O_TC, sq_lambda_H, sq_lambda_TC, R;
@@ -31,12 +33,12 @@ struct prince_handler{
 
 int main(int argc, char *argv[]);
 
-struct prince_handler* new_prince_handler(char * conf_file);
-void delete_prince_handler(struct prince_handler*);
-int compute_constants(struct prince_handler *ph);
-int compute_timers(struct prince_handler *ph);
-int read_config_file(struct prince_handler *ph, char *filepath);
-double get_self_bc(struct prince_handler *ph);
-void log_line(char *text, struct prince_handler* ph);
+prince_handler_t new_prince_handler(char * conf_file);
+void delete_prince_handler(prince_handler_t ph);
+int  compute_constants(prince_handler_t ph);
+int  compute_timers(prince_handler_t ph);
+int  read_config_file(prince_handler_t ph, char *filepath);
+double get_self_bc(prince_handler_t ph);
+void log_line(char *text, prince_handler_t ph);
 void signal_callback_handler(int signum);
 #endif /* SRC_PRINCE_H_ */

@@ -11,54 +11,57 @@ typedef struct _id_degree_bc{
 	double bc;
 	int degree;
 
-}id_degree_bc;
+} id_degree_bc;
 
 typedef struct _map_id_degree_bc{
 	id_degree_bc *map;
 	size_t size;
 	int n_edges;
-}map_id_degree_bc;
+} map_id_degree_bc;
 
 
+typedef struct topology * topology_t;
+
+typedef struct node * node_t;
 
 /* topology structures definition*/
-struct topology{
+struct topology {
 	int id_lenght;
 	char *protocol;
 	char *self_id;
 	struct node *first;
-
 };
 
-struct node{
+struct node {
 	char *id;
 	struct neighbor *neighbor_list;
-	struct node *next;
+	node_t next;
 	struct local_address *addresses;
 };
 
-
-struct neighbor{
-	struct node *id;
+struct neighbor {
+	node_t id;
 	float weight;
 	int validity;
 	struct neighbor *next;
 };
 
-struct local_address{
+struct local_address {
 	const char *id;
 	struct local_address *next;
 };
-struct topology * parse_jsoninfo(char *buffer);
-struct topology * parse_netjson(char* buffer);
-int add_node(struct topology * topo, const char *id);
-struct topology * _init_topo(int type);
-int add_neigh(struct topology *topo, const char *source, const char *id, const double weight, int validity);
-void destroy_topo(struct topology *topo);
-struct node* find_node(struct topology *topo, const char *id);
-struct neighbor* find_neigh(struct node *source, struct node *target);
+
+int  add_neigh(topology_t topo, const char *source, const char *id, const double weight, int validity);
+int  add_node(topology_t topo, const char *id);
+
+struct neighbor* find_neigh(node_t source, node_t target);
+node_t           find_node(topology_t topo, const char *id);
+
 void bc_degree_map_delete(map_id_degree_bc * map);
 
-void destroy_topo(struct topology *topo);
+topology_t new_topo(int type);
+void       free_topo(topology_t topo);
+topology_t parse_jsoninfo(char *buffer);
+topology_t parse_netjson(char* buffer);
 
 #endif /* SRC_PARSER_H_ */
