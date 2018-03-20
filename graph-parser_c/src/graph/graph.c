@@ -1,5 +1,5 @@
 
-#include "graph.h"
+#include "graph/graph.h"
 
 void init_node_graph(struct node_graph *n,
                      const char *      name,

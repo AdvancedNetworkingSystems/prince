@@ -1,5 +1,8 @@
 #include "prince.h"
 
+#include <dlfcn.h>
+#include <math.h>
+
 routing_plugin* (*new_plugin_p)(char* host, int port, c_graph_parser *gp, int json_type, int timer_port);
 int (*get_initial_timers_p)(routing_plugin *o, struct timers *t);
 int (*get_topology_p)(routing_plugin *o);

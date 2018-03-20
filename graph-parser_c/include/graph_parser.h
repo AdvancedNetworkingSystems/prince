@@ -1,6 +1,6 @@
 /* Graph_Parser_lib.h */
 
-#include "../../prince/src/parser.h"
+#include "parser.h"
 #include "brandes.h"
 
 /**

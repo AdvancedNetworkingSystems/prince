@@ -9,7 +9,7 @@
 #include <stddef.h>
 #include <stdbool.h>
 
-#include "../../graph-parser_c/src/graph_parser.h"
+#include "graph_parser.h"
 
 /*DEFINES*/
 #define true 1

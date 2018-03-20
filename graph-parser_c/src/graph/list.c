@@ -1,5 +1,5 @@
 
-#include "list.h"
+#include "graph/list.h"
 
 /**
  * List constructor. It can works either as a queue or a stack based on function

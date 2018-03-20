@@ -1,12 +1,12 @@
 #ifndef SRC_OSPF_H_
 #define SRC_OSPF_H_
 
-#include "../../src/common.h"
-#include "../../src/parser.h"
-#include "../../src/socket.h"
+#include "common.h"
+#include "parser.h"
+#include "socket.h"
 
 /*inehrit methods from here */
-#include "../../src/plugin_interface.h"
+#include "plugin_interface.h"
 #define SERVER_READ_BUF_LEN 4096
 #define NETJSON_CODE 100
 #include <stdio.h>
