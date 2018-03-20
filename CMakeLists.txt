@@ -74,3 +74,11 @@ install(TARGETS
         COMPONENT test
         EXCLUDE_FROM_ALL
 )
+
+install(TARGETS
+        prince
+        libprince_oonf
+        libprince_olsr
+        RUNTIME DESTINATION bin
+        LIBRARY DESTINATION lib
+)
