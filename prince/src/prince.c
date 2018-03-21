@@ -123,33 +123,32 @@ int main(int argc, char* argv[])
 */
 prince_handler_t new_prince_handler(char * conf_file)
 {
-	prince_handler_t ph = ( prince_handler_t) malloc(sizeof(struct prince_handler));
-	ph->def_t.h_timer=0;
-	ph->def_t.tc_timer=0;
-	/* ph->bc_degree_map = (map_id_degree_bc *) malloc(sizeof(map_id_degree_bc));*/
-	/*setting to undefined all params*/
-	ph->host=0;
-	ph->port=-1;
-	ph->refresh=-1;
-	ph->self_id=0;
-	ph->sleep_onfail = 1;
+	prince_handler_t result = (prince_handler_t) malloc(sizeof(struct prince_handler));
+        memset(result, 0, sizeof(struct prince_handler));
+        /* ph->bc_degree_map = (map_id_degree_bc *) malloc(sizeof(map_id_degree_bc));*/
+        /*setting to undefined all params*/
+	result->port = -1;
+	result->refresh = -1;
+	result->sleep_onfail = 1;
 
 	if (read_config_file(result, conf_file) == 0) {
 		return INVALID_PRINCE_HANDLER;
         }
 
 	char libname[20] = "libprince_";
-	strcat(libname, ph->proto);
+	strcat(libname, result->proto);
 	strcat(libname, ".so");
 	result->plugin_handle = dlopen(libname, RTLD_LAZY);
 	if (result->plugin_handle == NULL) {
 		return 0;
-	new_plugin_p = (routing_plugin* (*)(char* host, int port, c_graph_parser *gp, int json_type, int timer_port)) dlsym(ph->plugin_handle, "new_plugin");
-	get_initial_timers_p =(int (*)(routing_plugin *o, struct timers *t)) dlsym(ph->plugin_handle, "get_initial_timers");
-	get_topology_p = (int (*)(routing_plugin *o)) dlsym(ph->plugin_handle, "get_topology");
-	push_timers_p = (int (*)(routing_plugin *o, struct timers t)) dlsym(ph->plugin_handle, "push_timers");
-	delete_plugin_p = (void (*)(routing_plugin *o)) dlsym(ph->plugin_handle, "delete_plugin");
-	return ph;
+        }
+
+	new_plugin_p = (routing_plugin* (*)(char* host, int port, c_graph_parser *gp, int json_type, int timer_port)) dlsym(result->plugin_handle, "new_plugin");
+	get_initial_timers_p = (int (*)(routing_plugin *o, struct timers *t)) dlsym(result->plugin_handle, "get_initial_timers");
+	get_topology_p = (int (*)(routing_plugin *o)) dlsym(result->plugin_handle, "get_topology");
+	push_timers_p = (int (*)(routing_plugin *o, struct timers t)) dlsym(result->plugin_handle, "push_timers");
+	delete_plugin_p = (void (*)(routing_plugin *o)) dlsym(result->plugin_handle, "delete_plugin");
+	return result;
 }
 /**
 * Delete a Prince handler and free all the memory
