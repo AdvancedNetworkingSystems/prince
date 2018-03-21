@@ -1,8 +1,6 @@
 #ifndef SRC_COMMON_H_
 #define SRC_COMMON_H_
 
-
-/*INCLUDES */
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -11,7 +9,6 @@
 
 #include "graph_parser.h"
 
-/*DEFINES*/
 #define true 1
 #define false 0
 #define LINE_SIZE 64
@@ -37,8 +34,7 @@ routing_plugin_{
 	int sd;
 	c_graph_parser *gp;
 
-}routing_plugin;
-
+} routing_plugin;
 
 
 #endif /* SRC_COMMON_H_ */

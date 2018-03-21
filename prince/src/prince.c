@@ -13,14 +13,14 @@ void (*delete_plugin_p)(routing_plugin* o);
 /**
 * Main routine of Prince. Collect topology, parse it, calculate bc and timers, push them back.
 * @param argv[1] <- config filename
-* @return 1 on success, 0 on error
+* @return 0 on success
 */
 int main(int argc, char* argv[])
 {
-	FILE *log=0;
+	FILE *log = NULL;
 	if (argc < 2) {
 		fprintf(stderr, "No conf file specified. Exiting.\n");
-		return -1;
+               exit(1);
 	}
 	fprintf(stdout, "Prince Started\n");
 	prince_handler_t ph = new_prince_handler(argv[1]);
@@ -53,7 +53,7 @@ int main(int argc, char* argv[])
 	ph->rp = new_plugin_p(ph->host, ph->port, ph->gp, ph->json_type, ph->timer_port);
 	do {
 		sleep(ph->refresh);
-	} while(!get_initial_timers_p(ph->rp, &ph->def_t));
+	} while (!get_initial_timers_p(ph->rp, &ph->def_t));
 
 	do {
 		sleep(ph->refresh);
@@ -84,6 +84,7 @@ int main(int argc, char* argv[])
 		graph_parser_compose_degree_bc_map(ph->gp, ph->bc_degree_map);
 		ph->opt_t.exec_time = (double) (end - start) / CLOCKS_PER_SEC;
 		ph->opt_t.centrality = get_self_bc(ph);
+
 		if (log) {
 			log = fopen(ph->log_file, "a+");
 			struct timeval tv;
@@ -140,7 +141,8 @@ prince_handler_t new_prince_handler(char * conf_file)
 	strcat(libname, ".so");
 	result->plugin_handle = dlopen(libname, RTLD_LAZY);
 	if (result->plugin_handle == NULL) {
-		return 0;
+               fprintf(stderr, "%s\n", dlerror());
+		return INVALID_PRINCE_HANDLER;
         }
 
 	new_plugin_p = (routing_plugin* (*)(char* host, int port, c_graph_parser *gp, int json_type, int timer_port)) dlsym(result->plugin_handle, "new_plugin");
