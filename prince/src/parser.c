@@ -1,5 +1,7 @@
 #include "parser.h"
 
+#include "topology.h"
+
 /**
 * Free a bc_degree map data structure
 * @param map_id_degree_bc*  pointer to the data structure
@@ -80,22 +82,6 @@ topology_t parse_jsoninfo(char *buffer)
 	return c_topo;
 }
 
-/**
-* Add a node to the topology data structure
-* @param struct topology*  pointer to the topology data structure
-* @param const char* string containing the id of the new node
-* @return 1 on success, 0 otherwise
-*/
-int add_node(topology_t topo, const char *id)
-{
-	node_t temp = topo->first;
-	topo->first=(node_t) malloc(sizeof(struct node));
-	topo->first->next=temp;
-	topo->first->id=strdup(id);
-	topo->first->neighbor_list=0;
-	topo->first->addresses=0;
-	return 1;
-}
 
 struct neighbor* find_neigh(node_t source, node_t target){
 	struct neighbor *punt;
@@ -110,60 +96,7 @@ struct neighbor* find_neigh(node_t source, node_t target){
 	return 0;
 }
 
-/**
-* Find a node in the topology data structure
-* @param struct topology*  pointer to the topology data structure
-* @param const char* string containing the id of the searched node
-* @return pointer to the node on success, 0 otherwise
-*/
-node_t find_node(topology_t topo,const char *id)
-{
-	node_t punt;
-	for(punt=topo->first; punt!=0; punt=punt->next){
-		if(strcmp(punt->id, id)==0){
-			return punt;
-		}
-		struct local_address *la;
-		for(la=punt->addresses; la!=0; la=la->next){
-			if(strcmp(la->id, id)==0){
-				return punt;
-			}
-		}
-	}
-	return 0;
-}
 
-/**
-* Add a neighbor to the node
-* @param struct topology*  pointer to the topology data structure
-* @param const char* string containing the id of the source node
-* @param const char* string containing the id of the target node
-* @param const double  cost of the edge
-* @return 1 on success, 0 otherwise
-*/
-int add_neigh(topology_t topo, const char *source, const char *id, const double weight, int validity)
-{
-	struct neighbor *temp, *found;
-	node_t s, t;
-	if((s=find_node(topo, source))==0)
-		return 0; // check if source node exists
-	if((t=find_node(topo, id))==0)
-		return 0; //check if target node exists
-	found=find_neigh(s, t);
-	if(found){
-		if(found->validity > validity)
-			found->weight = weight; //if the link found is older, i update the weight
-		return 1; //The link is already present
-	}
-
-	temp=s->neighbor_list;
-	s->neighbor_list=(struct neighbor*)malloc(sizeof(struct neighbor));
-	s->neighbor_list->id=t; // add node to source neighbor list
-	s->neighbor_list->weight=weight;
-	s->neighbor_list->validity = validity;
-	s->neighbor_list->next=temp;
-	return 1;
-}
 
 int add_local_address(node_t node, const char* address){
 	struct local_address *la_temp;
@@ -173,48 +106,7 @@ int add_local_address(node_t node, const char* address){
 	node->addresses->next=la_temp;
 	return 1;
 }
-/**
-* Initialize the topology data structure
-* @param int number of chars of the id (0 ipv6, 1 ipv4)
-* @return pointer to the topology
-*/
-topology_t new_topo(int type)
-{
-	topology_t topo = (topology_t) malloc(sizeof(struct topology));
-	if(type==0){
-		topo->id_lenght=39;
-	}else if(type ==1){
-		topo->id_lenght=15;
-	}
-	topo->protocol=0;
-	topo->first=0;
-	return topo;
-}
 
-
-/**
-* Destroy topology and dealloc
-* @param struct topology * pointer to the structure
-**/
-void free_topo(topology_t topo)
-{
-	node_t n_temp, punt=topo->first;
-	while (punt) {
-		struct neighbor *n=punt->neighbor_list;
-		while(n){
-			struct neighbor *temp=n->next;
-			free(n);
-			n=temp;
-		}
-		free(punt->id);
-		n_temp=punt->next;
-		free(punt);
-		punt=n_temp;
-	}
-	free(topo->protocol);
-	free(topo->self_id);
-	free(topo);
-}
 
 /**
 * Parse NetJson format
@@ -224,6 +116,10 @@ void free_topo(topology_t topo)
 topology_t parse_netjson(char* buffer)
 {
 	topology_t c_topo= new_topo(0);
+        if (c_topo == INVALID_TOPOLOGY) {
+                fprintf(stderr, "Could not create topology");
+                return INVALID_TOPOLOGY;
+        }
 	json_object *topo = json_tokener_parse(buffer);
 	if(!topo) return 0;
 	json_object_object_foreach(topo, key, val) {

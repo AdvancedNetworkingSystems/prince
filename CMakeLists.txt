@@ -23,6 +23,7 @@ add_executable(prince
         prince/src/parser.c
         prince/src/prince.c
         prince/src/socket.c
+        prince/src/topology.c
 )
 
 target_link_libraries(prince
