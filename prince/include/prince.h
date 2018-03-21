@@ -10,6 +10,8 @@
 #include <time.h>
 #include <unistd.h>
 
+#define INVALID_PRINCE_HANDLER NULL
+
 typedef struct prince_handler * prince_handler_t;
 
 struct constants{
@@ -34,7 +36,7 @@ struct prince_handler{
 int main(int argc, char *argv[]);
 
 prince_handler_t new_prince_handler(char * conf_file);
-void delete_prince_handler(prince_handler_t ph);
+void free_prince_handler(prince_handler_t ph);
 int  compute_constants(prince_handler_t ph);
 int  compute_timers(prince_handler_t ph);
 int  read_config_file(prince_handler_t ph, char *filepath);

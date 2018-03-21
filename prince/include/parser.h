@@ -57,7 +57,7 @@ int  add_node(topology_t topo, const char *id);
 struct neighbor* find_neigh(node_t source, node_t target);
 node_t           find_node(topology_t topo, const char *id);
 
-void bc_degree_map_delete(map_id_degree_bc * map);
+void free_bc_degree_map(map_id_degree_bc * map);
 
 topology_t new_topo(int type);
 void       free_topo(topology_t topo);

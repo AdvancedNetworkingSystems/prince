@@ -93,12 +93,12 @@ int main(int argc, char* argv[])
 		}
 		free(gp_p->bc);
 		gp_p->bc=0;
-		bc_degree_map_delete(ph->bc_degree_map);
+		free_bc_degree_map(ph->bc_degree_map);
 		free_graph(&(gp_p->g));
 		init_graph(&(gp_p->g));
 		fflush(stdout);
 	}while(go);
-	delete_prince_handler(ph);
+	free_prince_handler(ph);
 	printf("Prince Exited\n");
 	if(log){
 		log = fopen(ph->log_file, "a+");
@@ -114,7 +114,7 @@ int main(int argc, char* argv[])
 */
 prince_handler_t new_prince_handler(char * conf_file)
 {
-	prince_handler_t ph = (prince_handler_t) malloc(sizeof(struct prince_handler));
+	prince_handler_t ph = ( prince_handler_t) malloc(sizeof(struct prince_handler));
 	ph->def_t.h_timer=0;
 	ph->def_t.tc_timer=0;
 	/* ph->bc_degree_map = (map_id_degree_bc *) malloc(sizeof(map_id_degree_bc));*/
@@ -143,9 +143,9 @@ prince_handler_t new_prince_handler(char * conf_file)
 * Delete a Prince handler and free all the memory
 * @param struct prince_handler* pointer to the prince_handler struct.
 */
-void delete_prince_handler( prince_handler_t ph)
+void free_prince_handler(prince_handler_t ph)
 {
-	delete_graph_parser(ph->gp);
+	free_graph_parser(ph->gp);
 	delete_plugin_p(ph->rp);
 	dlclose(ph->plugin_handle);
 	char* tmp=dlerror();
@@ -163,7 +163,7 @@ void delete_prince_handler( prince_handler_t ph)
 * @param pointer to the prince_handler object
 * @return 1 if success, 0 if fail
 */
-int compute_constants(struct prince_handler *ph)
+int compute_constants(prince_handler_t ph)
 {
 	map_id_degree_bc *m_degree_bc = ph->bc_degree_map;
 	struct timers t = ph->def_t;

@@ -1,10 +1,10 @@
 #include "parser.h"
 
 /**
-* Delete a bc_degree map data structure
+* Free a bc_degree map data structure
 * @param map_id_degree_bc*  pointer to the data structure
 */
-void bc_degree_map_delete(map_id_degree_bc * map)
+void free_bc_degree_map(map_id_degree_bc * map)
 {
 	if(map!=0){
 		int i;

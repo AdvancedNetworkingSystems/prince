@@ -120,7 +120,7 @@ int graph_parser_compose_degree_bc_map(c_graph_parser * v,
  * Function that deallocates and frees memory used for centrality computation
  * @param v c_graph_parser struct that has to be deleted
  */
-void delete_graph_parser(void * v)
+void free_graph_parser(void * v)
 {
     struct graph_parser *gp = (struct graph_parser*) v;
 
