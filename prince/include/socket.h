@@ -6,6 +6,7 @@
 #include <netinet/in.h>
 #include <netdb.h>
 #include <unistd.h>
+
 #include "common.h"
 
 #define BUFFER_SIZE 1024
@@ -18,8 +19,5 @@ int _http_receive(int sd, char **buffer);
 int _telnet_receive(int sd, char **finalBuffer);
 int _receive_data(int sd, char **finalBuffer);
 int check_header_clen(char *header, char *body);
-
-
-
 
 #endif

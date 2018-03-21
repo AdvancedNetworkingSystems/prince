@@ -1,6 +1,6 @@
 #include "socket.h"
 
-
+#include "error.h"
 
 /**
 * Initialize a socket
@@ -8,24 +8,27 @@
 * @param port remote port of the server
 * @return socket descriptor
 */
-int _create_socket(char* host, int port)
+int _create_socket(char* hostname, int port)
 {
 	struct sockaddr_in temp;
-	struct hostent *h;
+	struct hostent *host;
 	int sock;
-	int error;
+	int rc;
 
-	temp.sin_family=AF_INET;
-	temp.sin_port=htons(port);
-	h=gethostbyname(host);
-	if (h==0)
-	{
-		printf("Gethostbyname failed\n");
+	temp.sin_family = AF_INET;
+	temp.sin_port = htons(port);
+	host = gethostbyname(hostname);
+	if (host == NULL) {
+               perror("prince-socket");
 		exit(1);
 	}
-	bcopy(h->h_addr,&temp.sin_addr,h->h_length);
-	sock=socket(AF_INET,SOCK_STREAM, 0);
-	error=connect(sock, (struct sockaddr*) &temp, sizeof(temp));
+	bcopy(host->h_addr, &temp.sin_addr, host->h_length);
+	sock = socket(AF_INET, SOCK_STREAM, 0);
+	rc = connect(sock, (struct sockaddr*) &temp, sizeof(temp));
+       if (rc) {
+               perror("prince-socket");
+               exit(1);
+       }
 	return sock;
 }
 
