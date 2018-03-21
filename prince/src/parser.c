@@ -87,15 +87,17 @@ topology_t parse_jsoninfo(char *buffer)
 
 struct neighbor* find_neigh(node_t source, node_t target){
 	struct neighbor *punt;
-	for(punt=source->neighbor_list; punt!=0; punt=punt->next){
-		if(punt->id==target)
+	for (punt = source->neighbor_list; punt != 0; punt = punt->next) {
+		if (punt->id==target) {
 			return punt;
+                }
 	}
-	for(punt=target->neighbor_list; punt!=0; punt=punt->next){
-		if(punt->id==source)
+	for(punt = target->neighbor_list; punt != 0; punt = punt->next) {
+		if (punt->id == source) {
 			return punt;
+                }
 	}
-	return 0;
+	return NULL;
 }
 
 
