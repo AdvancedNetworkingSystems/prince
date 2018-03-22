@@ -13,12 +13,16 @@
 */
 int add_node(topology_t topo, const char *id)
 {
-	node_t temp = topo->first;
-	topo->first=(node_t) malloc(sizeof(struct node));
-	topo->first->next=temp;
-	topo->first->id=strdup(id);
-	topo->first->neighbor_list=0;
-	topo->first->addresses=0;
+	node_t head = topo->first;
+	topo->first = (node_t) malloc(NODE_SIZE);
+        if (topo->first == INVALID_NODE) {
+                fprintf(stderr, "prince-topology: could not add node '%s' to topology '%s'", id, topo->self_id);
+                return 0;
+        }
+	topo->first->addresses     = 0;
+	topo->first->id            = strdup(id);
+	topo->first->neighbor_list = 0;
+	topo->first->next          = head;
 	return 1;
 }
 
@@ -28,21 +32,20 @@ int add_node(topology_t topo, const char *id)
 * @param const char* string containing the id of the searched node
 * @return pointer to the node on success, 0 otherwise
 */
-node_t find_node(topology_t topo, const char *id)
-{
+node_t find_node(topology_t topo, const char *id) {
 	node_t punt;
-	for(punt=topo->first; punt!=0; punt=punt->next){
-		if(strcmp(punt->id, id)==0){
+	for (punt = topo->first; punt != INVALID_NODE; punt = punt->next) {
+		if (strcmp(punt->id, id) == 0) {
 			return punt;
 		}
-		struct local_address *la;
-		for(la=punt->addresses; la!=0; la=la->next){
-			if(strcmp(la->id, id)==0){
+		struct local_address *address;
+		for (address = punt->addresses; address != NULL; address = address->next) {
+			if (strcmp(address->id, id) == 0) {
 				return punt;
 			}
 		}
 	}
-	return 0;
+	return INVALID_NODE;
 }
 
 /**
@@ -53,27 +56,27 @@ node_t find_node(topology_t topo, const char *id)
 * @param const double  cost of the edge
 * @return 1 on success, 0 otherwise
 */
-int add_neigh(topology_t topo, const char *source, const char *id, const double weight, int validity)
-{
+int add_neigh(topology_t topo, const char *source, const char *id, const double weight, int validity) {
 	struct neighbor *temp, *found;
 	node_t s, t;
-	if((s=find_node(topo, source))==0)
+	if ((s = find_node(topo, source)) == 0)
 		return 0; // check if source node exists
-	if((t=find_node(topo, id))==0)
+	if ((t = find_node(topo, id)) == 0)
 		return 0; //check if target node exists
-	found=find_neigh(s, t);
-	if(found){
-		if(found->validity > validity)
+	found = find_neigh(s, t);
+	if (found) {
+		if (found->validity > validity) {
 			found->weight = weight; //if the link found is older, i update the weight
+                }
 		return 1; //The link is already present
 	}
 
-	temp=s->neighbor_list;
-	s->neighbor_list=(struct neighbor*)malloc(sizeof(struct neighbor));
-	s->neighbor_list->id=t; // add node to source neighbor list
-	s->neighbor_list->weight=weight;
+	temp = s->neighbor_list;
+	s->neighbor_list = (struct neighbor*) malloc(sizeof(struct neighbor));
+	s->neighbor_list->id       = t; // add node to source neighbor list
+	s->neighbor_list->next     = temp;
 	s->neighbor_list->validity = validity;
-	s->neighbor_list->next=temp;
+	s->neighbor_list->weight   = weight;
 	return 1;
 }
 
@@ -82,9 +85,8 @@ int add_neigh(topology_t topo, const char *source, const char *id, const double 
 * @param int number of chars of the id (0 ipv6, 1 ipv4)
 * @return pointer to the topology
 */
-topology_t new_topo(int topology_type)
-{
-	topology_t topo = (topology_t) malloc(sizeof(struct topology));
+topology_t new_topo(int topology_type) {
+       topology_t topo = (topology_t) malloc(TOPOLOGY_SIZE);
         switch (topology_type) {
                 case 0:
                         topo->id_lenght = 39;
@@ -98,30 +100,29 @@ topology_t new_topo(int topology_type)
                         return NULL;
         }
                         
+	topo->first    = 0;
 	topo->protocol = 0;
-	topo->first = 0;
 	return topo;
 }
 
 
 /**
-* Destroy topology and dealloc
+* Free topology and dealloc
 * @param struct topology * pointer to the structure
 **/
-void free_topo(topology_t topo)
-{
+void free_topo(topology_t topo) {
 	node_t n_temp, punt=topo->first;
 	while (punt) {
-		struct neighbor *n=punt->neighbor_list;
+		struct neighbor *n = punt->neighbor_list;
 		while (n) {
-			struct neighbor *temp=n->next;
+			struct neighbor *temp = n->next;
 			free(n);
-			n=temp;
+			n = temp;
 		}
 		free(punt->id);
-		n_temp=punt->next;
+		n_temp = punt->next;
 		free(punt);
-		punt=n_temp;
+		punt = n_temp;
 	}
 	free(topo->protocol);
 	free(topo->self_id);

@@ -1,23 +1,27 @@
 #ifndef TOPOLOGY_H_
 #define TOPOLOGY_H_
 
-#define INVALID_TOPOLOGY NULL
-
 typedef struct topology * topology_t;
 typedef struct node * node_t;
 
+#define INVALID_NODE     NULL
+#define INVALID_TOPOLOGY NULL
+#define NODE_SIZE        sizeof(struct node)
+#define TOPOLOGY_SIZE    sizeof(struct topology)
+
+
 struct node {
-	char *id;
-	struct neighbor *neighbor_list;
-	node_t next;
+	char                 *id;
+	struct neighbor      *neighbor_list;
+	node_t               next;
 	struct local_address *addresses;
 };
 
 struct topology {
-	int id_lenght;
-	char *protocol;
-	char *self_id;
-	struct node *first;
+	int    id_lenght;
+	char   *protocol;
+	char   *self_id;
+	node_t first;
 };
 
 topology_t new_topo(int type);
