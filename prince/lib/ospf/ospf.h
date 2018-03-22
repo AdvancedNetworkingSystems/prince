@@ -2,7 +2,7 @@
 #define SRC_OSPF_H_
 
 #include "common.h"
-#include "parser.h"
+#include "topology_parser.h"
 #include "socket.h"
 
 /*inehrit methods from here */

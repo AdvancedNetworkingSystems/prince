@@ -20,7 +20,7 @@ add_executable(prince
         graph-parser_c/src/graph_parser.c
         graph-parser_c/src/network_change.c
         prince/src/config.c
-        prince/src/parser.c
+        prince/src/topology_parser.c
         prince/src/prince.c
         prince/src/socket.c
         prince/src/topology.c
@@ -40,6 +40,7 @@ include_directories(
 
 add_library(prince_oonf MODULE
         prince/lib/oonf/oonf.c
+        prince/src/topology_parser.c
         prince/src/socket.c
         prince/src/topology.c
         prince/src/topology_parser.c
@@ -54,6 +55,7 @@ add_library(prince_olsr MODULE
 
 add_library(prince_test MODULE
         prince/lib/testlib/test.c
+        prince/src/topology_parser.c
         prince/src/socket.c
         prince/src/topology.c
         prince/src/topology_parser.c

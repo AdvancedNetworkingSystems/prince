@@ -11,7 +11,7 @@ typedef struct prince_handler * prince_handler_t;
 
 #include "common.h"
 #include "config.h"
-#include "parser.h"
+#include "topology_parser.h"
 
 #define INVALID_PRINCE_HANDLER NULL
 

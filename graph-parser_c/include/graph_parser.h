@@ -1,6 +1,6 @@
 /* Graph_Parser_lib.h */
 
-#include "parser.h"
+#include "topology_parser.h"
 #include "brandes.h"
 
 /**

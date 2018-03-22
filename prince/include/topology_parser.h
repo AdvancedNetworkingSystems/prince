@@ -1,5 +1,5 @@
-#ifndef SRC_PARSER_H_
-#define SRC_PARSER_H_
+#ifndef SRC_TOPOLOGY_PARSER_H_
+#define SRC_TOPOLOGY_PARSER_H_
 
 #include <json-c/json.h>
 #include <stdio.h>
@@ -41,4 +41,4 @@ void free_bc_degree_map(map_id_degree_bc * map);
 topology_t parse_jsoninfo(char *buffer);
 topology_t parse_netjson(char* buffer);
 
-#endif /* SRC_PARSER_H_ */
+#endif /* SRC_TOPOLOGY_PARSER_H_ */

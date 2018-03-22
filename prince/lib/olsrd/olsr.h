@@ -1,7 +1,7 @@
 #ifndef SRC_OLSR_H_
 #define SRC_OLSR_H_
 
-#include "parser.h"
+#include "topology_parser.h"
 #include "common.h"
 #include "socket.h"
 /*inehrit methods from here */
