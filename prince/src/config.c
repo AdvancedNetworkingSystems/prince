@@ -64,6 +64,11 @@ int parse_json_config(char *filepath, prince_handler_t ph) {
 	if(!buffer) return false;
 	struct json_object *jobj = json_tokener_parse(buffer);
 
+        if (jobj == NULL) {
+                fprintf(stderr, "prince-config: Received null json pointer");
+                exit(1);
+        }
+
 	json_object_object_foreach(jobj, key, val) {
 		if (strcmp(key, "proto") == 0) {
 			if (json_object_get_type(val) == json_type_object) {
@@ -103,6 +108,7 @@ int parse_json_config(char *filepath, prince_handler_t ph) {
 							} else if (strcmp(content, "jsoninfo") == 0) {
 								ph->json_type = 0;
 							} else {
+                                                                fprintf(stderr, "\"json_type\" value is not specified, will default to netjson");
                                                                 ph->json_type = 0;
                                                         }
 						} else if (json_object_get_type(val_i) == json_type_int) {
