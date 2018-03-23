@@ -21,6 +21,7 @@ add_executable(prince
         graph-parser_c/src/network_change.c
         prince/src/config.c
         prince/src/topology_parser.c
+        prince/src/plugin_load.c
         prince/src/prince.c
         prince/src/socket.c
         prince/src/topology.c

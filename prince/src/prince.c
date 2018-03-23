@@ -1,10 +1,10 @@
 #include "prince.h"
 
 #include <dlfcn.h>
+#include <errno.h>
 #include <math.h>
 
-
-
+#include "load_plugin.h"
 
 /**
 * Main routine of Prince. Collect topology, parse it, calculate bc and timers, push them back.
@@ -132,22 +132,33 @@ prince_handler_t new_prince_handler(char * conf_file)
 		return INVALID_PRINCE_HANDLER;
         }
 
-	char libname[20] = "libprince_";
-	strcat(libname, result->proto);
-	strcat(libname, ".so");
-	result->plugin_handle = dlopen(libname, RTLD_LAZY);
-	if (result->plugin_handle == NULL) {
-               fprintf(stderr, "%s\n", dlerror());
-		return INVALID_PRINCE_HANDLER;
+        if (load_routing_plugin(result) != 0) {
+                perror("prince-plugin");
+                return INVALID_PRINCE_HANDLER;
         }
-
-	new_plugin_p = (routing_plugin* (*)(char* host, int port, c_graph_parser *gp, int json_type, int timer_port)) dlsym(result->plugin_handle, "new_plugin");
-	get_initial_timers_p = (int (*)(routing_plugin *o, struct timers *t)) dlsym(result->plugin_handle, "get_initial_timers");
-	get_topology_p = (int (*)(routing_plugin *o)) dlsym(result->plugin_handle, "get_topology");
-	push_timers_p = (int (*)(routing_plugin *o, struct timers t)) dlsym(result->plugin_handle, "push_timers");
-	delete_plugin_p = (void (*)(routing_plugin *o)) dlsym(result->plugin_handle, "delete_plugin");
+        if (load_routing_plugin_symbol(result, "new_plugin") != 0) {
+                perror("prince-plugin");
+                return INVALID_PRINCE_HANDLER;
+        }
+        if (load_routing_plugin_symbol(result, "delete_plugin") != 0) {
+                perror("prince-plugin");
+                return INVALID_PRINCE_HANDLER;
+        }
+        if (load_routing_plugin_symbol(result, "get_initial_timers") != 0) {
+                perror("prince-plugin");
+                return INVALID_PRINCE_HANDLER;
+        }
+        if (load_routing_plugin_symbol(result, "push_timers") != 0) {
+                perror("prince-plugin");
+                return INVALID_PRINCE_HANDLER;
+        }
+        if (load_routing_plugin_symbol(result, "get_topology") != 0) {
+                perror("prince-plugin");
+                return INVALID_PRINCE_HANDLER;
+        }
 	return result;
 }
+
 /**
 * Delete a Prince handler and free all the memory
 * @param struct prince_handler* pointer to the prince_handler struct.
