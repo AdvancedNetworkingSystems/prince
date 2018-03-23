@@ -13,6 +13,7 @@ int load_graph_config(const char *filepath, graph_config_t conf) {
         conf->recursive      = temp->recursive;
         conf->stop_unchanged = temp->stop_unchanged;
         conf->multithreaded  = temp->multithreaded;
+        free_prince_handler(temp);
         return 0;
 }
 

@@ -22,11 +22,26 @@ int main(int argc, char* argv[])
                exit(1);
 	}
 	fprintf(stdout, "Prince Started\n");
+
 	prince_handler_t ph = new_prince_handler(argv[1]);
         if (ph == INVALID_PRINCE_HANDLER) {
                 fprintf(stderr, "Could not create prince handler");
                 exit(EXIT_FAILURE);
         }
+
+	ph->rp = new_plugin_p(ph->host, ph->port, ph->gp, ph->json_type, ph->timer_port);
+        if (ph->rp == NULL) {
+                fprintf(stderr, "Could not create plugin\n");
+                exit(EXIT_FAILURE);
+        }
+
+	ph->gp = new_graph_parser(ph->weights, ph->heuristic);
+        if (ph->gp == NULL) {
+                fprintf(stderr, "Could not create graph_parser\n");
+                free_prince_handler(ph);
+                exit(EXIT_FAILURE);
+        }
+
         if (load_proto_config(argv[1], ph->proto_config)) {
                 fprintf(stderr, "Could not load section 'proto' from config\n");
         }
@@ -34,42 +49,24 @@ int main(int argc, char* argv[])
                 fprintf(stderr, "Could not load section 'graph' from config\n");
         }
 
-	if (ph == INVALID_PRINCE_HANDLER) {
-                fprintf(stderr, "Could not start prince, got a bad handler\n");
-                exit(EXIT_FAILURE);
-        }
-
 	if (ph->log_file) {
 		log = fopen(ph->log_file, "a+");
 		if (log == NULL) {
 			printf("Could not open log file <%s>; Continuing without\n", ph->log_file);
 			free(ph->log_file);
-			ph->log_file = 0;
+			ph->log_file = NULL;
 		} else {
 			printf("Logging to <%s>\n", ph->log_file);
                 }
 	}
 
-	recursive = ph->recursive;
-	multithread = ph->multithreaded;
-
+	recursive                   = ph->recursive;
+	multithread                 = ph->multithreaded;
 	stop_computing_if_unchanged = ph->stop_unchanged;
 
 	signal(SIGPIPE, signal_callback_handler);
 
-	ph->gp = new_graph_parser(ph->weights, ph->heuristic);
-        if (ph->gp == NULL) {
-                fprintf(stderr, "Could not create graph_parser\n");
-                exit(EXIT_FAILURE);
-        }
-
 	struct graph_parser * gp_p = (struct graph_parser *) ph->gp;
-
-	ph->rp = new_plugin_p(ph->host, ph->port, ph->gp, ph->json_type, ph->timer_port);
-        if (ph->rp == NULL) {
-                fprintf(stderr, "Could not create plugin\n");
-                exit(EXIT_FAILURE);
-        }
 
 	do {
 		sleep(ph->refresh);

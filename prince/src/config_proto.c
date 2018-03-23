@@ -16,6 +16,7 @@ int load_proto_config(const char *filepath, proto_config_t conf) {
         conf->refresh      = temp->refresh;
         conf->sleep_onfail = temp->sleep_onfail;
         conf->timer_port   = temp->timer_port;
+        free_prince_handler(temp);
         return 0;
 }
 

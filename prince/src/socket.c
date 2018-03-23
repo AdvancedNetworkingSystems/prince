@@ -27,7 +27,7 @@ int _create_socket(char* hostname, int port)
 	rc = connect(sock, (struct sockaddr*) &temp, sizeof(temp));
         if (rc) {
                 perror("prince-socket");
-                exit(1);
+                exit(EXIT_FAILURE);
         }
 	return sock;
 }
