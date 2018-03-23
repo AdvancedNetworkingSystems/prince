@@ -1,8 +1,6 @@
 #include "config.h"
 
-#include "prince.h"
-
-char* read_file_content(char *filename) {
+char* read_file_content(const char *filename) {
 	char *buffer = NULL;
 	int  string_size, read_size;
 	FILE *handler = fopen(filename, "r");
@@ -53,7 +51,9 @@ char* read_file_content(char *filename) {
 * @param ph The prince_handler, for saving the configuration
 * @return Whether the reading ended successfully
 */
-int parse_json_config(char *filepath, prince_handler_t ph) {
+
+
+int parse_json_config(const char *filepath, prince_handler_t ph) {
 	char * buffer = read_file_content(filepath);
 	int completed = 0;
 	bool heuristic_set      = false,
@@ -219,7 +219,7 @@ int parse_json_config(char *filepath, prince_handler_t ph) {
 * @param *filepath path to the configuration file
 * @return 1 if success, 0 if fail
 */
-int read_config_file(prince_handler_t ph, char *filepath) {
+int read_config_file(prince_handler_t ph, const char *filepath) {
         if (!parse_json_config(filepath, ph)) {
                 fprintf(stderr, "Cannot read configuration file '%s' (Either format or content not compliant or complete). Exiting.\n", filepath);
                 return 0;

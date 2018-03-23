@@ -7,7 +7,7 @@
 * @param host host address as a string
 * @return pointer to prince handler
 */
-prince_handler_t new_prince_handler(char * conf_file) {
+prince_handler_t new_prince_handler(const char * conf_file) {
 	prince_handler_t result = (prince_handler_t) malloc(PRINCE_HANDLER_SIZE);
         if (result == INVALID_PRINCE_HANDLER) {
                 perror(NULL);
@@ -55,15 +55,18 @@ prince_handler_t new_prince_handler(char * conf_file) {
 * Delete a Prince handler and free all the memory
 * @param struct prince_handler* pointer to the prince_handler struct.
 */
-void free_prince_handler(prince_handler_t ph)
-{
+int free_prince_handler(prince_handler_t ph) {
 	free_graph_parser(ph->gp);
-	delete_plugin_p(ph->rp);
-	dlclose(ph->plugin_handle);
-	char* tmp=dlerror();
-	free(tmp);
+        free_graph_config(ph->graph_config);
+        free_proto_config(ph->proto_config);
+        if (free_routing_plugin(ph)) {
+                perror("prince-handler");
+                errno = ELIBACC;
+                return -1;
+        }
 	/*bc_degree_map_delete(ph->bc_degree_map);*/
 	free(ph->self_id);
 	free(ph->host);
 	free(ph);
+        return 0;
 }

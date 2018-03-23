@@ -5,6 +5,8 @@ typedef struct prince_handler * prince_handler_t;
 
 #include "common.h"
 #include "config.h"
+#include "config_graph.h"
+#include "config_proto.h"
 #include "load_plugin.h"
 
 struct constants {
@@ -26,10 +28,11 @@ struct prince_handler {
 	struct           timers def_t, opt_t;
 	struct constants c;
 	void             *plugin_handle;
-        proto_config_t   config;
+        proto_config_t   proto_config;
+        graph_config_t   graph_config;
 };
 
-prince_handler_t new_prince_handler(char * conf_file);
-void             free_prince_handler(prince_handler_t ph);
+prince_handler_t new_prince_handler(const char * conf_file);
+int              free_prince_handler(prince_handler_t ph);
 
 #endif /*SRC_PRINCE_HANDLER_H_*/

@@ -1,9 +1,11 @@
 #include "prince.h"
 
-#include <dlfcn.h>
 #include <errno.h>
 #include <math.h>
 
+#include "config.h"
+#include "config_proto.h"
+#include "config_graph.h"
 #include "prince_handler.h"
 #include "load_plugin.h"
 
@@ -21,6 +23,13 @@ int main(int argc, char* argv[])
 	}
 	fprintf(stdout, "Prince Started\n");
 	prince_handler_t ph = new_prince_handler(argv[1]);
+        if (load_proto_config(argv[1], ph->proto_config)) {
+                fprintf(stderr, "Could not load section 'proto' from config\n");
+        }
+        if (load_graph_config(argv[1], ph->graph_config)) {
+                fprintf(stderr, "Could not load section 'graph' from config\n");
+        }
+
 	if (ph == INVALID_PRINCE_HANDLER) {
                 fprintf(stderr, "Could not start prince, got a bad handler\n");
 		return -1;
@@ -105,7 +114,10 @@ int main(int argc, char* argv[])
 		init_graph(&(gp_p->g));
 		fflush(stdout);
 	} while (go);
-	free_prince_handler(ph);
+
+	if (free_prince_handler(ph)) {
+                perror("prince");
+        }
 	fprintf(stdout, "Prince Exited\n");
 	if (log) {
 		log = fopen(ph->log_file, "a+");
