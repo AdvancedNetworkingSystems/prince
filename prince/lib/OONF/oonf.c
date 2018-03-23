@@ -76,11 +76,52 @@ int push_timers(routing_plugin *o, struct timers t)
  * Delete the oonf plugin handler
  * @param oonf plugin handler object
  */
-void delete_plugin(routing_plugin* o)
-{
+void delete_plugin(routing_plugin* o) {
 	free(o->host);
 	if(o->recv_buffer!=0)
 		free(o->recv_buffer);
 	free(o->self_id);
 	free(o);
+}
+
+#define HELLO_TIMER_MESSAGE  "/HelloTimer"
+#define TC_TIMER_MESSAGE "/TcTimer"
+int get_initial_timers(routing_plugin *o, struct timers *t) {
+        t->h_timer  = parse_initial_timer(o, HELLO_TIMER_MESSAGE);
+        t->tc_timer = parse_initial_timer(o, TC_TIMER_MESSAGE);
+	if (t->h_timer == -1) {
+		fprintf(stderr, "Could not initialise h_timer\n");
+		fprintf(stdout, "Setting h_timer to 2\n");
+		t->h_timer = 2;
+	}
+	if (t->tc_timer == -1) {
+		fprintf(stderr, "Could not initialise tc_timer\n");
+		fprintf(stdout, "Setting tc_timer to 5\n");
+		t->tc_timer = 5;
+	}
+        return 0;
+}
+
+#define RESPONSE_SIZE (sizeof(char) * 24)
+float parse_initial_timer(routing_plugin* o, const char* cmd) {
+	o->sd =_create_socket(o->host, o->timer_port);
+	char *page;
+	char *token;
+	float value = 0;
+	page = (char*) malloc(RESPONSE_SIZE);
+	write(o->sd, cmd, strlen(cmd));
+	if (recv(o->sd, page, strlen(cmd), 0) > 0) {
+		token = strtok(page, ":");
+		token = strtok(NULL, ":");
+		value = atof(token);
+	} else {
+		fprintf(stderr, "Could not recieve timer %s\n", cmd);
+		return -1;
+	}
+	close(o->sd);
+	free(page);
+	if (value == 0) {
+		return -1;
+	}
+	return value;
 }
