@@ -23,8 +23,10 @@ add_executable(prince
         prince/src/topology_parser.c
         prince/src/plugin_load.c
         prince/src/prince.c
+        prince/src/prince_handler.c
         prince/src/socket.c
         prince/src/topology.c
+        prince/src/topology_parser.c
 )
 
 target_link_libraries(prince
