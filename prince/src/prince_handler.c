@@ -15,6 +15,19 @@ prince_handler_t new_prince_handler(const char * conf_file) {
         }
         memset(result, 0, PRINCE_HANDLER_SIZE);
         /* ph->bc_degree_map = (map_id_degree_bc *) malloc(sizeof(map_id_degree_bc));*/
+
+        result->proto_config = new_proto_config();
+        if (result->proto_config == INVALID_PROTO_CONFIG) {
+                free_prince_handler(result);
+                return INVALID_PRINCE_HANDLER;
+        }
+
+        result->graph_config = new_graph_config();
+        if (result->graph_config == INVALID_PROTO_CONFIG) {
+                free_prince_handler(result);
+                return INVALID_PRINCE_HANDLER;
+        }
+
         /*setting to undefined all params*/
 	result->port = -1;
 	result->refresh = -1;

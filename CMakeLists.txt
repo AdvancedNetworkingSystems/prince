@@ -20,8 +20,9 @@ add_executable(prince
         graph-parser_c/src/graph_parser.c
         graph-parser_c/src/network_change.c
         prince/src/config.c
-        prince/src/topology_parser.c
-        prince/src/plugin_load.c
+        prince/src/config_proto.c
+        prince/src/config_graph.c
+        prince/src/load_plugin.c
         prince/src/prince.c
         prince/src/prince_handler.c
         prince/src/socket.c
