@@ -1,6 +1,9 @@
 #include "config_graph.h"
 
 int load_graph_config(const char *filepath, graph_config_t conf) {
+        if (conf == INVALID_GRAPH_CONFIG) {
+                return -1;
+        }
         prince_handler_t temp = new_prince_handler(filepath);
         if (temp == INVALID_PRINCE_HANDLER) {
                 return -1;

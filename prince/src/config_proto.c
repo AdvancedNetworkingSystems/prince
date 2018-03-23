@@ -3,6 +3,9 @@
 #include "prince.h"
 
 int load_proto_config(const char *filepath, proto_config_t conf) {
+        if (conf == INVALID_PROTO_CONFIG) {
+                return -1;
+        }
         prince_handler_t temp = new_prince_handler(filepath);
         if (temp == INVALID_PRINCE_HANDLER) {
                 return -1;
