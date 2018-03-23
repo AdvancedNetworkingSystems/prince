@@ -58,7 +58,27 @@ int load_routing_plugin_symbol(prince_handler_t result, const char* symbol_name)
         // clear previous dlerror
         dlerror();
         // find the required symbol
-	push_timers_p = (int (*)(routing_plugin *o, struct timers t)) dlsym(result->plugin_handle, symbol_name);
+        // and assign it to the correct variable
+        if (strcmp(symbol_name, "new_plugin") == 0) {
+                new_plugin_p = (routing_plugin* (*)(char* host, int port, c_graph_parser *gp, int json_type, int timer_port))
+                                        dlsym(result->plugin_handle, symbol_name);
+        } else if (strcmp(symbol_name, "delete_plugin") == 0) {
+                delete_plugin_p = (void (*) (routing_plugin *o))
+                                        dlsym(result->plugin_handle, symbol_name);
+        } else if (strcmp(symbol_name, "get_initial_timers") == 0) {
+                get_initial_timers_p = (int (*) (routing_plugin *o, struct timers *t))
+                        dlsym(result->plugin_handle, symbol_name);
+        } else if (strcmp(symbol_name, "push_timers") == 0) {
+                push_timers_p = (int (*) (routing_plugin *o, struct timers t))
+                        dlsym(result->plugin_handle, symbol_name);
+        } else if (strcmp(symbol_name, "get_topology") == 0) {
+                get_topology_p = (int (*) (routing_plugin *o))
+                        dlsym(result->plugin_handle, symbol_name);
+        } else {
+                fprintf(stderr, "Symbol %s not permitted\n", symbol_name);
+                errno = ELIBACC;
+                return -1;
+        }
         // check if there has been any error when
         // resolving the symbol
         shared_library_error = dlerror();
