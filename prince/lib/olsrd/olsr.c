@@ -53,14 +53,14 @@ float get_initial_timer(routing_plugin* o, char* cmd){
 /**
  * Get the topology data from host
  * @param olsr plugin handler object
- * @return 1 if success, 0 otherwise
+ * @return 0 if success, -1 otherwise
  */
 int get_topology(routing_plugin *o) /*netjson & jsoninfo*/
 {
 	int sent;
 	if((o->sd= _create_socket(o->host, o->port))==0){
 		printf("Cannot connect to %s:%d", o->host, o->port);
-		return 0;
+		return -1;
 	}
 	switch(o->json_type){
 		case 0:{
@@ -69,7 +69,7 @@ int get_topology(routing_plugin *o) /*netjson & jsoninfo*/
 			if((sent = send(o->sd,req,strlen(req),MSG_NOSIGNAL))==-1){
 				printf("Cannot send to %s:%d", o->host, o->port);
 				close(o->sd);
-				return 0;
+				return -1;
 			}
 			if(o->recv_buffer!=0){
 				free(o->recv_buffer);
@@ -78,13 +78,13 @@ int get_topology(routing_plugin *o) /*netjson & jsoninfo*/
 			if(!_telnet_receive(o->sd, &(o->recv_buffer))){
 				printf("cannot receive \n");
 				close(o->sd);
-				return 0;
+				return -1;
 			}
 			o->t = parse_jsoninfo(o->recv_buffer);
 			if(!o->t){
 				printf("can't parse jsoninfo\n %s \n", o->recv_buffer);
 				close(o->sd);
-				return 0;
+				return -1;
 			}
 		}
 			break;
@@ -94,7 +94,7 @@ int get_topology(routing_plugin *o) /*netjson & jsoninfo*/
 				if( (sent = send(o->sd,req,strlen(req),MSG_NOSIGNAL))==-1){
 					printf("Cannot send to %s:%d\n", o->host, o->port);
 					close(o->sd);
-					return 0;
+					return -1;
 				}
 				if(o->recv_buffer!=0){
 					free(o->recv_buffer);
@@ -103,22 +103,22 @@ int get_topology(routing_plugin *o) /*netjson & jsoninfo*/
 				if(!_telnet_receive(o->sd, &(o->recv_buffer))){
 					printf("cannot receive \n");
 					close(o->sd);
-					return 0;
+					return -1;
 				}
 				o->t = parse_netjson(o->recv_buffer);
 				if(!o->t){
 					printf("can't parse netjson\n %s \n", o->recv_buffer);
 					close(o->sd);
-					return 0;
+					return -1;
 				}
 				}
 				break;
 		default:
 			close(o->sd);
-			return 0;
+			return -1;
 		}
 		close(o->sd);
-		return 1;
+		return 0;
 }
 
 
