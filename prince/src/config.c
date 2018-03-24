@@ -5,12 +5,16 @@ char* read_file_content(const char *filename) {
 	int  string_size, read_size;
 	FILE *handler = fopen(filename, "r");
 
-	if (handler) {
+	if (handler == NULL) {
 		fseek(handler, 0, SEEK_END);
 		string_size = ftell(handler);
 		rewind(handler);
 
 		buffer = (char*) malloc(sizeof(char) * (string_size + 1) );
+                if (buffer == NULL) {
+                        perror("prince-config");
+                        return NULL;
+                }
 
 		read_size = fread(buffer, sizeof(char), string_size, handler);
 
@@ -51,8 +55,6 @@ char* read_file_content(const char *filename) {
 * @param ph The prince_handler, for saving the configuration
 * @return Whether the reading ended successfully
 */
-
-
 int parse_json_config(const char *filepath, prince_handler_t ph) {
 	char * buffer = read_file_content(filepath);
 	int completed = 0;
@@ -61,12 +63,14 @@ int parse_json_config(const char *filepath, prince_handler_t ph) {
              recursive_set      = false,
              stop_unchanged_set = false,
              multithreaded_set  = false;
-	if(!buffer) return false;
+	if (!buffer) {
+                return -1;
+        }
 	struct json_object *jobj = json_tokener_parse(buffer);
 
         if (jobj == NULL) {
                 fprintf(stderr, "prince-config: Received null json pointer");
-                exit(1);
+                exit(EXIT_FAILURE);
         }
 
 	json_object_object_foreach(jobj, key, val) {
@@ -80,7 +84,7 @@ int parse_json_config(const char *filepath, prince_handler_t ph) {
 							completed++;
 						} else {
                                                         fprintf(stderr, "\"protocol\" value is not a string\n");
-                                                        exit(1);
+                                                        exit(EXIT_FAILURE);
                                                }
 
 					} else if (ph->host == 0 && strcmp(key_i, "host") == 0) {
@@ -90,7 +94,7 @@ int parse_json_config(const char *filepath, prince_handler_t ph) {
 							completed++;
 						} else {
                                                         fprintf(stderr, "\"host\" value is not a string\n");
-                                                        exit(1);
+                                                        exit(EXIT_FAILURE);
                                                }
 					} else if (ph->port < 0 && strcmp(key_i, "port") == 0) {
 						if (json_object_get_type(val_i) == json_type_int) {
@@ -98,7 +102,7 @@ int parse_json_config(const char *filepath, prince_handler_t ph) {
 							completed++;
 						} else {
                                                         fprintf(stderr, "\"port\" value is not an int\n");
-                                                        exit(1);
+                                                        exit(EXIT_FAILURE);
                                                }
 					} else if (ph->port < 0 && strcmp(key_i, "json_type") == 0) {
 						if (json_object_get_type(val_i) == json_type_string) {
@@ -116,7 +120,7 @@ int parse_json_config(const char *filepath, prince_handler_t ph) {
 							completed++;
 						} else {
                                                         fprintf(stderr, "\"json_type\" value is not accepted\n");
-                                                        exit(1);
+                                                        exit(EXIT_FAILURE);
                                                }
 					}
 					else if (strcmp(key_i, "timer_port") == 0) {
@@ -125,7 +129,7 @@ int parse_json_config(const char *filepath, prince_handler_t ph) {
 							completed++;
 						} else {
                                                         fprintf(stderr, "\"timer_port\" value is not an int\n");
-                                                        exit(1);
+                                                        exit(EXIT_FAILURE);
                                                }
 					} else if(strcmp(key_i, "refresh") == 0) {
 						if (ph->refresh < 0 && json_object_get_type(val_i) == json_type_int) {
@@ -133,7 +137,7 @@ int parse_json_config(const char *filepath, prince_handler_t ph) {
 							completed++;
 						} else {
                                                         fprintf(stderr, "\"refresh\" value is not an int\n");
-                                                        exit(1);
+                                                        exit(EXIT_FAILURE);
                                                }
 					} else if(strcmp(key_i, "log_file") == 0) {
 						if (json_object_get_type(val_i) == json_type_string) {
@@ -141,7 +145,7 @@ int parse_json_config(const char *filepath, prince_handler_t ph) {
 							ph->log_file = strdup(content);
 						} else {
                                                         fprintf(stderr, "\"log_file\" value is not a string\n");
-                                                        exit(1);
+                                                        exit(EXIT_FAILURE);
                                                }
 					}
 				}
@@ -155,7 +159,7 @@ int parse_json_config(const char *filepath, prince_handler_t ph) {
 							heuristic_set = true;
 						} else {
                                                         fprintf(stderr, "\"heuristic\" value not an int\n");
-                                                        exit(1);
+                                                        exit(EXIT_FAILURE);
                                                }
 					} else if (strcmp(key_i, "weights") == 0) {
 						if (!weights_set&&json_object_get_type(val_i) == json_type_int) {
@@ -163,7 +167,7 @@ int parse_json_config(const char *filepath, prince_handler_t ph) {
 							weights_set = true;
 						} else {
                                                         fprintf(stderr, "\"weights\" value not an int\n");
-                                                        exit(1);
+                                                        exit(EXIT_FAILURE);
                                                }
 					} else if (strcmp(key_i, "recursive") == 0) {
 						if (!recursive_set && json_object_get_type(val_i) == json_type_int) {
@@ -171,7 +175,7 @@ int parse_json_config(const char *filepath, prince_handler_t ph) {
 							recursive_set = true;
 						} else {
                                                         fprintf(stderr, "\"recursive\" value not an int\n");
-                                                        exit(1);
+                                                        exit(EXIT_FAILURE);
                                                }
 					} else if (strcmp(key_i, "stop_unchanged") == 0) {
 						if (!stop_unchanged_set && json_object_get_type(val_i) == json_type_int) {
@@ -179,7 +183,7 @@ int parse_json_config(const char *filepath, prince_handler_t ph) {
 							stop_unchanged_set = true;
 						} else {
                                                         fprintf(stderr, "\"stop_unchanged\" value not an int\n");
-                                                        exit(1);
+                                                        exit(EXIT_FAILURE);
                                                }
 					} else if (strcmp(key_i, "multithreaded") == 0) {
 						if (!multithreaded_set && json_object_get_type(val_i) == json_type_int) {
@@ -187,7 +191,7 @@ int parse_json_config(const char *filepath, prince_handler_t ph) {
 							multithreaded_set = true;
 						} else {
                                                         fprintf(stderr, "\"multithreaded\" value not an int\n");
-                                                        exit(1);
+                                                        exit(EXIT_FAILURE);
                                                }
 					} else {
                                                 fprintf(stderr, "unknowk key \"%s\"\n", key_i);
@@ -195,7 +199,7 @@ int parse_json_config(const char *filepath, prince_handler_t ph) {
 				}
 			} else {
                                 fprintf(stderr, "\"graph-parser\" value not an object\n");
-                                exit(1);
+                                exit(EXIT_FAILURE);
                        }
 		} else {
                         fprintf(stderr, "unknown key \"%s\"", key);
@@ -208,23 +212,23 @@ int parse_json_config(const char *filepath, prince_handler_t ph) {
 	free(buffer);
 	if (completed == 5 && heuristic_set && weights_set && recursive_set
 		&& stop_unchanged_set && multithreaded_set) {
-		return true;
+		return -1;
         }
-	return false;
+	return 0;
 }
 
 /**
 * Read the ini configuration and populate struct prince_handler
 * @param *ph pinter to the prince_handler object
 * @param *filepath path to the configuration file
-* @return 1 if success, 0 if fail
+* @return 0 if success, -1 if fail
 */
 int read_config_file(prince_handler_t ph, const char *filepath) {
-        if (!parse_json_config(filepath, ph)) {
+        if (parse_json_config(filepath, ph)) {
                 fprintf(stderr, "Cannot read configuration file '%s' (Either format or content not compliant or complete). Exiting.\n", filepath);
-                return 0;
+                return -1;
         }
 
         fprintf(stdout, "Config loaded from %s\n", filepath);
-        return 1;
+        return 0;
 }

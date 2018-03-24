@@ -33,19 +33,19 @@ prince_handler_t new_prince_handler(const char * conf_file) {
 	result->refresh = -1;
 	result->sleep_onfail = 1;
 
-	if (read_config_file(result, conf_file) == 0) {
+	if (read_config_file(result, conf_file)) {
 		return INVALID_PRINCE_HANDLER;
         }
 
-        if (load_routing_plugin(result) != 0) {
+        if (load_routing_plugin(result)) {
                 perror("prince-plugin");
                 return INVALID_PRINCE_HANDLER;
         }
-        if (load_routing_plugin_symbol(result, "new_plugin") != 0) {
+        if (load_routing_plugin_symbol(result, "new_plugin")) {
                 perror("prince-plugin");
                 return INVALID_PRINCE_HANDLER;
         }
-        if (load_routing_plugin_symbol(result, "delete_plugin") != 0) {
+        if (load_routing_plugin_symbol(result, "delete_plugin")) {
                 perror("prince-plugin");
                 return INVALID_PRINCE_HANDLER;
         }
@@ -53,11 +53,11 @@ prince_handler_t new_prince_handler(const char * conf_file) {
                 perror("prince-plugin");
                 return INVALID_PRINCE_HANDLER;
         }
-        if (load_routing_plugin_symbol(result, "push_timers") != 0) {
+        if (load_routing_plugin_symbol(result, "push_timers")) {
                 perror("prince-plugin");
                 return INVALID_PRINCE_HANDLER;
         }
-        if (load_routing_plugin_symbol(result, "get_topology") != 0) {
+        if (load_routing_plugin_symbol(result, "get_topology")) {
                 perror("prince-plugin");
                 return INVALID_PRINCE_HANDLER;
         }
