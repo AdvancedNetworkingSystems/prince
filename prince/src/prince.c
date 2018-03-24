@@ -1,21 +1,11 @@
 #include "prince.h"
 
-#include <errno.h>
-#include <math.h>
-
-#include "config.h"
-#include "config_proto.h"
-#include "config_graph.h"
-#include "prince_handler.h"
-#include "load_plugin.h"
-
 /**
 * Main routine of Prince. Collect topology, parse it, calculate bc and timers, push them back.
 * @param argv[1] <- config filename
 * @return 0 on success
 */
-int main(int argc, char* argv[])
-{
+int main(int argc, char* argv[]) {
 	FILE *log = NULL;
 	if (argc < 2) {
 		fprintf(stderr, "No conf file specified. Exiting.\n");
@@ -98,6 +88,10 @@ int main(int argc, char* argv[])
 		graph_parser_calculate_bc(ph->gp);
 		clock_t end = clock();
 		ph->bc_degree_map = (map_id_degree_bc *) malloc(sizeof(map_id_degree_bc));
+                if (ph->bc_degree_map == NULL) {
+                        perror("prince");
+                        exit(EXIT_FAILURE);
+                }
 		ph->bc_degree_map->size = gp_p->g.nodes.size;
 		ph->bc_degree_map->map = 0;
 		graph_parser_compose_degree_bc_map(ph->gp, ph->bc_degree_map);
@@ -147,8 +141,7 @@ int main(int argc, char* argv[])
 * @param pointer to the prince_handler object
 * @return 1 if success, 0 if fail
 */
-int compute_constants(prince_handler_t ph)
-{
+int compute_constants(prince_handler_t ph) {
 	map_id_degree_bc *m_degree_bc = ph->bc_degree_map;
 	struct timers t = ph->def_t;
 	int degrees=0, i;
@@ -190,8 +183,7 @@ int compute_timers(prince_handler_t ph)
 	return 1;
 }
 
-double get_self_bc(prince_handler_t ph)
-{
+double get_self_bc(prince_handler_t ph) {
 	map_id_degree_bc *m_degree_bc = ph->bc_degree_map;
 	int i;
 	for(i=0; i<m_degree_bc->size;i++){

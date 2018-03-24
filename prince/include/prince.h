@@ -1,5 +1,6 @@
 #ifndef SRC_PRINCE_H_
 #define SRC_PRINCE_H_
+#include <errno.h>
 #include <math.h>
 #include <signal.h>
 #include <sys/time.h>
@@ -8,6 +9,9 @@
 
 #include "common.h"
 #include "config.h"
+#include "config_proto.h"
+#include "config_graph.h"
+#include "load_plugin.h"
 #include "prince_handler.h"
 #include "topology_parser.h"
 
