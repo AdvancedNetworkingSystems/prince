@@ -1,6 +1,5 @@
 cmake_minimum_required(VERSION 3.9 FATAL_ERROR)
 
-#set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/modules/")
 set(CMAKE_C_COMPILER gcc)
 set(CMAKE_C_FLAGS_DEBUG   "${CMAKE_C_FLAGS} -g")
 set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS} -Wall -Werror=implicit-function-declaration -O2")
@@ -19,6 +18,7 @@ add_executable(prince
         graph-parser_c/src/graph/list.c
         graph-parser_c/src/graph_parser.c
         graph-parser_c/src/network_change.c
+        prince/src/bc_map.c
         prince/src/config.c
         prince/src/config_proto.c
         prince/src/config_graph.c

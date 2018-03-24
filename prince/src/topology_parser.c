@@ -22,11 +22,17 @@ void free_bc_degree_map(map_id_degree_bc * map)
 * Parse jsoninfo format
 * @param char* buffer containing the serialized json
 */
-topology_t parse_jsoninfo(char *buffer)
-{
+topology_t parse_jsoninfo(char *buffer) {
 	topology_t result = new_topo(0);
+        if (result == INVALID_TOPOLOGY) {
+                fprintf(stderr, "Could not create recieving topology\n");
+                return INVALID_TOPOLOGY;
+        }
 	json_object *topo = json_tokener_parse(buffer);
-	if (!topo) return 0;
+	if (topo == NULL) {
+                fprintf(stderr, "Could not tokenize buffer\n");
+                return INVALID_TOPOLOGY;
+        }
 	json_object_object_foreach(topo, key, val) {
 		if (strcmp(key, "config") == 0) {
 			json_object *config;
@@ -117,15 +123,17 @@ int add_local_address(node_t node, const char* address) {
 * @param char* buffer containing the serialized json
 * @return representation of the graph as "struct topology*" type
 */
-topology_t parse_netjson(char* buffer)
-{
+topology_t parse_netjson(char* buffer) {
 	topology_t c_topo = new_topo(0);
         if (c_topo == INVALID_TOPOLOGY) {
-                fprintf(stderr, "Could not create topology");
+                fprintf(stderr, "Could not create recieving topology\n");
                 return c_topo;
         }
 	json_object *topo = json_tokener_parse(buffer);
-	if (!topo) return 0;
+	if (topo == NULL) {
+                fprintf(stderr, "Could not tokenize buffer\n");
+                return INVALID_TOPOLOGY;
+        }
 	json_object_object_foreach(topo, key, val) {
 		if (strcmp(key, "protocol") == 0) {
                         c_topo->protocol = strdup(json_object_get_string(val));

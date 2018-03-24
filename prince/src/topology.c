@@ -86,7 +86,11 @@ int add_neigh(topology_t topo, const char *source, const char *id, const double 
 * @return pointer to the topology
 */
 topology_t new_topo(int topology_type) {
-       topology_t topo = (topology_t) malloc(TOPOLOGY_SIZE);
+        topology_t topo = (topology_t) malloc(TOPOLOGY_SIZE);
+        if (topo == INVALID_TOPOLOGY) {
+                perror("topology");
+                return NULL;
+        }
         switch (topology_type) {
                 case 0:
                         topo->id_lenght = 39;

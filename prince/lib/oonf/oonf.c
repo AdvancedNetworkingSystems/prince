@@ -7,15 +7,42 @@
  * @return pointer to oonf plugin handler
  */
 routing_plugin* new_plugin(char* host, int port, c_graph_parser *gp, int json_type, int timer_port){
-	routing_plugin *o =(routing_plugin*) malloc(sizeof(routing_plugin));
-	o->port=port;
-	o->host=strdup(host);
-	o->gp = gp;
-	o->json_type=json_type;
-	o->recv_buffer=0;
-	o->self_id=0;
-	o->timer_port = timer_port; // the port is the same for netjson topolgy and timer update
-	return o;
+	routing_plugin *o = (routing_plugin*) malloc(sizeof(routing_plugin));
+       if (o == NULL) {
+               perror("oonf");
+               exit(EXIT_FAILURE);
+       }
+	o->port        = port;
+	o->host        = strdup(host);
+	o->gp          = gp;
+	o->json_type   = json_type;
+	o->recv_buffer = NULL;
+	o->self_id     = NULL;
+	o->timer_port  = timer_port; // the port is the same for netjson topolgy and timer update
+       return o;
+}
+
+/**
+ * Delete the oonf plugin handler
+ * @param oonf plugin handler object
+ */
+void delete_plugin(routing_plugin* o) {
+        if (o != NULL) {
+                if (o->host != NULL) {
+                        free(o->host);
+                }
+                if (o->recv_buffer != NULL) {
+                        free(o->recv_buffer);
+                }
+                if (o->self_id != NULL) {
+                        free(o->self_id);
+                }
+                if (o->t != NULL) {
+                        free(o->t);
+                }
+                free(o);
+
+        }
 }
 
 /**
@@ -71,17 +98,6 @@ int push_timers(routing_plugin *o, struct timers t)
 	return 1;
 }
 
-/**
- * Delete the oonf plugin handler
- * @param oonf plugin handler object
- */
-void delete_plugin(routing_plugin* o) {
-	free(o->host);
-	if(o->recv_buffer!=0)
-		free(o->recv_buffer);
-	free(o->self_id);
-	free(o);
-}
 
 #define HELLO_TIMER_MESSAGE  "/HelloTimer"
 #define TC_TIMER_MESSAGE "/TcTimer"

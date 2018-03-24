@@ -136,6 +136,10 @@ int check_header_clen(char *header, char *body)
 	char *buffer = strstr(header, "Content-Length:");
 	char *endbuf = strstr(buffer, "\r\n");
 	char *len = (char*) malloc(endbuf-buffer);
+       if (len == NULL) {
+               perror("prince-socket");
+               exit(EXIT_FAILURE);
+       }
 	memcpy(len, buffer + 15, endbuf-buffer);
 	unsigned long size = atol(len);
 	if (strlen(body) == size)

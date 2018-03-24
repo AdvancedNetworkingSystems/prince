@@ -6,6 +6,10 @@ char* read_file_content(const char *filename) {
 	FILE *handler = fopen(filename, "r");
 
 	if (handler == NULL) {
+                perror("prince-config");
+                exit(EXIT_FAILURE);
+	} else {
+                fprintf(stdout, "Reading %s\n", filename);
 		fseek(handler, 0, SEEK_END);
 		string_size = ftell(handler);
 		rewind(handler);
@@ -24,11 +28,28 @@ char* read_file_content(const char *filename) {
 			free(buffer);
 			buffer = NULL;
 		}
-		fclose(handler);
-	} else {
-                perror("prince-config");
+		if (fclose(handler)) {
+                        perror("prince-config");
+                        exit(EXIT_FAILURE);
+                }
         }
 	return buffer;
+}
+
+/**
+* Read the ini configuration and populate struct prince_handler
+* @param *ph pinter to the prince_handler object
+* @param *filepath path to the configuration file
+* @return 0 if success, -1 if fail
+*/
+int read_config_file(prince_handler_t ph, const char *filepath) {
+        if (parse_json_config(filepath, ph)) {
+                fprintf(stderr, "Cannot read configuration file '%s' (Either format or content not compliant or complete). Exiting.\n", filepath);
+                return -1;
+        }
+
+        fprintf(stdout, "Config loaded from %s\n", filepath);
+        return 0;
 }
 
 
@@ -53,19 +74,19 @@ char* read_file_content(const char *filename) {
 * it parses it and initializes the program parameter
 * @param filepath A json file path
 * @param ph The prince_handler, for saving the configuration
-* @return Whether the reading ended successfully
+* @return 0 on success, -1 on failure
 */
 int parse_json_config(const char *filepath, prince_handler_t ph) {
 	char * buffer = read_file_content(filepath);
+	if (buffer == NULL) {
+                return -1;
+        }
 	int completed = 0;
 	bool heuristic_set      = false,
              weights_set        = false,
              recursive_set      = false,
              stop_unchanged_set = false,
              multithreaded_set  = false;
-	if (!buffer) {
-                return -1;
-        }
 	struct json_object *jobj = json_tokener_parse(buffer);
 
         if (jobj == NULL) {
@@ -205,30 +226,15 @@ int parse_json_config(const char *filepath, prince_handler_t ph) {
                         fprintf(stderr, "unknown key \"%s\"", key);
                }
 	}
-	if (jobj != 0) {
+	if (jobj != NULL) {
 		json_object_put(jobj);
 		/* json_object_object_del(jobj, "");*/
 	}
 	free(buffer);
 	if (completed == 5 && heuristic_set && weights_set && recursive_set
 		&& stop_unchanged_set && multithreaded_set) {
-		return -1;
+		return 0;
         }
-	return 0;
+	return -1;
 }
 
-/**
-* Read the ini configuration and populate struct prince_handler
-* @param *ph pinter to the prince_handler object
-* @param *filepath path to the configuration file
-* @return 0 if success, -1 if fail
-*/
-int read_config_file(prince_handler_t ph, const char *filepath) {
-        if (parse_json_config(filepath, ph)) {
-                fprintf(stderr, "Cannot read configuration file '%s' (Either format or content not compliant or complete). Exiting.\n", filepath);
-                return -1;
-        }
-
-        fprintf(stdout, "Config loaded from %s\n", filepath);
-        return 0;
-}

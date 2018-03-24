@@ -15,7 +15,7 @@ int main(int argc, char* argv[]) {
 
 	prince_handler_t ph = new_prince_handler(argv[1]);
         if (ph == INVALID_PRINCE_HANDLER) {
-                fprintf(stderr, "Could not create prince handler");
+                fprintf(stderr, "Could not create prince handler\n");
                 exit(EXIT_FAILURE);
         }
 
