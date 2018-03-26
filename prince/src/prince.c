@@ -66,7 +66,7 @@ int main(int argc, char* argv[]) {
 	int go = 1;
 	do {
 		sleep(ph->refresh);
-		if (!get_topology_p(ph->rp)) {
+		if (get_topology_p(ph->rp)) {
 			fprintf(stderr, "Error getting topology\n");
 			sleep(ph->sleep_onfail);
 			continue;
