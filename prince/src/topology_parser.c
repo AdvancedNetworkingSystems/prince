@@ -41,14 +41,14 @@ topology_t parse_jsoninfo(char *buffer) {
 				if (strcmp(key, "mainIp") == 0) {
 					result->self_id = strdup(json_object_get_string(val));
                                 }
-		}
-		if (strcmp(key, "topology") == 0) {
+		} else if (strcmp(key, "topology") == 0) {
 			int i;
 			json_object *jarray;
 			json_object_object_get_ex(topo, key, &jarray);
 			int arraylen = json_object_array_length(jarray);
-			if (arraylen == 0)
-				return 0;
+			if (arraylen == 0) {
+				return INVALID_TOPOLOGY;
+                       }
 			for (i = 0; i < arraylen; i++) {
 				const char *source=0, *target=0;
 				double cost = 0;
@@ -57,17 +57,13 @@ topology_t parse_jsoninfo(char *buffer) {
 				json_object_object_foreach(elem, key, val) {
 					if (strcmp(key, "lastHopIP") == 0) {
 						source = json_object_get_string(val);
-					}
-					if (strcmp(key, "destinationIP") == 0) {
+					} else if (strcmp(key, "destinationIP") == 0) {
 						target = json_object_get_string(val);
-					}
-					if (strcmp(key, "tcEdgeCost") == 0) {
+					} else if (strcmp(key, "tcEdgeCost") == 0) {
 						cost = json_object_get_double(val);
-					}
-					if (strcmp(key, "validityTime") == 0) {
+					} else if (strcmp(key, "validityTime") == 0) {
 						validity = json_object_get_int(val);
-					}
-					if (source && target && cost && validity) {
+					} else if (source && target && cost && validity) {
 						if (!find_node(result, source)) {
 							add_node(result, source);
                                                 }
@@ -81,10 +77,14 @@ topology_t parse_jsoninfo(char *buffer) {
 						}
 						source = target = 0;
 						cost = 0;
-					}
+					} else {
+                                                fprintf(stderr, "Recieved unknown key '%s'\n", key);
+                                       }
 				}
 			}
-		}
+		} else {
+                        fprintf(stderr, "Recieved unknown key '%s'\n", key);
+               }
 	}
 	json_object_put(topo);
 	return result;
@@ -137,11 +137,9 @@ topology_t parse_netjson(char* buffer) {
 	json_object_object_foreach(topo, key, val) {
 		if (strcmp(key, "protocol") == 0) {
                         c_topo->protocol = strdup(json_object_get_string(val));
-                }
-		if (strcmp(key,"router_id") == 0) {
+               } else if (strcmp(key,"router_id") == 0) {
 			c_topo->self_id=strdup(json_object_get_string(val));
-		}
-		if (strcmp(key, "nodes") == 0) {
+		} else if (strcmp(key, "nodes") == 0) {
 			int i, arraylen;
 			json_object *array;
 			json_object_object_get_ex(topo, key, &array);
@@ -161,14 +159,16 @@ topology_t parse_netjson(char* buffer) {
                                                 for (j = 0; j < la_len; j++) {
                                                         json_object *la_elem = json_object_array_get_idx(la_array, j);
                                                         node_t node = find_node(c_topo, node_id);
+                                                        if (node == INVALID_NODE) {
+                                                                fprintf(stderr, "Could not find node %s\n", node_id);
+                                                        }
                                                         add_local_address(node, json_object_get_string(la_elem));
                                                 }
 					}
 
 				}
 			}
-		}
-		if (strcmp(key, "links") == 0) {
+		} else if (strcmp(key, "links") == 0) {
 			int i;
 			json_object *jarray;
 			json_object_object_get_ex(topo, key, &jarray);
@@ -203,7 +203,9 @@ topology_t parse_netjson(char* buffer) {
 				}
 
 			}
-		}
+		} else {
+                        fprintf(stderr, "Recieved an unknown key '%s' when parsing netjson\n", key);
+               }
 	}
 	json_object_put(topo);
 	return c_topo;

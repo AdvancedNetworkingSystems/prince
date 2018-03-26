@@ -62,18 +62,19 @@ int get_topology(routing_plugin *o) {
 		close(o->sd);
 		return -1;
 	}
-	if(o->recv_buffer!=0){
+	if (o->recv_buffer != NULL) {
 		free(o->recv_buffer);
 		o->recv_buffer=0;
 	}
-	if(!_telnet_receive(o->sd, &(o->recv_buffer))){
+	if (!_telnet_receive(o->sd, &(o->recv_buffer))) {
 		printf("cannot receive \n");
 		close(o->sd);
 		return -1;
 	}
 	o->t = parse_netjson(o->recv_buffer);
-	if(!o->t){
-		printf("can't parse netjson\n %s \n", o->recv_buffer);
+	if (o->t == INVALID_TOPOLOGY) {
+		fprintf(stderr, "Can't parse netjson\n");
+               fprintf(stderr, "%s\n", o->recv_buffer);
 		close(o->sd);
 		return -1;
 	}
