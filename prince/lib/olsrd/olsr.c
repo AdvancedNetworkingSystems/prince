@@ -38,7 +38,11 @@ float get_initial_timer(routing_plugin* o, char* cmd){
 	char *page;
 	char *token;
 	float value=0;
-	page = (char*)malloc(sizeof(char)*24);
+	page = (char*) malloc(sizeof(char) * 24);
+        if (page == NULL) {
+                perror("olsr");
+                return -1;
+        }
 	write(o->sd, cmd, strlen(cmd));
 	if(recv(o->sd, page, strlen(cmd), 0)>0){
 		token = strtok(page, ":");

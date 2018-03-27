@@ -24,9 +24,13 @@ int _create_socket(char* hostname, int port)
 	}
 	bcopy(host->h_addr, &temp.sin_addr, host->h_length);
 	sock = socket(AF_INET, SOCK_STREAM, 0);
+       if (sock == -1) {
+               perror("socket");
+               exit(EXIT_FAILURE);
+       }
 	rc = connect(sock, (struct sockaddr*) &temp, sizeof(temp));
         if (rc) {
-                perror("prince-socket");
+                perror("socket");
                 exit(EXIT_FAILURE);
         }
 	return sock;
