@@ -6,20 +6,19 @@
  * @param host host address as a string
  * @return pointer to oonf plugin handler
  */
-routing_plugin* new_plugin(char* host, int port, c_graph_parser *gp, int json_type, int timer_port){
-	routing_plugin *o = (routing_plugin*) malloc(sizeof(routing_plugin));
-       if (o == NULL) {
-               perror("oonf");
-               exit(EXIT_FAILURE);
-       }
-	o->port        = port;
-	o->host        = strdup(host);
-	o->gp          = gp;
-	o->json_type   = json_type;
-	o->recv_buffer = NULL;
-	o->self_id     = NULL;
-	o->timer_port  = timer_port; // the port is the same for netjson topolgy and timer update
-       return o;
+routing_plugin* new_plugin(char* host, int port, int json_type, int timer_port){
+        routing_plugin *o = (routing_plugin*) malloc(sizeof(routing_plugin));
+        if (o == NULL) {
+                perror("oonf");
+                exit(EXIT_FAILURE);
+        }
+        o->port        = port;
+        o->host        = strdup(host);
+        o->json_type   = json_type;
+        o->recv_buffer = NULL;
+        o->self_id     = NULL;
+        o->timer_port  = timer_port; // the port is the same for netjson topolgy and timer update
+        return o;
 }
 
 /**

@@ -7,7 +7,7 @@
  * @param proto type of the remote plugin (0->netjson 1->jsoninfo)
  * @return pointer to olsr plugin handler
  */
-routing_plugin* new_plugin(char* host, int port, c_graph_parser *gp, int json_type, int timer_port) {
+routing_plugin* new_plugin(char* host, int port, int json_type, int timer_port) {
 	routing_plugin *o = (routing_plugin *) malloc(sizeof(routing_plugin));
         if (o == NULL) {
                 perror("olsr-new");
@@ -15,7 +15,6 @@ routing_plugin* new_plugin(char* host, int port, c_graph_parser *gp, int json_ty
         }
 	o->port=port;
 	o->host=strdup(host);
-	o->gp = gp;
 	o->recv_buffer=0;
 	o->self_id=0;
 	o->json_type=json_type;

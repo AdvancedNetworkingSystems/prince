@@ -19,7 +19,7 @@ int main(int argc, char* argv[]) {
                 exit(EXIT_FAILURE);
         }
 
-	ph->rp = new_plugin_p(ph->host, ph->port, ph->gp, ph->json_type, ph->timer_port);
+	ph->rp = new_plugin_p(ph->host, ph->port, ph->json_type, ph->timer_port);
         if (ph->rp == NULL) {
                 fprintf(stderr, "Could not create plugin\n");
                 exit(EXIT_FAILURE);
@@ -71,7 +71,7 @@ int main(int argc, char* argv[]) {
 			sleep(ph->sleep_onfail);
 			continue;
 		}
-		graph_parser_parse_simplegraph(ph->rp->gp, ph->rp->t);
+		graph_parser_parse_simplegraph(ph->gp, ph->rp->t);
 		free_topo(ph->rp->t);
 		if (ph->rp->self_id != 0) {
 			free(ph->rp->self_id);
