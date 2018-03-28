@@ -61,40 +61,6 @@ int _telnet_receive(int sd, char **buffer)
 	return true;
 
 }
-/**
-* Receive HTTP data from sd reading line by line
-* @param sd socket descriptor
-* @param **finalbuffer pointer to
-* @return 1 if success, 0 otherwise
-*/
-int _http_receive(int sd, char **buffer)
-{
-	FILE *fd = fdopen(sd, "r");
-	char s_buffer[BUFFER_SIZE], line[LINE_SIZE];
-	long size;
-	int i = 0;
-
-	setvbuf(fd, s_buffer, _IOLBF, BUFFER_SIZE);
-	fgets(line, LINE_SIZE, fd);
-
-	while (strcmp(line, "\r\n") != 0) {
-		fgets(line, LINE_SIZE, fd);
-		if ((strstr(line, "Content-Length:"))) {
-			size = atol(line + 16);
-		}
-	}
-
-	if (!size) return 0;
-	char *page = (char*) malloc(size);
-	while (i < size) {
-		fgets(line, LINE_SIZE, fd);
-		int line_len = strlen(line);
-		memcpy(page+i, line, line_len);
-		i += line_len;
-	}
-	*buffer = page;
-	return 1;
-}
 
 
 /**
