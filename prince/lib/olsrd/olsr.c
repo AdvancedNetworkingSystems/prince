@@ -91,31 +91,31 @@ int get_topology(routing_plugin *o) /*netjson & jsoninfo*/
 			}
 		}
 			break;
-			case 1:{
-				/*olsrd netjson*/
-				char *req = "/NetworkGraph";
-				if( (sent = send(o->sd,req,strlen(req),MSG_NOSIGNAL))==-1){
-					printf("Cannot send to %s:%d\n", o->host, o->port);
-					close(o->sd);
-					return -1;
-				}
-				if(o->recv_buffer!=0){
-					free(o->recv_buffer);
-					o->recv_buffer=0;
-				}
-				if(!_telnet_receive(o->sd, &(o->recv_buffer))){
-					printf("cannot receive \n");
-					close(o->sd);
-					return -1;
-				}
-				o->t = parse_netjson(o->recv_buffer);
-				if(!o->t){
-					printf("can't parse netjson\n %s \n", o->recv_buffer);
-					close(o->sd);
-					return -1;
-				}
-				}
-				break;
+                case 1:{
+                        /*olsrd netjson*/
+                        char *req = "/NetworkGraph";
+                        if( (sent = send(o->sd,req,strlen(req),MSG_NOSIGNAL))==-1){
+                                printf("Cannot send to %s:%d\n", o->host, o->port);
+                                close(o->sd);
+                                return -1;
+                        }
+                        if(o->recv_buffer!=0){
+                                free(o->recv_buffer);
+                                o->recv_buffer=0;
+                        }
+                        if(!_telnet_receive(o->sd, &(o->recv_buffer))){
+                                printf("cannot receive \n");
+                                close(o->sd);
+                                return -1;
+                        }
+                        o->t = parse_netjson(o->recv_buffer);
+                        if(!o->t){
+                                printf("can't parse netjson\n %s \n", o->recv_buffer);
+                                close(o->sd);
+                                return -1;
+                        }
+                }
+                        break;
 		default:
 			close(o->sd);
 			return -1;
