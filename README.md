@@ -9,56 +9,40 @@ routing protocol (OLSR, OSPF, etc). It fetches the topology data from the
 routing protocol, calculate the betweenness centrality for every node of
 the network and then push back the new timer's value. Currently it only supports OONF.
 
+## Using Prince on Openwrt / LEDE
 
-# How to install it:
-
-## Linux
-Install the dependencies:
-
-```bash
-apt-get install libjson-c-dev
-```
-
-Clone the repository in your pc with :
-
-```
-git clone https://github.com/AdvancedNetworkingSystems/poprouting/`
-```
-
-Enter in the directory :
-
-```
-cd poprouting
-```
-
-Make a build directory
-
-```bash
-mkdir build && cd build
-```
-
-Run cmake to generate build instructions
-
-```bash
-cmake ..
-```
-
-Compile and install:
-
-```
-make && make install
-```
-
-## Openwrt / LEDE
 Since v0.2 prince is in the LEDE/OpenWRT routing feeds.
-You just need to type:
 
-```
+```bash
 opkg update
 opkg install prince
 ```
 
-# How to use it
+## Using Prince with OONF
+
+Prince requires these plugins to work: `remotecontrol, telnet, netjsoninfo`.
+
+This is a configuration example for OONF that works with prince:
+
+```ini
+[global]
+      plugin remotecontrol
+
+[log]
+        stderr false
+        file /var/log/olsrd2.log
+
+[telnet]
+	bindto	127.0.0.1
+	allowed session 10
+
+[remotecontrol]
+	acl	default_accept
+
+[interface=wlan0]
+[interface=lo]
+```
+
 ## Prince Configuration
 Prince can be configured with a configuration file, this is an example:
 
@@ -82,35 +66,48 @@ Prince can be configured with a configuration file, this is an example:
     "multithreaded": 1
   }
 }
-
 ```
 
-`log_file` is used to benchmark PRINCE and to check if the timers and the centrality are correct, do not use it in production.
+`log_file` is used to benchmark PRINCE and to check if the
+timers and the centrality are correct, do not use it in production.
 
-`json_type` is used to specify which format of json topology we are parsing. It is used only by OLSRv1 plugin, supported values are: `netjson` or `jsoninfo`.
+`json_type` is used to specify which format of json topology
+we are parsing. It is used only by OLSRv1 plugin, supported values are: `netjson` or `jsoninfo`.
 
-## OONF
+## Development
 
-To use Prince with OONF you need the following plugins: `remotecontrol, telnet, netjsoninfo`.
+Install the dependencies:
 
-This is a configuration example that works with prince:
+```bash
+apt-get install libjson-c-dev
+```
+Make a build directory in the repo
 
-```ini
-[global]
-      plugin remotecontrol
+```bash
+mkdir build && cd build
+cmake ..
+make
+sudo make install
+```
 
+### Debug
 
-[log]
-        stderr false
-        file /var/log/olsrd2.log
+Set the build type to debug, this will add gdb's debug symbols to the binary
 
-[telnet]
-	bindto	127.0.0.1
-	allowed session 10
+```bash
+cmake .. -DCMAKE_BUILD_TYPE=Debug
+```
 
-[remotecontrol]
-	acl	default_accept
+### Release
 
-[interface=wlan0]
-[interface=lo]
+Set the build type to release to ask the compiler for more error checking
+
+```bash
+cmake .. -DCMAKE_BUILD_TYPE=Release
+```
+
+You can include gdb's debug symbols in a release using
+
+```bash
+cmake .. -DCMAKE_BUILD_TYPE=ReleaseWithDebug
 ```
