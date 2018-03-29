@@ -37,6 +37,13 @@ prince_handler_t new_prince_handler(const char * conf_file) {
 		return INVALID_PRINCE_HANDLER;
         }
 
+	result->gp = new_graph_parser(result->weights, result->heuristic);
+        if (result->gp == NULL) {
+                fprintf(stderr, "Could not create graph_parser\n");
+                free_prince_handler(result);
+                exit(EXIT_FAILURE);
+        }
+
         if (load_routing_plugin(result)) {
                 perror("prince-plugin");
                 return INVALID_PRINCE_HANDLER;
