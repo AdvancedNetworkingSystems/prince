@@ -60,7 +60,7 @@ int load_routing_plugin_symbol(prince_handler_t result, const char* symbol_name)
         // find the required symbol
         // and assign it to the correct variable
         if (strcmp(symbol_name, "new_plugin") == 0) {
-                new_plugin_p = (routing_plugin* (*)(char* host, int port, c_graph_parser *gp, int json_type, int timer_port))
+                new_plugin_p = (routing_plugin* (*)(char* host, int port, int json_type, int timer_port))
                                         dlsym(result->plugin_handle, symbol_name);
         } else if (strcmp(symbol_name, "delete_plugin") == 0) {
                 delete_plugin_p = (void (*) (routing_plugin *o))
