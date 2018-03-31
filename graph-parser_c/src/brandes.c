@@ -77,11 +77,35 @@ double * betweeness_brandes(struct graph *g,
     init_priority_queue(&q);
     init_list(&S);
 
-    int      node_num = g -> nodes.size;
-    double * dist     = (double *) malloc(node_num * sizeof(double));
+    int         i;
+    int         node_num  = g->nodes.size;
+    double      *dist     = (double *) calloc(node_num, sizeof(double));
+    if (dist == NULL) {
+            perror("brandes");
+            exit(EXIT_FAILURE);
+    }
+    struct list *pred     = (struct list*) calloc(node_num, sizeof(struct list));
+    if (pred == NULL) {
+            perror("brandes");
+            exit(EXIT_FAILURE);
+    }
+    int         *sigma    = (int *) calloc(node_num, sizeof(int));
+    if (sigma == NULL) {
+            perror("brandes");
+            exit(EXIT_FAILURE);
+    }
+    double      *delta    = (double *) calloc(node_num, sizeof(double));
+    if (delta == NULL) {
+            perror("brandes");
+            exit(EXIT_FAILURE);
+    }
 
-    struct list *pred = (struct list*) malloc(node_num * sizeof(struct list));
-
+    //result
+    double      *ret_val  = (double *) calloc(node_num, sizeof(double));
+    if (ret_val == NULL) {
+            perror("brandes");
+            exit(EXIT_FAILURE);
+    }
 
     int *    sigma   = (int *) malloc(node_num * sizeof(int));
     double * delta   = (double *) malloc(node_num * sizeof(double));
