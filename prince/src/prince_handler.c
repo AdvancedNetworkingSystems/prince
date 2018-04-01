@@ -1,7 +1,5 @@
 #include "prince_handler.h"
 
-#include <dlfcn.h>
-#include <errno.h>
 /**
 * Initalize a new prince handler
 * @param host host address as a string
@@ -68,6 +66,12 @@ prince_handler_t new_prince_handler(const char * conf_file) {
                 perror("prince-plugin");
                 return INVALID_PRINCE_HANDLER;
         }
+
+       result->rp = new_plugin_p(result->host, result->port, result->json_type, result->timer_port);
+       if (result->rp == NULL) {
+               fprintf(stderr, "Could not create plugin\n");
+               exit(EXIT_FAILURE);
+       }
 	return result;
 }
 

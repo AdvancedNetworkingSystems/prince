@@ -19,12 +19,6 @@ int main(int argc, char* argv[]) {
                 exit(EXIT_FAILURE);
         }
 
-	ph->rp = new_plugin_p(ph->host, ph->port, ph->json_type, ph->timer_port);
-        if (ph->rp == NULL) {
-                fprintf(stderr, "Could not create plugin\n");
-                exit(EXIT_FAILURE);
-        }
-
         if (load_proto_config(argv[1], ph->proto_config)) {
                 fprintf(stderr, "Could not load section 'proto' from config\n");
         }

@@ -1,6 +1,9 @@
 #ifndef SRC_PRINCE_HANDLER_H_
 #define SRC_PRINCE_HANDLER_H_
 
+#include <dlfcn.h>
+#include <errno.h>
+
 typedef struct prince_handler * prince_handler_t;
 
 #include "common.h"
