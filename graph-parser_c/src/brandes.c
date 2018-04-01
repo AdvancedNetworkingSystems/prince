@@ -1235,14 +1235,8 @@ double * betwenness_heuristic(struct graph *g,
         }
     }
 
-    //if we are storing values for next computation
-    if(stop_computing_if_unchanged){
-        write_file(biconnected_component_num,standard_deviation_bic,standard_deviation_edge,node_num,ret_val,&g->nodes);
-    }
-
     // if we are storing values for next computation
-    if (stop_computing_if_unchanged)
-    {
+    if (stop_computing_if_unchanged) {
         write_file(biconnected_component_num,
                    standard_deviation_bic,
                    standard_deviation_edge,
