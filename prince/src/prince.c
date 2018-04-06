@@ -58,19 +58,16 @@ int main(int argc, char* argv[]) {
 			sleep(ph->sleep_onfail);
 			continue;
 		}
+
+                if (valid_topo(ph->rp->t)) {
+                        fprintf(stderr, "Invalid topology data\n");
+                        exit(EXIT_FAILURE);
+                }
+
+                update_prince_id(ph);
 		graph_parser_parse_simplegraph(ph->gp, ph->rp->t);
 		free_topo(ph->rp->t);
-		if (ph->rp->self_id != 0) {
-			free(ph->rp->self_id);
-                }
-		ph->rp->self_id = strdup(ph->rp->t->self_id);
 
-		if (ph->rp->self_id) {
-			if (ph->self_id != 0) {
-                                free(ph->self_id);
-                        }
-			ph->self_id = strdup(ph->rp->self_id);
-		}
 		clock_t start = clock();
 		graph_parser_calculate_bc(ph->gp);
 		clock_t end = clock();

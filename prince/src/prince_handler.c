@@ -94,3 +94,22 @@ int free_prince_handler(prince_handler_t ph) {
 	free(ph);
         return 0;
 }
+
+int update_prince_id(prince_handler_t ph) {
+        if (ph->self_id != NULL) {
+                fprintf(stderr, "I already had an id\n");
+                free(ph->self_id);
+        }
+        if (ph->rp->t->self_id != NULL) {
+                ph->self_id = strdup(ph->rp->t->self_id);
+                if (ph->self_id == NULL) {
+                        perror("prince_handler");
+                        fprintf(stderr, "Could not set my id from topology\n");
+                        return 1;
+                }
+        } else {
+                fprintf(stderr, "Plugin does not have an id for me");
+                return 1;
+        }
+        return 0;
+}

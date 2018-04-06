@@ -37,5 +37,6 @@ struct prince_handler {
 
 prince_handler_t new_prince_handler(const char * conf_file);
 int              free_prince_handler(prince_handler_t ph);
+int              update_prince_id(prince_handler_t ph);
 
 #endif /*SRC_PRINCE_HANDLER_H_*/
