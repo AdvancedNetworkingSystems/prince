@@ -26,6 +26,7 @@ struct topology {
 
 topology_t new_topo(int type);
 void       free_topo(const topology_t topo);
+int        valid_topo(const topology_t topo);
 node_t     find_node(const topology_t topo, const char *id);
 int        add_node(topology_t topo, const char *id);
 int        add_neigh(topology_t topo, const char *source, const char *id, const double weight, int validity);

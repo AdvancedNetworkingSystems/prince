@@ -11,8 +11,7 @@
 * @param const char* string containing the id of the new node
 * @return 1 on success, 0 otherwise
 */
-int add_node(topology_t topo, const char *id)
-{
+int add_node(topology_t topo, const char *id) {
 	node_t head = topo->first;
 	topo->first = (node_t) malloc(NODE_SIZE);
         if (topo->first == INVALID_NODE) {
@@ -131,4 +130,20 @@ void free_topo(topology_t topo) {
 	free(topo->protocol);
 	free(topo->self_id);
 	free(topo);
+}
+
+int valid_topo(const topology_t topo) {
+        if (topo->self_id == NULL) {
+                fprintf(stderr, "Topology does not have valid id\n");
+                return 1;
+        }
+        if (topo->protocol == NULL) {
+                fprintf(stderr, "Topology does not have valid protocol\n");
+                return 1;
+        }
+        if (topo->first == NULL) {
+                fprintf(stderr, "Topology does not have valid node list\n");
+                return 1;
+        }
+        return 0;
 }
