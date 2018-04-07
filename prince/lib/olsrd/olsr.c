@@ -25,11 +25,17 @@ routing_plugin* new_plugin(char* host, int port, int json_type, int timer_port) 
 int get_initial_timers(routing_plugin *o, struct timers *t){
 	t->h_timer = get_initial_timer(o, "/HelloTimer");
 	t->tc_timer = get_initial_timer(o, "/TcTimer");
-	if(t->h_timer && t->tc_timer){
-		printf("Inital timers:%f\t %f\n", t->h_timer, t->tc_timer);
-		return 0;
+	if (t->h_timer == -1) {
+		fprintf(stderr, "Could not initialise h_timer\n");
+		fprintf(stdout, "Setting h_timer to 2\n");
+		t->h_timer = 2;
 	}
-	return 1;
+	if (t->tc_timer == -1) {
+		fprintf(stderr, "Could not initialise tc_timer\n");
+		fprintf(stdout, "Setting tc_timer to 5\n");
+		t->tc_timer = 5;
+	}
+	return 0;
 }
 
 float get_initial_timer(routing_plugin* o, char* cmd){
@@ -47,7 +53,10 @@ float get_initial_timer(routing_plugin* o, char* cmd){
 		token = strtok(page, ":");
 		token = strtok(NULL, ":");
 		value = atof(token);
-	}
+	} else {
+                fprintf(stderr, "Could not recieve timer %s\n", cmd);
+                return -1;
+        }
 	close(o->sd);
 	free(page);
 	return value;
