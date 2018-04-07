@@ -8,31 +8,34 @@
 * @param port remote port of the server
 * @return socket descriptor
 */
-int _create_socket(char* hostname, int port)
-{
+int _create_socket(char* hostname, int port) {
 	struct sockaddr_in temp;
 	struct hostent *host;
 	int sock;
 	int rc;
+        unsigned int timeout = DEFAULT_TIMEOUT;
 
 	temp.sin_family = AF_INET;
 	temp.sin_port = htons(port);
 	host = gethostbyname(hostname);
 	if (host == NULL) {
                perror("prince-socket");
-		exit(1);
+		exit(EXIT_FAILURE);
 	}
 	bcopy(host->h_addr, &temp.sin_addr, host->h_length);
 	sock = socket(AF_INET, SOCK_STREAM, 0);
-       if (sock == -1) {
-               perror("socket");
-               exit(EXIT_FAILURE);
-       }
-	rc = connect(sock, (struct sockaddr*) &temp, sizeof(temp));
-        if (rc) {
+        if (sock == -1) {
                 perror("socket");
                 exit(EXIT_FAILURE);
         }
+        while (connect(sock, (struct sockaddr*) &temp, sizeof(temp))) {
+                perror("connect");
+                fprintf(stderr, "Could not connect to socket, retry\n");
+                fprintf(stderr, "Wait %d seconds before reconnecting\n", timeout);
+                sleep(timeout);
+                timeout = timeout >= MAX_TIMEOUT ? MAX_TIMEOUT : timeout * 2;
+        }
+        timeout = DEFAULT_TIMEOUT;
 	return sock;
 }
 

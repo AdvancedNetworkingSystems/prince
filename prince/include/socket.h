@@ -12,6 +12,9 @@
 #define BUFFER_SIZE 1024
 #define SIZE_TO_READ 1024
 
+#define DEFAULT_TIMEOUT 1u
+#define MAX_TIMEOUT 32u
+
 
 /*FUNCTIONS DECLARATION*/
 int _create_socket(char* destinazione, int porta);
