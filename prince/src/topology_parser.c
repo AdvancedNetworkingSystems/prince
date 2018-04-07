@@ -71,7 +71,7 @@ topology_t parse_jsoninfo(char *buffer) {
 							add_node(result, target);
                                                 }
 						//printf("%s\t%s\t%f\n", source, target, cost);
-						if (!add_neigh(result, source, target, cost, validity)) {
+						if (add_neigh(result, source, target, cost, validity)) {
 							printf("error\n");
 							return 0;
 						}
@@ -191,8 +191,7 @@ topology_t parse_netjson(char* buffer) {
 						cost = json_object_get_double(val);
 					}
 					if (source && target && cost){
-						/*printf("   %s %s %f\n", source, target, cost);*/
-						if (!add_neigh(c_topo, source, target, cost, 0)) {
+						if (add_neigh(c_topo, source, target, cost, 0)) {
 							fprintf(stderr, "error\n");
 							return 0;
 						}

@@ -53,30 +53,34 @@ node_t find_node(topology_t topo, const char *id) {
 * @param const char* string containing the id of the source node
 * @param const char* string containing the id of the target node
 * @param const double  cost of the edge
-* @return 1 on success, 0 otherwise
+* @return 0 on success, 1 otherwise
 */
 int add_neigh(topology_t topo, const char *source, const char *id, const double weight, int validity) {
 	struct neighbor *temp, *found;
 	node_t s, t;
-	if ((s = find_node(topo, source)) == 0)
-		return 0; // check if source node exists
-	if ((t = find_node(topo, id)) == 0)
-		return 0; //check if target node exists
+	if ((s = find_node(topo, source)) == NULL)
+		return 1; // check if source node exists
+	if ((t = find_node(topo, id)) == NULL)
+		return 1; //check if target node exists
 	found = find_neigh(s, t);
 	if (found) {
 		if (found->validity > validity) {
 			found->weight = weight; //if the link found is older, i update the weight
                 }
-		return 1; //The link is already present
+		return 0; //The link is already present
 	}
 
 	temp = s->neighbor_list;
 	s->neighbor_list = (struct neighbor*) malloc(sizeof(struct neighbor));
+        if (s->neighbor_list == NULL) {
+                perror("topology");
+                return 1;
+        }
 	s->neighbor_list->id       = t; // add node to source neighbor list
 	s->neighbor_list->next     = temp;
 	s->neighbor_list->validity = validity;
 	s->neighbor_list->weight   = weight;
-	return 1;
+	return 0;
 }
 
 /**
