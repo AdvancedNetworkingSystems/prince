@@ -33,7 +33,7 @@ int get_initial_timers(routing_plugin *o, struct timers *t){
 }
 
 float get_initial_timer(routing_plugin* o, char* cmd){
-	o->sd =_create_socket(o->host, o->timer_port);
+	o->sd =_create_socket(o->host, o->timer_port, ECONNREFUSED);
 	char *page;
 	char *token;
 	float value=0;
@@ -61,7 +61,7 @@ float get_initial_timer(routing_plugin* o, char* cmd){
 int get_topology(routing_plugin *o) /*netjson & jsoninfo*/
 {
 	int sent;
-	if((o->sd= _create_socket(o->host, o->port))==0){
+	if((o->sd= _create_socket(o->host, o->port, 0))==0){
 		printf("Cannot connect to %s:%d", o->host, o->port);
 		return -1;
 	}
@@ -134,12 +134,12 @@ int get_topology(routing_plugin *o) /*netjson & jsoninfo*/
  */
 int push_timers(routing_plugin *o, struct timers t)
 {
-	o->sd =_create_socket(o->host, o->timer_port);
+	o->sd =_create_socket(o->host, o->timer_port, 0);
 	char cmd[25];
 	sprintf(cmd, "/HelloTimer=%4.4f", t.h_timer);
 	write(o->sd, cmd, strlen(cmd));
 	close(o->sd);
-	o->sd =_create_socket(o->host, o->timer_port);
+	o->sd =_create_socket(o->host, o->timer_port, 0);
 	sprintf(cmd, "/TcTimer=%4.4f", t.tc_timer);
 	write(o->sd, cmd, strlen(cmd));
 	printf("%4.4f\t%4.4f\t%4.4f\t%4.4f\n", t.tc_timer, t.h_timer, t.exec_time, t.centrality);

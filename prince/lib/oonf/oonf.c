@@ -51,7 +51,7 @@ void delete_plugin(routing_plugin* o) {
  */
 int get_topology(routing_plugin *o) {
 	int sent;
-	if((o->sd = _create_socket(o->host, o->port))==0){
+	if((o->sd = _create_socket(o->host, o->port, 0))==0){
 		printf("Cannot connect to %s:%d", o->host, o->port);
 		return -1;
 	}
@@ -89,7 +89,7 @@ int get_topology(routing_plugin *o) {
  */
 int push_timers(routing_plugin *o, struct timers t)
 {
-	o->sd =_create_socket(o->host, o->timer_port);
+	o->sd =_create_socket(o->host, o->timer_port, 0);
 	char cmd[111];
 	sprintf(cmd, "/config set olsrv2.tc_interval=%4.2f/config set interface.hello_interval=%4.2f/config commit/quit", t.tc_timer, t.h_timer);
 	write(o->sd, cmd, strlen(cmd));
@@ -119,7 +119,7 @@ int get_initial_timers(routing_plugin *o, struct timers *t) {
 
 #define RESPONSE_SIZE (sizeof(char) * 24)
 float parse_initial_timer(routing_plugin* o, const char* cmd) {
-	o->sd =_create_socket(o->host, o->timer_port);
+	o->sd =_create_socket(o->host, o->timer_port, ECONNREFUSED);
 	char *page;
 	char *token;
 	float value = 0;

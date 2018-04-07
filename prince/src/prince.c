@@ -19,12 +19,12 @@ int main(int argc, char* argv[]) {
                 exit(EXIT_FAILURE);
         }
 
-        if (load_proto_config(argv[1], ph->proto_config)) {
-                fprintf(stderr, "Could not load section 'proto' from config\n");
-        }
-        if (load_graph_config(argv[1], ph->graph_config)) {
-                fprintf(stderr, "Could not load section 'graph' from config\n");
-        }
+        //if (load_proto_config(argv[1], ph->proto_config)) {
+        //        fprintf(stderr, "Could not load section 'proto' from config\n");
+        //}
+        //if (load_graph_config(argv[1], ph->graph_config)) {
+        //        fprintf(stderr, "Could not load section 'graph' from config\n");
+        //}
 
 	if (ph->log_file) {
 		log = fopen(ph->log_file, "a+");

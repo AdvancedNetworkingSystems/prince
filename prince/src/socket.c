@@ -8,7 +8,7 @@
 * @param port remote port of the server
 * @return socket descriptor
 */
-int _create_socket(char* hostname, int port) {
+int _create_socket(char* hostname, int port, int ignore) {
 	struct sockaddr_in temp;
 	struct hostent *host;
 	int sock;
@@ -29,6 +29,9 @@ int _create_socket(char* hostname, int port) {
                 exit(EXIT_FAILURE);
         }
         while (connect(sock, (struct sockaddr*) &temp, sizeof(temp))) {
+                if (errno == errno & ignore) {
+                        break;
+                }
                 perror("connect");
                 fprintf(stderr, "Could not connect to socket, retry\n");
                 fprintf(stderr, "Wait %d seconds before reconnecting\n", timeout);
