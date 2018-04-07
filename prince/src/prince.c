@@ -47,7 +47,7 @@ int main(int argc, char* argv[]) {
 
 	do {
 		sleep(ph->refresh);
-	} while (!get_initial_timers_p(ph->rp, &ph->def_t));
+	} while (get_initial_timers_p(ph->rp, &ph->def_t));
 
 
 	int go = 1;

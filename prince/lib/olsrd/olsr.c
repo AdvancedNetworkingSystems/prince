@@ -27,9 +27,9 @@ int get_initial_timers(routing_plugin *o, struct timers *t){
 	t->tc_timer = get_initial_timer(o, "/TcTimer");
 	if(t->h_timer && t->tc_timer){
 		printf("Inital timers:%f\t %f\n", t->h_timer, t->tc_timer);
-		return 1;
+		return 0;
 	}
-	return 0;
+	return 1;
 }
 
 float get_initial_timer(routing_plugin* o, char* cmd){
