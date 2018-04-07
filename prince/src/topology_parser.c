@@ -83,7 +83,7 @@ topology_t parse_jsoninfo(char *buffer) {
 				}
 			}
 		} else {
-                        fprintf(stderr, "Recieved unknown key '%s'\n", key);
+                        fprintf(stderr, "Recieved unknown key '%s' when parsing jsoninfo\n", key);
                }
 	}
 	json_object_put(topo);
