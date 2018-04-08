@@ -86,6 +86,7 @@ topology_t parse_jsoninfo(char *buffer) {
                         fprintf(stderr, "Recieved unknown key '%s' when parsing jsoninfo\n", key);
                }
 	}
+        result->protocol = strdup("olsrv1");
 	json_object_put(topo);
 	return result;
 }
