@@ -1,6 +1,7 @@
 #ifndef SRC_SOCKET_H_
 #define SRC_SOCKET_H_
 
+#include <errno.h>
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in.h>

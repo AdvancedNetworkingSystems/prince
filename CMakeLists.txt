@@ -18,7 +18,6 @@ add_executable(prince
         graph-parser_c/src/graph/list.c
         graph-parser_c/src/graph_parser.c
         graph-parser_c/src/network_change.c
-        prince/src/bc_map.c
         prince/src/config.c
         prince/src/config_proto.c
         prince/src/config_graph.c
@@ -80,12 +79,4 @@ install(TARGETS
         LIBRARY DESTINATION lib/prince
         COMPONENT test
         EXCLUDE_FROM_ALL
-)
-
-install(TARGETS
-        prince
-        libprince_oonf
-        libprince_olsr
-        RUNTIME DESTINATION bin
-        LIBRARY DESTINATION lib
 )
