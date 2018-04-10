@@ -107,11 +107,6 @@ double * betweeness_brandes(struct graph *g,
             exit(EXIT_FAILURE);
     }
 
-    int *    sigma   = (int *) malloc(node_num * sizeof(int));
-    double * delta   = (double *) malloc(node_num * sizeof(double));
-    double * ret_val = (double *) malloc(node_num * sizeof(double));
-    int      i;
-
     for (i = 0; i < node_num; i++)
     {
         ret_val[i] = 0;
