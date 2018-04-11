@@ -77,16 +77,35 @@ double * betweeness_brandes(struct graph *g,
     init_priority_queue(&q);
     init_list(&S);
 
-    int      node_num = g -> nodes.size;
-    double * dist     = (double *) malloc(node_num * sizeof(double));
+    int         i;
+    int         node_num  = g->nodes.size;
+    double      *dist     = (double *) calloc(node_num, sizeof(double));
+    if (dist == NULL) {
+            perror("brandes");
+            exit(EXIT_FAILURE);
+    }
+    struct list *pred     = (struct list*) calloc(node_num, sizeof(struct list));
+    if (pred == NULL) {
+            perror("brandes");
+            exit(EXIT_FAILURE);
+    }
+    int         *sigma    = (int *) calloc(node_num, sizeof(int));
+    if (sigma == NULL) {
+            perror("brandes");
+            exit(EXIT_FAILURE);
+    }
+    double      *delta    = (double *) calloc(node_num, sizeof(double));
+    if (delta == NULL) {
+            perror("brandes");
+            exit(EXIT_FAILURE);
+    }
 
-    struct list *pred = (struct list*) malloc(node_num * sizeof(struct list));
-
-
-    int *    sigma   = (int *) malloc(node_num * sizeof(int));
-    double * delta   = (double *) malloc(node_num * sizeof(double));
-    double * ret_val = (double *) malloc(node_num * sizeof(double));
-    int      i;
+    //result
+    double      *ret_val  = (double *) calloc(node_num, sizeof(double));
+    if (ret_val == NULL) {
+            perror("brandes");
+            exit(EXIT_FAILURE);
+    }
 
     for (i = 0; i < node_num; i++)
     {
@@ -1211,14 +1230,8 @@ double * betwenness_heuristic(struct graph *g,
         }
     }
 
-    //if we are storing values for next computation
-    if(stop_computing_if_unchanged){
-        write_file(biconnected_component_num,standard_deviation_bic,standard_deviation_edge,node_num,ret_val,&g->nodes);
-    }
-
     // if we are storing values for next computation
-    if (stop_computing_if_unchanged)
-    {
+    if (stop_computing_if_unchanged) {
         write_file(biconnected_component_num,
                    standard_deviation_bic,
                    standard_deviation_edge,

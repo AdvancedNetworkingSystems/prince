@@ -1,6 +1,8 @@
+#include "network_change.h"
+
+#include <math.h>
 
 #include <json-c/json_object.h>
-#include "network_change.h"
 
 /**
  * This function tells whether we recompute the graph based on some parameters.

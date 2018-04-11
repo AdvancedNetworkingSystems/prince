@@ -1,6 +1,8 @@
+#ifndef GRAPH_PARSER_H_
+#define GRAPH_PARSER_H_
 /* Graph_Parser_lib.h */
 
-#include "../../prince/src/parser.h"
+#include "topology_parser.h"
 #include "brandes.h"
 
 /**
@@ -25,25 +27,17 @@ extern bool multithread;
 extern bool  stop_computing_if_unchanged;
 typedef void c_graph_parser;
 
-struct graph_parser
-{
+struct graph_parser {
     struct graph g;
-
-
     bool     heuristic_b;
     double * bc;
 };
 
 
-c_graph_parser * new_graph_parser(int weight,
-                                  int heuristic);
+c_graph_parser *new_graph_parser(int weight, int heuristic);
+void            free_graph_parser(c_graph_parser * v);
 
-void graph_parser_parse_simplegraph(c_graph_parser * v,
-        struct topology                              *topo);
-
+void graph_parser_parse_simplegraph(c_graph_parser * v, topology_t topo);
 void graph_parser_calculate_bc(c_graph_parser * v);
-
-int graph_parser_compose_degree_bc_map(c_graph_parser * v,
-        map_id_degree_bc *                              map);
-
-void delete_graph_parser(c_graph_parser * v);
+int  graph_parser_compose_degree_bc_map(c_graph_parser * v, map_id_degree_bc *map);
+#endif /* GRAPH_PARSER_H_ */
