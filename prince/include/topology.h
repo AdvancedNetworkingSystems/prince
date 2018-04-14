@@ -11,17 +11,17 @@ typedef struct node * node_t;
 
 
 struct node {
-	char                 *id;
-	struct neighbor      *neighbor_list;
-	node_t               next;
-	struct local_address *addresses;
+    char                 *id;
+    struct neighbor      *neighbor_list;
+    node_t               next;
+    struct local_address *addresses;
 };
 
 struct topology {
-	int    id_lenght;
-	char   *protocol;
-	char   *self_id;
-	node_t first;
+    int    id_lenght;
+    char   *protocol;
+    char   *self_id;
+    node_t first;
 };
 
 topology_t new_topo(int type);

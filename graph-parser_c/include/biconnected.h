@@ -11,60 +11,52 @@
 #include "graph/graph.h"
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
-    struct graph;
+struct graph;
 
 
-    struct connected_component
-    {
-        struct graph g;
+struct connected_component {
+	struct graph g;
 
 
-        int * mapping;
-        int * weights;
+	int *mapping;
+	int *weights;
 
-        struct node_graph *cutpoint;
-
-
-        int cutpoint_index;
-    };
+	struct node_graph *cutpoint;
 
 
-    struct sub_graph
-    {
-        struct list connected_components;
+	int cutpoint_index;
+};
 
 
-        int size;
-    };
+struct sub_graph {
+	struct list connected_components;
 
 
-    // These function returns the list of list of connected components
-    // i.e. a list of connected components for each connected subgraph
-    struct list *tarjan_rec_undir(struct graph *g,
-                                  bool *       is_articulation_point,
-                                  int *        component_indexes);
+	int size;
+};
 
-    struct list *tarjan_iter_undir(struct graph *g,
-                                   bool *       is_articulation_point,
-                                   int *        component_indexes);
 
-    // not employed  and completed yet (missing art_poit and
-    // division in subgraph with component indexing)
-    struct list *tarjan_rec_dir(struct graph *g,
-                                bool *       is_articulation_point,
-                                int *        component_indexes);
+// These function returns the list of list of connected components
+// i.e. a list of connected components for each connected subgraph
+struct list *tarjan_rec_undir(struct graph *g, bool *is_articulation_point,
+			      int *component_indexes);
 
-    struct list *tarjan_iter_dir(struct graph *g,
-                                 bool *       is_articulation_point,
-                                 int *        component_indexes);
+struct list *tarjan_iter_undir(struct graph *g, bool *is_articulation_point,
+			       int *component_indexes);
+
+// not employed  and completed yet (missing art_poit and
+// division in subgraph with component indexing)
+struct list *tarjan_rec_dir(struct graph *g, bool *is_articulation_point,
+			    int *component_indexes);
+
+struct list *tarjan_iter_dir(struct graph *g, bool *is_articulation_point,
+			     int *component_indexes);
 
 #ifdef __cplusplus
 }
 #endif
 
 #endif /* BICONNECTED_H */
-

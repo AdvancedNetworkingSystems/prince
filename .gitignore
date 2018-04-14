@@ -5,6 +5,7 @@
 .project
 .settings/
 nbproject/
+build/
 .idea/
 
 #files being edited

@@ -1,0 +1,19 @@
+
+{
+    "proto": {
+        "protocol": "oonf",
+        "host": "127.0.0.1",
+        "port": 2009,
+        "timer_port": 2009,
+        "refresh": 0,
+        "log_file": "data/prova.log"
+    },
+    "graph-parser": {
+        "heuristic": 0,
+        "weights": 1,
+        "recursive": 0,
+        "stop_unchanged": 0,
+        "multithreaded": 0
+    }
+}
+        

@@ -16,9 +16,9 @@
 #include "topology_parser.h"
 
 
-int     compute_constants(prince_handler_t ph);
-int     compute_timers(prince_handler_t ph);
-double  get_self_bc(prince_handler_t ph);
-void    log_line(char *text, prince_handler_t ph);
-void    signal_callback_handler(int signum);
+int compute_constants(prince_handler_t ph);
+int compute_timers(prince_handler_t ph);
+double get_self_bc(prince_handler_t ph);
+void log_line(char *text, prince_handler_t ph);
+void signal_callback_handler(int signum);
 #endif /* SRC_PRINCE_H_ */

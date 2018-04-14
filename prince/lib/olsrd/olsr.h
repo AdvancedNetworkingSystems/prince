@@ -7,6 +7,6 @@
 /*inehrit methods from here */
 #include "plugin_interface.h"
 
-float get_initial_timer(routing_plugin* o, char* cmd);
+float get_initial_timer(routing_plugin *o, char *cmd);
 
 #endif /* SRC_OLSR_H_ */

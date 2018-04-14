@@ -9,29 +9,29 @@
 
 /* bc degree structures definition*/
 typedef struct _id_degree_bc{
-	char* id;
-	double bc;
-	int degree;
+    char* id;
+    double bc;
+    int degree;
 
 } id_degree_bc;
 
 typedef struct _map_id_degree_bc{
-	id_degree_bc *map;
-	size_t size;
-	int n_edges;
+    id_degree_bc *map;
+    size_t size;
+    int n_edges;
 } map_id_degree_bc;
 
 
 struct neighbor {
-	node_t id;
-	float weight;
-	int validity;
-	struct neighbor *next;
+    node_t id;
+    float weight;
+    int validity;
+    struct neighbor *next;
 };
 
 struct local_address {
-	const char *id;
-	struct local_address *next;
+    const char *id;
+    struct local_address *next;
 };
 
 struct neighbor* find_neigh(node_t source, node_t target);

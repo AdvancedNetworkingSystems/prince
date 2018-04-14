@@ -18,7 +18,7 @@
 
 
 /*FUNCTIONS DECLARATION*/
-int _create_socket(char* destinazione, int porta, int ignore);
+int _create_socket(char *destinazione, int porta, int ignore);
 int _http_receive(int sd, char **buffer);
 int _telnet_receive(int sd, char **finalBuffer);
 int _receive_data(int sd, char **finalBuffer);

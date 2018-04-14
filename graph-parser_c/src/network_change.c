@@ -10,9 +10,11 @@
  * completes, instead of using already computed value, you have to change this
  * function.
  *
- * @param deviation_bic The standard deviation of the biconnected components sizes in
+ * @param deviation_bic The standard deviation of the biconnected components
+ * sizes in
  * current graph
- * @param old_deviation_bic The standard deviation of the biconnected components sizes
+ * @param old_deviation_bic The standard deviation of the biconnected components
+ * sizes
  * of the last computed graph
  * @param biconnected_num The number of biconnected component of the
  * current graph
@@ -20,41 +22,38 @@
  * computed graph
  * @param old_node_num The number of nodes in the last computed graph
  * @param node_num The number of nodes in the present graph
- * @param deviation_edge The standard deviation of the current graph edges weights
+ * @param deviation_edge The standard deviation of the current graph edges
+ * weights
  * @param old_deviation_edge The standard deviation of the last computed
  * graph edges weights
  *
  * @return whether we have to recompute the graph
  */
-bool is_to_recompute(double deviation_bic,
-                     double old_deviation_bic,
-                     int    biconnected_num,
-                     int    old_biconnected_num,
-                     int    node_num,
-                     int    old_node_num,
-                     double deviation_edge,
-                     double old_deviation_edge)
+bool is_to_recompute(double deviation_bic, double old_deviation_bic,
+		     int biconnected_num, int old_biconnected_num, int node_num,
+		     int old_node_num, double deviation_edge,
+		     double old_deviation_edge)
 {
-    float stdd = 1;
+	float stdd = 1;
 
-    if (old_deviation_bic > 0)
-    {
-        stdd = abs(deviation_bic - old_deviation_bic) / old_deviation_bic;
-    }
+	if (old_deviation_bic > 0) {
+		stdd = abs(deviation_bic - old_deviation_bic)
+		       / old_deviation_bic;
+	}
 
-    int   nn   = abs(biconnected_num - old_biconnected_num);
-    float stde = 1;
+	int nn = abs(biconnected_num - old_biconnected_num);
+	float stde = 1;
 
-    if (old_deviation_edge > 0)
-    {
-        stde = abs(deviation_edge - old_deviation_edge) / old_deviation_edge;
-    }
+	if (old_deviation_edge > 0) {
+		stde = abs(deviation_edge - old_deviation_edge)
+		       / old_deviation_edge;
+	}
 
-    int nb = abs(node_num - old_node_num);
+	int nb = abs(node_num - old_node_num);
 
-    // parameters are chosen from test on real and simulated networks, see
-    // py scripts for details
-    return (stdd >= 0.05) && (nn >= 4) && (stde >= 0.005) && (nb >= 0);
+	// parameters are chosen from test on real and simulated networks, see
+	// py scripts for details
+	return (stdd >= 0.05) && (nn >= 4) && (stde >= 0.005) && (nb >= 0);
 }
 
 /**
@@ -72,57 +71,49 @@ bool is_to_recompute(double deviation_bic,
  * @param ret_vals  a pointer values of the result (could be 0, null pointing)
  * @param list_of_nodes list of nodes in the graph, used for storing id
  */
-void write_file(int         connected_comp_num,
-                float       standard_deviation_bic,
-                float       standard_deviation_edge,
-                int         size,
-                double *    ret_vals,
-                struct list *list_of_nodes)
+void write_file(int connected_comp_num, float standard_deviation_bic,
+		float standard_deviation_edge, int size, double *ret_vals,
+		struct list *list_of_nodes)
 {
-    FILE * fp;
+	FILE *fp;
 
-    fp = fopen("network.dat", "w+");
+	fp = fopen("network.dat", "w+");
 
-    if (fp == NULL)
-    {
-        printf("I couldn't open results.dat for writing.\n");
-        exit(0);
-    }
+	if (fp == NULL) {
+		printf("I couldn't open results.dat for writing.\n");
+		exit(0);
+	}
 
-    struct node_list *nl;
-
-
-    int str_len = 0;
-
-    for (nl = list_of_nodes -> head; nl != 0; nl = nl -> next)
-    {
-        struct node_graph *ng = (struct node_graph*) nl -> content;
+	struct node_list *nl;
 
 
-        int str_len_tmp = strlen(ng -> name);
+	int str_len = 0;
 
-        str_len = ((str_len > str_len_tmp) ? str_len : str_len_tmp);
-    }
-
-    fprintf(fp,
-            "%d, %f, %f, %d\n",
-            connected_comp_num,
-            (float) standard_deviation_bic,
-            (float) standard_deviation_edge,
-            list_of_nodes -> size);
-    fprintf(fp, "%d, %d\n", size, str_len + 1);
-
-    int i = 0;
-
-    for (nl = list_of_nodes -> head; nl != 0; nl = nl -> next)
-    {
-        struct node_graph *ng = (struct node_graph*) nl -> content;
+	for (nl = list_of_nodes->head; nl != 0; nl = nl->next) {
+		struct node_graph *ng = (struct node_graph *)nl->content;
 
 
-        fprintf(fp, "%f,%s\n", (float) ret_vals[ng -> node_graph_id], ng -> name);
-    }
+		int str_len_tmp = strlen(ng->name);
 
-    fclose(fp);
+		str_len = ((str_len > str_len_tmp) ? str_len : str_len_tmp);
+	}
+
+	fprintf(fp, "%d, %f, %f, %d\n", connected_comp_num,
+		(float)standard_deviation_bic, (float)standard_deviation_edge,
+		list_of_nodes->size);
+	fprintf(fp, "%d, %d\n", size, str_len + 1);
+
+	int i = 0;
+
+	for (nl = list_of_nodes->head; nl != 0; nl = nl->next) {
+		struct node_graph *ng = (struct node_graph *)nl->content;
+
+
+		fprintf(fp, "%f,%s\n", (float)ret_vals[ng->node_graph_id],
+			ng->name);
+	}
+
+	fclose(fp);
 }
 
 ;
@@ -144,48 +135,45 @@ void write_file(int         connected_comp_num,
  * @param node_names Pointer to char * array, will retrieve the list of names
  * @return Whether everything was fine
  */
-bool read_file(int *     connected_comp_num,
-               float *   standard_deviation_bic,
-               float *   standard_deviation_edge,
-               int *     node_num,
-               int *     size,
-               double ** ret_vals,
-               char ***  node_names)
+bool read_file(int *connected_comp_num, float *standard_deviation_bic,
+	       float *standard_deviation_edge, int *node_num, int *size,
+	       double **ret_vals, char ***node_names)
 {
-    FILE * fp;
+	FILE *fp;
 
-    fp = fopen("network.dat", "r");
+	fp = fopen("network.dat", "r");
 
-    if (fp == NULL)
-    {
-        return false;
-    }
+	if (fp == NULL) {
+		return false;
+	}
 
-    bool ret_val = (fscanf(fp, "%d, %f, %f, %d\n", connected_comp_num, standard_deviation_bic, standard_deviation_edge,
-                           node_num) == 4);
-    int string_max_len = -1;
+	bool ret_val = (fscanf(fp, "%d, %f, %f, %d\n", connected_comp_num,
+			       standard_deviation_bic, standard_deviation_edge,
+			       node_num)
+			== 4);
+	int string_max_len = -1;
 
-    ret_val = ret_val && (fscanf(fp, "%d, %d\n", size, &string_max_len) == 2);
+	ret_val =
+		ret_val && (fscanf(fp, "%d, %d\n", size, &string_max_len) == 2);
 
-    char * buffer = malloc(sizeof(char) * string_max_len);
-    int    i      = 0;
+	char *buffer = malloc(sizeof(char) * string_max_len);
+	int i = 0;
 
-    (*ret_vals)   = malloc(sizeof(double) * (*size));
-    (*node_names) = malloc(sizeof(char *) * (*size));
+	(*ret_vals) = malloc(sizeof(double) * (*size));
+	(*node_names) = malloc(sizeof(char *) * (*size));
 
-    for (; ret_val && (i < *size); i++)
-    {
-        float tmp;
+	for (; ret_val && (i < *size); i++) {
+		float tmp;
 
-        ret_val          = ret_val && (fscanf(fp, "%f,%s\n", &tmp, buffer) == 2);
-        (*node_names)[i] = strdup(buffer);
-        (*ret_vals)[i]   = (double) tmp;
-    }
+		ret_val = ret_val && (fscanf(fp, "%f,%s\n", &tmp, buffer) == 2);
+		(*node_names)[i] = strdup(buffer);
+		(*ret_vals)[i] = (double)tmp;
+	}
 
-    fclose(fp);
-    free(buffer);
+	fclose(fp);
+	free(buffer);
 
-    return ret_val;
+	return ret_val;
 }
 
 ;
@@ -202,58 +190,57 @@ bool read_file(int *     connected_comp_num,
  * standard deviation of biconnected components size.
  */
 void compute_mean_number(struct list *biconnected_components_subgraph,
-                         int *       connected_num,
-                         float *     standard_deviation)
+			 int *connected_num, float *standard_deviation)
 {
-    struct node_list *nl;
+	struct node_list *nl;
 
 
-    float mean                   = 0;
-    int   biconnected_comp_count = 0;
+	float mean = 0;
+	int biconnected_comp_count = 0;
 
-    for (nl = biconnected_components_subgraph -> head; nl != 0; nl = nl -> next)
-    {
-        struct list *tmp = (struct list*) nl -> content;
-
-
-        struct node_list *nl2 = tmp -> head;
+	for (nl = biconnected_components_subgraph->head; nl != 0;
+	     nl = nl->next) {
+		struct list *tmp = (struct list *)nl->content;
 
 
-        for (; nl2 != 0; nl2 = nl2 -> next)
-        {
-            struct connected_component *cc = (struct connected_component*) nl2 -> content;
+		struct node_list *nl2 = tmp->head;
 
 
-            biconnected_comp_count++;
-
-            mean += cc -> g.nodes.size;
-        }
-    }
-
-    mean /= biconnected_comp_count;
-
-    float std = 0;
-
-    for (nl = biconnected_components_subgraph -> head; nl != 0; nl = nl -> next)
-    {
-        struct list *tmp = (struct list*) nl -> content;
+		for (; nl2 != 0; nl2 = nl2->next) {
+			struct connected_component *cc =
+				(struct connected_component *)nl2->content;
 
 
-        struct node_list *nl2 = tmp -> head;
+			biconnected_comp_count++;
+
+			mean += cc->g.nodes.size;
+		}
+	}
+
+	mean /= biconnected_comp_count;
+
+	float std = 0;
+
+	for (nl = biconnected_components_subgraph->head; nl != 0;
+	     nl = nl->next) {
+		struct list *tmp = (struct list *)nl->content;
 
 
-        for (; nl2 != 0; nl2 = nl2 -> next)
-        {
-            struct connected_component *cc = (struct connected_component*) nl2 -> content;
+		struct node_list *nl2 = tmp->head;
 
 
-            std += pow((((float) cc -> g.nodes.size) - mean), 2);
-        }
-    }
+		for (; nl2 != 0; nl2 = nl2->next) {
+			struct connected_component *cc =
+				(struct connected_component *)nl2->content;
 
-    std                   /= biconnected_comp_count;
-    (*connected_num)      = biconnected_comp_count;
-    (*standard_deviation) = std;
+
+			std += pow((((float)cc->g.nodes.size) - mean), 2);
+		}
+	}
+
+	std /= biconnected_comp_count;
+	(*connected_num) = biconnected_comp_count;
+	(*standard_deviation) = std;
 }
 
 /**
@@ -277,82 +264,66 @@ void compute_mean_number(struct list *biconnected_components_subgraph,
  * @param node_names Pointer to char * array, will retrieve the list of names
  * @return the last results if the network is not changed, o.w. a zero pointer.
  */
-double * is_network_changed(struct list *biconnected_components_subgraph,
-                            int         node_num,
-                            int *       biconnected_num,
-                            float *     standard_deviation_bic,
-                            float *     standard_deviation_edge,
-                            int *       result_size,
-                            char ***    node_names)
+double *is_network_changed(struct list *biconnected_components_subgraph,
+			   int node_num, int *biconnected_num,
+			   float *standard_deviation_bic,
+			   float *standard_deviation_edge, int *result_size,
+			   char ***node_names)
 {
-    int   biconnected_num_old         = -1;
-    float standard_deviation_bic_old  = -1;
-    int   node_num_old                = -1;
-    float standard_deviation_edge_old = -1;
+	int biconnected_num_old = -1;
+	float standard_deviation_bic_old = -1;
+	int node_num_old = -1;
+	float standard_deviation_edge_old = -1;
 
-    compute_mean_number(biconnected_components_subgraph, biconnected_num, standard_deviation_bic);
+	compute_mean_number(biconnected_components_subgraph, biconnected_num,
+			    standard_deviation_bic);
 
-    double * ret_val;
+	double *ret_val;
 
-    if (!read_file(&biconnected_num_old, &standard_deviation_bic_old, &standard_deviation_edge_old, &node_num_old,
-                   result_size, &ret_val, node_names))
-    {
-        return 0;
-    }
+	if (!read_file(&biconnected_num_old, &standard_deviation_bic_old,
+		       &standard_deviation_edge_old, &node_num_old, result_size,
+		       &ret_val, node_names)) {
+		return 0;
+	}
 
-    bool recompute = is_to_recompute(*standard_deviation_bic,
-                                     standard_deviation_bic_old,
-                                     *biconnected_num,
-                                     biconnected_num_old,
-                                     node_num,
-                                     node_num_old,
-                                     *standard_deviation_edge,
-                                     standard_deviation_edge_old);
+	bool recompute = is_to_recompute(
+		*standard_deviation_bic, standard_deviation_bic_old,
+		*biconnected_num, biconnected_num_old, node_num, node_num_old,
+		*standard_deviation_edge, standard_deviation_edge_old);
 
-    if (recompute)
-    {
-        free(ret_val);
+	if (recompute) {
+		free(ret_val);
 
-        return 0;
-    }
-    else
-    {
-        return ret_val;
-    }
+		return 0;
+	} else {
+		return ret_val;
+	}
 }
 
-void copy_old_values(double *    old_vals,
-                     double *    vals,
-                     char **     names,
-                     int         names_count,
-                     struct list *list_of_nodes)
+void copy_old_values(double *old_vals, double *vals, char **names,
+		     int names_count, struct list *list_of_nodes)
 {
-    int i;
+	int i;
 
-    struct node_list *nl;
-
-
-    struct node_graph *ng = 0;
+	struct node_list *nl;
 
 
-    for (i = 0; i < names_count; i++)
-    {
-        for (nl = list_of_nodes -> head; nl != 0; nl = nl -> next)
-        {
-            ng = (struct node_graph*) nl -> content;
+	struct node_graph *ng = 0;
 
-            if (strcmp(ng -> name, names[i]) == 0)
-            {
-                break;
-            }
-        }
 
-        if (ng != 0)
-        {
-            vals[ng -> node_graph_id] = old_vals[i];
-        }
+	for (i = 0; i < names_count; i++) {
+		for (nl = list_of_nodes->head; nl != 0; nl = nl->next) {
+			ng = (struct node_graph *)nl->content;
 
-        ng = 0;
-    }
+			if (strcmp(ng->name, names[i]) == 0) {
+				break;
+			}
+		}
+
+		if (ng != 0) {
+			vals[ng->node_graph_id] = old_vals[i];
+		}
+
+		ng = 0;
+	}
 }
-

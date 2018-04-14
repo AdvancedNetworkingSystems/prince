@@ -14,7 +14,7 @@
 #define LINE_SIZE 64
 
 
-struct timers{
+struct timers {
 	double h_timer;
 	double tc_timer;
 	double exec_time;
@@ -22,8 +22,7 @@ struct timers{
 };
 
 
-typedef struct
-routing_plugin_{
+typedef struct routing_plugin_ {
 	char *recv_buffer;
 	char *self_id;
 	char *host;
@@ -36,11 +35,12 @@ routing_plugin_{
 
 } routing_plugin;
 
-routing_plugin* (*new_plugin_p)(char* host, int port, int json_type, int timer_port);
+routing_plugin *(*new_plugin_p)(char *host, int port, int json_type,
+				int timer_port);
 
-int  (*get_initial_timers_p) (routing_plugin *o, struct timers *t);
-int  (*get_topology_p)       (routing_plugin *o);
-int  (*push_timers_p)        (routing_plugin *o, struct timers t);
-void (*delete_plugin_p)      (routing_plugin *o);
+int (*get_initial_timers_p)(routing_plugin *o, struct timers *t);
+int (*get_topology_p)(routing_plugin *o);
+int (*push_timers_p)(routing_plugin *o, struct timers t);
+void (*delete_plugin_p)(routing_plugin *o);
 
 #endif /* SRC_COMMON_H_ */
