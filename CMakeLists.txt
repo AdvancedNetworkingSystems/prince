@@ -6,6 +6,7 @@ set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS} -Wall -Werror=implicit-function-decl
 set(CMAKE_C_FLAGS_RELWITHDEBINFO "${CMAKE_C_FLAGS} -Wall -Werror=implicit-function-declaration -O2 -g")
 
 SET(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib/prince")
+SET(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 
 project(poprouting LANGUAGES C)
 
