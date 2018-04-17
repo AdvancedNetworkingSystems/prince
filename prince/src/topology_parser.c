@@ -101,16 +101,21 @@ topology_t parse_jsoninfo(char *buffer)
 						source = target = 0;
 						cost = 0;
 					} else {
+#ifdef DEBUG
 						fprintf(stderr,
-							"Recieved unknown key '%s'\n",
+							"Recieved unknown key
+							'%s'\n ",
 							key);
+#endif
 					}
 				}
 			}
 		} else {
-			fprintf(stderr,
-				"Recieved unknown key '%s' when parsing jsoninfo\n",
+#ifdef DEBUG
+			fprintf(stderr, "Recieved unknown key '%s' when parsing
+				jsoninfo\n ",
 				key);
+#endif
 		}
 	}
 	result->protocol = strdup("olsrv1");

@@ -59,6 +59,7 @@ int get_topology(routing_plugin *o)
 		return -1;
 	}
 	char *req = "/netjsoninfo filter graph ipv6_0/quit\n";
+	printf("Sending message %s", req);
 	if ((sent = send(o->sd, req, strlen(req), MSG_NOSIGNAL)) == -1) {
 		printf("Cannot send to %s:%d", o->host, o->port);
 		close(o->sd);
@@ -104,8 +105,8 @@ int push_timers(routing_plugin *o, struct timers t)
 }
 
 
-#define HELLO_TIMER_MESSAGE "/HelloTimer"
-#define TC_TIMER_MESSAGE "/TcTimer"
+#define HELLO_TIMER_MESSAGE "/config get interface.hello_interval/quit\n"
+#define TC_TIMER_MESSAGE "/config get olsrv2.tc_interval/quit\n"
 int get_initial_timers(routing_plugin *o, struct timers *t)
 {
 	t->h_timer = parse_initial_timer(o, HELLO_TIMER_MESSAGE);
@@ -132,9 +133,9 @@ float parse_initial_timer(routing_plugin *o, const char *cmd)
 	float value = 0;
 	page = (char *)malloc(RESPONSE_SIZE);
 	write(o->sd, cmd, strlen(cmd));
-	if (recv(o->sd, page, strlen(cmd), 0) > 0) {
-		token = strtok(page, ":");
-		token = strtok(NULL, ":");
+	if (recv(o->sd, page, LINE_SIZE, 0) > 0) {
+		token = strtok(page, "\n");
+		token = strtok(NULL, "\n");
 		value = atof(token);
 	} else {
 		fprintf(stderr, "Could not recieve timer %s\n", cmd);

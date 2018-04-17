@@ -52,7 +52,7 @@ float get_initial_timer(routing_plugin *o, char *cmd)
 		return -1;
 	}
 	write(o->sd, cmd, strlen(cmd));
-	if (recv(o->sd, page, strlen(cmd), 0) > 0) {
+	if (recv(o->sd, page, LINE_SIZE, 0) > 0) {
 		token = strtok(page, ":");
 		token = strtok(NULL, ":");
 		value = atof(token);
