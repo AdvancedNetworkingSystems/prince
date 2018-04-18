@@ -1,7 +1,5 @@
 #include "socket.h"
 
-#include "error.h"
-
 /**
 * Initialize a socket
 * @param host hostname of the server

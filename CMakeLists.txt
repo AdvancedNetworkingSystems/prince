@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.9 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.7 FATAL_ERROR)
 
 set(CMAKE_C_FLAGS_DEBUG   "${CMAKE_C_FLAGS} -g")
 set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS} -Wall -Werror=implicit-function-declaration -O2")
