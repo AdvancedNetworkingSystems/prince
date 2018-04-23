@@ -156,7 +156,7 @@ bool read_file(int *connected_comp_num, float *standard_deviation_bic,
 	ret_val =
 		ret_val && (fscanf(fp, "%d, %d\n", size, &string_max_len) == 2);
 
-	char *buffer = malloc(sizeof(char) * string_max_len);
+	char *buffer = (char *) malloc(sizeof(char) * string_max_len);
 	int i = 0;
 
 	(*ret_vals) = malloc(sizeof(double) * (*size));

@@ -109,24 +109,21 @@ double *betweeness_brandes(struct graph *g, bool endpoints,
 	}
 
 	for (i = 0; i < node_num; i++) {
-		ret_val[i] = 0;
-
 		init_list(pred + i);
 	}
 
 	struct node_list *n = 0;
 
 
-	for (n = g->nodes.head; n != 0; n = n->next) {
-		struct node_graph *s = (struct node_graph *)n->content;
+        for (n = g->nodes.head; n != 0; n = n->next) {
+                struct node_graph *s = (struct node_graph *)n->content;
+                memset(dist,  INFINITY_DIST, node_num * sizeof(double));
+                memset(sigma,             0, node_num * sizeof(int));
+                memset(delta,             0, node_num * sizeof(double));
 
 
-		for (i = 0; i < node_num; i++) {
-			clear_list(pred + i);
-
-			dist[i] = INFINITY_DIST;
-			sigma[i] = 0;
-			delta[i] = 0;
+                for (i = 0; i < node_num; i++) {
+                        clear_list(pred + i);
 		}
 
 		dist[s->node_graph_id] = 0;
