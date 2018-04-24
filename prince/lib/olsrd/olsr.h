@@ -7,6 +7,10 @@
 /*inehrit methods from here */
 #include "plugin_interface.h"
 
-float get_initial_timer(routing_plugin *o, char *cmd);
+float parse_initial_timer(routing_plugin *o, char *cmd);
+
+#define HELLO_TIMER_MESSAGE "/HelloTimer\n"
+#define TC_TIMER_MESSAGE "/TcTimer\n"
+#define RESPONSE_SIZE (sizeof(char) * 24)
 
 #endif /* SRC_OLSR_H_ */

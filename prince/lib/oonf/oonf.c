@@ -109,8 +109,6 @@ int push_timers(routing_plugin *o, struct timers t)
 }
 
 
-#define HELLO_TIMER_MESSAGE "/config get interface.hello_interval/quit\n"
-#define TC_TIMER_MESSAGE "/config get olsrv2.tc_interval/quit\n"
 int get_initial_timers(routing_plugin *o, struct timers *t)
 {
 	t->h_timer = parse_initial_timer(o, HELLO_TIMER_MESSAGE);
@@ -128,7 +126,6 @@ int get_initial_timers(routing_plugin *o, struct timers *t)
 	return 0;
 }
 
-#define RESPONSE_SIZE (sizeof(char) * 24)
 float parse_initial_timer(routing_plugin *o, const char *cmd)
 {
 	o->sd = _create_socket(o->host, o->timer_port, ECONNREFUSED);
@@ -136,8 +133,12 @@ float parse_initial_timer(routing_plugin *o, const char *cmd)
 	char *token;
 	float value = 0;
 	page = (char *)malloc(RESPONSE_SIZE);
+	if (page == NULL) {
+		perror("olsr");
+		return -1;
+	}
 	write(o->sd, cmd, strlen(cmd));
-	if (recv(o->sd, page, LINE_SIZE, 0) > 0) {
+	if (recv(o->sd, page, RESPONSE_SIZE, 0) > 0) {
 		token = strtok(page, "\n");
 		token = strtok(NULL, "\n");
 		value = atof(token);

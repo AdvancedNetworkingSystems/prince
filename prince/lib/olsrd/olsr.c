@@ -22,11 +22,10 @@ routing_plugin *new_plugin(char *host, int port, int json_type, int timer_port)
 	o->timer_port = timer_port;
 	return o;
 }
-
 int get_initial_timers(routing_plugin *o, struct timers *t)
 {
-	t->h_timer = get_initial_timer(o, "/HelloTimer");
-	t->tc_timer = get_initial_timer(o, "/TcTimer");
+	t->h_timer = parse_initial_timer(o, HELLO_TIMER_MESSAGE);
+	t->tc_timer = parse_initial_timer(o, TC_TIMER_MESSAGE);
 	if (t->h_timer == -1) {
 		fprintf(stderr, "Could not initialise h_timer\n");
 		fprintf(stdout, "Setting h_timer to 2\n");
@@ -40,19 +39,19 @@ int get_initial_timers(routing_plugin *o, struct timers *t)
 	return 0;
 }
 
-float get_initial_timer(routing_plugin *o, char *cmd)
+float parse_initial_timer(routing_plugin *o, char *cmd)
 {
 	o->sd = _create_socket(o->host, o->timer_port, ECONNREFUSED);
 	char *page;
 	char *token;
 	float value = 0;
-	page = (char *)malloc(sizeof(char) * 24);
+	page = (char *)malloc(RESPONSE_SIZE);
 	if (page == NULL) {
 		perror("olsr");
 		return -1;
 	}
 	write(o->sd, cmd, strlen(cmd));
-	if (recv(o->sd, page, LINE_SIZE, 0) > 0) {
+	if (recv(o->sd, page, RESPONSE_SIZE, 0) > 0) {
 		token = strtok(page, ":");
 		token = strtok(NULL, ":");
 		value = atof(token);
@@ -62,6 +61,9 @@ float get_initial_timer(routing_plugin *o, char *cmd)
 	}
 	close(o->sd);
 	free(page);
+	if (value == 0) {
+		return -1;
+	}
 	return value;
 }
 
