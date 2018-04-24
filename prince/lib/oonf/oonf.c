@@ -96,6 +96,10 @@ int push_timers(routing_plugin *o, struct timers t)
 	o->sd = _create_socket(o->host, o->timer_port, 0);
 	char cmd[111];
 	sprintf(cmd,
+		"/config remove olsrv2.tc_interval/config remove interface.hello_interval",
+		t.tc_timer, t.h_timer);
+	write(o->sd, cmd, strlen(cmd));
+	sprintf(cmd,
 		"/config set olsrv2.tc_interval=%4.2f/config set interface.hello_interval=%4.2f/config commit/quit",
 		t.tc_timer, t.h_timer);
 	write(o->sd, cmd, strlen(cmd));
