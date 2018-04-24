@@ -701,7 +701,7 @@ double *compute_traffic_matrix_and_centrality(struct connected_component *cc,
 	}
 
 	double *ret_val =
-		betweeness_brandes(&(cc->g), true, art_point_val, false);
+		betweeness_brandes(&(cc->g), true, art_point_val, true);
 
 	free(art_point_val);
 
@@ -1187,7 +1187,7 @@ double *betwenness_heuristic(struct graph *g, bool recursive)
 			free(connected_component_indexes);
 			free(ret_val);
 
-			return betweeness_brandes(g, true, 0, false);
+			return betweeness_brandes(g, true, 0, true);
 		}
 	}
 
