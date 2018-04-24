@@ -18,7 +18,6 @@ struct node {
 };
 
 struct topology {
-    int    id_lenght;
     char   *protocol;
     char   *self_id;
     node_t first;

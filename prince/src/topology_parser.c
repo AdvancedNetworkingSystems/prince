@@ -100,22 +100,9 @@ topology_t parse_jsoninfo(char *buffer)
 						}
 						source = target = 0;
 						cost = 0;
-					} else {
-#ifdef DEBUG
-						fprintf(stderr,
-							"Recieved unknown key
-							'%s'\n ",
-							key);
-#endif
 					}
 				}
 			}
-		} else {
-#ifdef DEBUG
-			fprintf(stderr, "Recieved unknown key '%s' when parsing
-				jsoninfo\n ",
-				key);
-#endif
 		}
 	}
 	result->protocol = strdup("olsrv1");
@@ -265,10 +252,6 @@ topology_t parse_netjson(char *buffer)
 					}
 				}
 			}
-		} else {
-			fprintf(stderr,
-				"Recieved an unknown key '%s' when parsing netjson\n",
-				key);
 		}
 	}
 	json_object_put(topo);
