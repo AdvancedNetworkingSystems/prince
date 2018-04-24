@@ -103,20 +103,6 @@ topology_t new_topo(int topology_type)
 		perror("topology");
 		return NULL;
 	}
-	switch (topology_type) {
-	case 0:
-		topo->id_lenght = 39;
-		break;
-	case 1:
-		topo->id_lenght = 15;
-		break;
-	default:
-		fprintf(stderr, "Received an unknown topology type <%d>\n",
-			topology_type);
-		free_topo(topo);
-		return NULL;
-	}
-
 	topo->first = 0;
 	topo->protocol = 0;
 	return topo;
