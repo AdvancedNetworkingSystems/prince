@@ -7,11 +7,7 @@ set(CMAKE_C_FLAGS_RELWITHDEBINFO "${CMAKE_C_FLAGS} -Wall -Werror=implicit-functi
 SET(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib/prince")
 SET(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 
-project(poprouting LANGUAGES C)
-
-find_package(Threads)
-
-add_executable(prince
+SET(SOURCES
         graph-parser_c/src/biconnected.c
         graph-parser_c/src/brandes.c
         graph-parser_c/src/graph/graph.c
@@ -22,11 +18,19 @@ add_executable(prince
         prince/src/config_proto.c
         prince/src/config_graph.c
         prince/src/load_plugin.c
-        prince/src/prince.c
         prince/src/prince_handler.c
         prince/src/socket.c
         prince/src/topology.c
         prince/src/topology_parser.c
+)
+
+project(poprouting LANGUAGES C)
+
+find_package(Threads)
+
+add_executable(prince
+        prince/src/prince.c
+        ${SOURCES}
 )
 
 target_link_libraries(prince
@@ -63,6 +67,22 @@ add_library(prince_test MODULE
         prince/src/topology.c
         prince/src/topology_parser.c
 )
+enable_testing()
+
+add_executable(ctests
+        prince/test/test.c
+        ${SOURCES}
+)
+
+target_link_libraries(ctests
+        ${CMAKE_DL_LIBS}
+        ${CMAKE_THREAD_LIBS_INIT}
+        m
+        json-c
+        cunit
+)
+
+add_test(ctests ${EXECUTABLE_OUTPUT_PATH}/ctests)
 
 install(TARGETS
         prince
