@@ -1,0 +1,657 @@
+{
+	"type": "NetworkGraph",
+	"protocol": "olsrv2",
+	"version": "0.13.0",
+	"revision": "v0.13.0-0-g9f941b2",
+	"router_id": "id_172.19.186.1",
+	"metric": "ff_dat_metric",
+	"topology_id": "ipv4_0",
+	"properties": {
+		"router_addr": "172.19.186.1",
+		"dualstack_id": "id_fe80::de9f:dbff:fe80:722f",
+		"dualstack_topology": "ipv6_0",
+		"dualstack_addr": "fe80::de9f:dbff:fe80:722f"
+	},
+	"nodes": [
+		{
+			"id": "id_172.19.186.1",
+			"label": "172.19.186.1",
+			"properties": {
+				"router_id": "id_172.19.186.1",
+				"router_addr": "172.19.186.1",
+				"dualstack_id": "id_fe80::de9f:dbff:fe80:722f",
+				"dualstack_addr": "fe80::de9f:dbff:fe80:722f",
+				"type": "local"
+			}
+		},
+		{
+			"id": "id_172.19.186.1_0.0.0.0/0",
+			"label": "172.19.186.1 - 0.0.0.0/0",
+			"properties": {
+				"router_id": "id_172.19.186.1",
+				"router_addr": "172.19.186.1",
+				"type": "lan"
+			}
+		},
+		{
+			"id": "id_172.19.186.1_10.150.13.0/24",
+			"label": "172.19.186.1 - 10.150.13.0/24",
+			"properties": {
+				"router_id": "id_172.19.186.1",
+				"router_addr": "172.19.186.1",
+				"type": "lan"
+			}
+		},
+		{
+			"id": "id_172.19.186.1_10.150.13.0/24",
+			"label": "172.19.186.1 - 10.150.13.0/24",
+			"properties": {
+				"router_id": "id_172.19.186.1",
+				"router_addr": "172.19.186.1",
+				"type": "lan"
+			}
+		},
+		{
+			"id": "id_172.19.186.1_10.150.14.0/24",
+			"label": "172.19.186.1 - 10.150.14.0/24",
+			"properties": {
+				"router_id": "id_172.19.186.1",
+				"router_addr": "172.19.186.1",
+				"type": "lan"
+			}
+		},
+		{
+			"id": "id_10.150.9.1",
+			"label": "10.150.9.1",
+			"properties": {
+				"router_id": "id_10.150.9.1",
+				"router_addr": "10.150.9.1",
+				"dualstack_id": "id_fdc0:ffee:0:9609::1",
+				"dualstack_addr": "fdc0:ffee:0:9609::1",
+				"type": "node"
+			}
+		},
+		{
+			"id": "id_10.150.9.1_10.150.9.0/24",
+			"label": "10.150.9.1 - 10.150.9.0/24",
+			"properties": {
+				"router_id": "id_10.150.9.1",
+				"router_addr": "10.150.9.1",
+				"type": "attached"
+			}
+		},
+		{
+			"id": "id_10.150.19.254",
+			"label": "10.150.19.254",
+			"properties": {
+				"router_id": "id_10.150.19.254",
+				"router_addr": "10.150.19.254",
+				"type": "node"
+			}
+		},
+		{
+			"id": "id_10.150.19.254_10.150.19.0/24",
+			"label": "10.150.19.254 - 10.150.19.0/24",
+			"properties": {
+				"router_id": "id_10.150.19.254",
+				"router_addr": "10.150.19.254",
+				"type": "attached"
+			}
+		},
+		{
+			"id": "id_10.150.22.1",
+			"label": "10.150.22.1",
+			"properties": {
+				"router_id": "id_10.150.22.1",
+				"router_addr": "10.150.22.1",
+				"type": "node"
+			}
+		},
+		{
+			"id": "id_10.150.22.1_10.150.22.0/24",
+			"label": "10.150.22.1 - 10.150.22.0/24",
+			"properties": {
+				"router_id": "id_10.150.22.1",
+				"router_addr": "10.150.22.1",
+				"type": "attached"
+			}
+		},
+		{
+			"id": "id_10.150.25.1",
+			"label": "10.150.25.1",
+			"properties": {
+				"router_id": "id_10.150.25.1",
+				"router_addr": "10.150.25.1",
+				"type": "node"
+			}
+		},
+		{
+			"id": "id_10.150.25.1_10.150.25.0/24",
+			"label": "10.150.25.1 - 10.150.25.0/24",
+			"properties": {
+				"router_id": "id_10.150.25.1",
+				"router_addr": "10.150.25.1",
+				"type": "attached"
+			}
+		},
+		{
+			"id": "id_10.150.32.1",
+			"label": "10.150.32.1",
+			"properties": {
+				"router_id": "id_10.150.32.1",
+				"router_addr": "10.150.32.1",
+				"type": "node"
+			}
+		},
+		{
+			"id": "id_10.150.32.1_10.150.32.0/24",
+			"label": "10.150.32.1 - 10.150.32.0/24",
+			"properties": {
+				"router_id": "id_10.150.32.1",
+				"router_addr": "10.150.32.1",
+				"type": "attached"
+			}
+		},
+		{
+			"id": "id_10.150.253.1",
+			"label": "10.150.253.1",
+			"properties": {
+				"router_id": "id_10.150.253.1",
+				"router_addr": "10.150.253.1",
+				"dualstack_id": "id_2001:470:b7be:711e:12af:83a6:cfd8:e151",
+				"dualstack_addr": "2001:470:b7be:711e:12af:83a6:cfd8:e151",
+				"type": "node"
+			}
+		},
+		{
+			"id": "id_10.150.253.1_10.150.253.0/24",
+			"label": "10.150.253.1 - 10.150.253.0/24",
+			"properties": {
+				"router_id": "id_10.150.253.1",
+				"router_addr": "10.150.253.1",
+				"type": "attached"
+			}
+		},
+		{
+			"id": "id_172.19.143.0",
+			"label": "172.19.143.0",
+			"properties": {
+				"router_id": "id_172.19.143.0",
+				"router_addr": "172.19.143.0",
+				"dualstack_id": "id_fe80::e695:6eff:fe40:8dce",
+				"dualstack_addr": "fe80::e695:6eff:fe40:8dce",
+				"type": "node"
+			}
+		},
+		{
+			"id": "id_172.19.143.0_10.150.1.0/24",
+			"label": "172.19.143.0 - 10.150.1.0/24",
+			"properties": {
+				"router_id": "id_172.19.143.0",
+				"router_addr": "172.19.143.0",
+				"type": "attached"
+			}
+		}
+	],
+	"links": [
+		{
+			"source": "id_172.19.186.1",
+			"target": "id_10.150.9.1",
+			"cost": 2211584,
+			"cost_text": "971bit/s",
+			"properties": {
+				"in_cost": 2105088,
+				"in_text": "1020bit/s",
+				"outgoing_tree": "true",
+				"source_addr": "172.19.186.1",
+				"target_addr": "10.150.9.1",
+				"type": "local",
+				"links": [
+					{
+						"interface": "eth1.3",
+						"source_addr": "172.19.186.1",
+						"target_addr": "172.19.64.2",
+						"cost": 2211584,
+						"cost_text": "971bit/s",
+						"in_cost": 2105088,
+						"in_text": "1020bit/s",
+						"outgoing_tree": "true"
+					}
+				]
+			}
+		},
+		{
+			"source": "id_10.150.9.1",
+			"target": "id_172.19.186.1",
+			"cost": 2105088,
+			"cost_text": "1020bit/s",
+			"properties": {
+				"in_cost": 2211584,
+				"in_text": "971bit/s",
+				"outgoing_tree": "false",
+				"source_addr": "10.150.9.1",
+				"target_addr": "172.19.186.1",
+				"type": "node"
+			}
+		},
+		{
+			"source": "id_172.19.186.1",
+			"target": "id_10.150.253.1",
+			"cost": 2105088,
+			"cost_text": "1020bit/s",
+			"properties": {
+				"in_cost": 2105088,
+				"in_text": "1020bit/s",
+				"outgoing_tree": "true",
+				"source_addr": "172.19.186.1",
+				"target_addr": "10.150.253.1",
+				"type": "local",
+				"links": [
+					{
+						"interface": "ninux",
+						"source_addr": "10.150.0.6",
+						"target_addr": "169.254.229.32",
+						"cost": 2105088,
+						"cost_text": "1020bit/s",
+						"in_cost": 2105088,
+						"in_text": "1020bit/s",
+						"outgoing_tree": "true"
+					}
+				]
+			}
+		},
+		{
+			"source": "id_10.150.253.1",
+			"target": "id_172.19.186.1",
+			"cost": 2105088,
+			"cost_text": "1020bit/s",
+			"properties": {
+				"in_cost": 2105088,
+				"in_text": "1020bit/s",
+				"outgoing_tree": "false",
+				"source_addr": "10.150.253.1",
+				"target_addr": "172.19.186.1",
+				"type": "node"
+			}
+		},
+		{
+			"source": "id_172.19.186.1",
+			"target": "id_172.19.143.0",
+			"cost": 2105088,
+			"cost_text": "1020bit/s",
+			"properties": {
+				"in_cost": 2203392,
+				"in_text": "974bit/s",
+				"outgoing_tree": "true",
+				"source_addr": "172.19.186.1",
+				"target_addr": "172.19.143.0",
+				"type": "local",
+				"links": [
+					{
+						"interface": "ninux",
+						"source_addr": "10.150.0.6",
+						"target_addr": "10.150.0.3",
+						"cost": 2105088,
+						"cost_text": "1020bit/s",
+						"in_cost": 2203392,
+						"in_text": "974bit/s",
+						"outgoing_tree": "true"
+					}
+				]
+			}
+		},
+		{
+			"source": "id_172.19.143.0",
+			"target": "id_172.19.186.1",
+			"cost": 2203392,
+			"cost_text": "974bit/s",
+			"properties": {
+				"in_cost": 2105088,
+				"in_text": "1020bit/s",
+				"outgoing_tree": "false",
+				"source_addr": "172.19.143.0",
+				"target_addr": "172.19.186.1",
+				"type": "node"
+			}
+		},
+		{
+			"source": "id_172.19.186.1",
+			"target": "id_172.19.186.1_0.0.0.0/0",
+			"cost": 1,
+			"cost_text": "2Gbit/s",
+			"properties": {
+				"outgoing_tree": "true",
+				"source_addr": "172.19.186.1",
+				"target_addr": "0.0.0.0/0",
+				"hopcount": 2,
+				"type": "lan"
+			}
+		},
+		{
+			"source": "id_172.19.186.1",
+			"target": "id_172.19.186.1_10.150.13.0/24",
+			"cost": 1,
+			"cost_text": "2Gbit/s",
+			"properties": {
+				"outgoing_tree": "true",
+				"source_addr": "172.19.186.1",
+				"target_addr": "10.150.13.0/24",
+				"hopcount": 1,
+				"type": "lan"
+			}
+		},
+		{
+			"source": "id_172.19.186.1",
+			"target": "id_172.19.186.1_10.150.13.0/24",
+			"cost": 1,
+			"cost_text": "2Gbit/s",
+			"properties": {
+				"outgoing_tree": "true",
+				"source_addr": "172.19.186.1",
+				"target_addr": "10.150.13.0/24",
+				"hopcount": 2,
+				"type": "lan"
+			}
+		},
+		{
+			"source": "id_172.19.186.1",
+			"target": "id_172.19.186.1_10.150.14.0/24",
+			"cost": 1,
+			"cost_text": "2Gbit/s",
+			"properties": {
+				"outgoing_tree": "true",
+				"source_addr": "172.19.186.1",
+				"target_addr": "10.150.14.0/24",
+				"hopcount": 2,
+				"type": "lan"
+			}
+		},
+		{
+			"source": "id_10.150.9.1",
+			"target": "id_10.150.19.254",
+			"cost": 3940096,
+			"cost_text": "545bit/s",
+			"properties": {
+				"in_cost": 16776960,
+				"in_text": "128bit/s",
+				"outgoing_tree": "false",
+				"source_addr": "10.150.9.1",
+				"target_addr": "10.150.19.254",
+				"type": "node"
+			}
+		},
+		{
+			"source": "id_10.150.9.1",
+			"target": "id_10.150.22.1",
+			"cost": 2244352,
+			"cost_text": "956bit/s",
+			"properties": {
+				"in_cost": 2227968,
+				"in_text": "963bit/s",
+				"outgoing_tree": "true",
+				"source_addr": "10.150.9.1",
+				"target_addr": "10.150.22.1",
+				"type": "node"
+			}
+		},
+		{
+			"source": "id_10.150.9.1",
+			"target": "id_10.150.25.1",
+			"cost": 5603072,
+			"cost_text": "383bit/s",
+			"properties": {
+				"in_cost": 2154240,
+				"in_text": "996bit/s",
+				"outgoing_tree": "true",
+				"source_addr": "10.150.9.1",
+				"target_addr": "10.150.25.1",
+				"type": "node"
+			}
+		},
+		{
+			"source": "id_10.150.9.1",
+			"target": "id_10.150.32.1",
+			"cost": 2236160,
+			"cost_text": "960bit/s",
+			"properties": {
+				"in_cost": 2227968,
+				"in_text": "963bit/s",
+				"outgoing_tree": "false",
+				"source_addr": "10.150.9.1",
+				"target_addr": "10.150.32.1",
+				"type": "node"
+			}
+		},
+		{
+			"source": "id_10.150.19.254",
+			"target": "id_10.150.9.1",
+			"cost": 16776960,
+			"cost_text": "128bit/s",
+			"properties": {
+				"in_cost": 3940096,
+				"in_text": "545bit/s",
+				"outgoing_tree": "false",
+				"source_addr": "10.150.19.254",
+				"target_addr": "10.150.9.1",
+				"type": "node"
+			}
+		},
+		{
+			"source": "id_10.150.19.254",
+			"target": "id_172.19.143.0",
+			"cost": 2105088,
+			"cost_text": "1020bit/s",
+			"properties": {
+				"in_cost": 2105088,
+				"in_text": "1020bit/s",
+				"outgoing_tree": "false",
+				"source_addr": "10.150.19.254",
+				"target_addr": "172.19.143.0",
+				"type": "node"
+			}
+		},
+		{
+			"source": "id_10.150.22.1",
+			"target": "id_10.150.9.1",
+			"cost": 2227968,
+			"cost_text": "963bit/s",
+			"properties": {
+				"in_cost": 2244352,
+				"in_text": "956bit/s",
+				"outgoing_tree": "false",
+				"source_addr": "10.150.22.1",
+				"target_addr": "10.150.9.1",
+				"type": "node"
+			}
+		},
+		{
+			"source": "id_10.150.22.1",
+			"target": "id_10.150.32.1",
+			"cost": 2105088,
+			"cost_text": "1020bit/s",
+			"properties": {
+				"in_cost": 2105088,
+				"in_text": "1020bit/s",
+				"outgoing_tree": "true",
+				"source_addr": "10.150.22.1",
+				"target_addr": "10.150.32.1",
+				"type": "node"
+			}
+		},
+		{
+			"source": "id_10.150.25.1",
+			"target": "id_10.150.9.1",
+			"cost": 2154240,
+			"cost_text": "996bit/s",
+			"properties": {
+				"in_cost": 5603072,
+				"in_text": "383bit/s",
+				"outgoing_tree": "false",
+				"source_addr": "10.150.25.1",
+				"target_addr": "10.150.9.1",
+				"type": "node"
+			}
+		},
+		{
+			"source": "id_10.150.32.1",
+			"target": "id_10.150.9.1",
+			"cost": 2227968,
+			"cost_text": "963bit/s",
+			"properties": {
+				"in_cost": 2236160,
+				"in_text": "960bit/s",
+				"outgoing_tree": "false",
+				"source_addr": "10.150.32.1",
+				"target_addr": "10.150.9.1",
+				"type": "node"
+			}
+		},
+		{
+			"source": "id_10.150.32.1",
+			"target": "id_10.150.22.1",
+			"cost": 2105088,
+			"cost_text": "1020bit/s",
+			"properties": {
+				"in_cost": 2105088,
+				"in_text": "1020bit/s",
+				"outgoing_tree": "false",
+				"source_addr": "10.150.32.1",
+				"target_addr": "10.150.22.1",
+				"type": "node"
+			}
+		},
+		{
+			"source": "id_10.150.253.1",
+			"target": "id_172.19.143.0",
+			"cost": 2219776,
+			"cost_text": "967bit/s",
+			"properties": {
+				"in_cost": 2309888,
+				"in_text": "929bit/s",
+				"outgoing_tree": "false",
+				"source_addr": "10.150.253.1",
+				"target_addr": "172.19.143.0",
+				"type": "node"
+			}
+		},
+		{
+			"source": "id_172.19.143.0",
+			"target": "id_10.150.19.254",
+			"cost": 2105088,
+			"cost_text": "1020bit/s",
+			"properties": {
+				"in_cost": 2105088,
+				"in_text": "1020bit/s",
+				"outgoing_tree": "true",
+				"source_addr": "172.19.143.0",
+				"target_addr": "10.150.19.254",
+				"type": "node"
+			}
+		},
+		{
+			"source": "id_172.19.143.0",
+			"target": "id_10.150.253.1",
+			"cost": 2309888,
+			"cost_text": "929bit/s",
+			"properties": {
+				"in_cost": 2219776,
+				"in_text": "967bit/s",
+				"outgoing_tree": "false",
+				"source_addr": "172.19.143.0",
+				"target_addr": "10.150.253.1",
+				"type": "node"
+			}
+		},
+		{
+			"source": "id_10.150.9.1",
+			"target": "id_10.150.9.1_10.150.9.0/24",
+			"cost": 1,
+			"cost_text": "2Gbit/s",
+			"properties": {
+				"outgoing_tree": "true",
+				"source_addr": "10.150.9.1",
+				"target_addr": "10.150.9.0/24",
+				"hopcount": 2,
+				"type": "attached"
+			}
+		},
+		{
+			"source": "id_10.150.19.254",
+			"target": "id_10.150.19.254_10.150.19.0/24",
+			"cost": 1,
+			"cost_text": "2Gbit/s",
+			"properties": {
+				"outgoing_tree": "true",
+				"source_addr": "10.150.19.254",
+				"target_addr": "10.150.19.0/24",
+				"hopcount": 2,
+				"type": "attached"
+			}
+		},
+		{
+			"source": "id_10.150.22.1",
+			"target": "id_10.150.22.1_10.150.22.0/24",
+			"cost": 1,
+			"cost_text": "2Gbit/s",
+			"properties": {
+				"outgoing_tree": "true",
+				"source_addr": "10.150.22.1",
+				"target_addr": "10.150.22.0/24",
+				"hopcount": 2,
+				"type": "attached"
+			}
+		},
+		{
+			"source": "id_10.150.25.1",
+			"target": "id_10.150.25.1_10.150.25.0/24",
+			"cost": 1,
+			"cost_text": "2Gbit/s",
+			"properties": {
+				"outgoing_tree": "true",
+				"source_addr": "10.150.25.1",
+				"target_addr": "10.150.25.0/24",
+				"hopcount": 2,
+				"type": "attached"
+			}
+		},
+		{
+			"source": "id_10.150.32.1",
+			"target": "id_10.150.32.1_10.150.32.0/24",
+			"cost": 1,
+			"cost_text": "2Gbit/s",
+			"properties": {
+				"outgoing_tree": "true",
+				"source_addr": "10.150.32.1",
+				"target_addr": "10.150.32.0/24",
+				"hopcount": 2,
+				"type": "attached"
+			}
+		},
+		{
+			"source": "id_10.150.253.1",
+			"target": "id_10.150.253.1_10.150.253.0/24",
+			"cost": 1,
+			"cost_text": "2Gbit/s",
+			"properties": {
+				"outgoing_tree": "true",
+				"source_addr": "10.150.253.1",
+				"target_addr": "10.150.253.0/24",
+				"hopcount": 2,
+				"type": "attached"
+			}
+		},
+		{
+			"source": "id_172.19.143.0",
+			"target": "id_172.19.143.0_10.150.1.0/24",
+			"cost": 1,
+			"cost_text": "2Gbit/s",
+			"properties": {
+				"outgoing_tree": "true",
+				"source_addr": "172.19.143.0",
+				"target_addr": "10.150.1.0/24",
+				"hopcount": 2,
+				"type": "attached"
+			}
+		}
+	]
+}

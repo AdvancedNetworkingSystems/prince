@@ -11,7 +11,6 @@ int _create_socket(char *hostname, int port, int ignore)
 	struct sockaddr_in temp;
 	struct hostent *host;
 	int sock;
-	int rc;
 	unsigned int timeout = DEFAULT_TIMEOUT;
 
 	temp.sin_family = AF_INET;
@@ -28,7 +27,7 @@ int _create_socket(char *hostname, int port, int ignore)
 		exit(EXIT_FAILURE);
 	}
 	while (connect(sock, (struct sockaddr *)&temp, sizeof(temp))) {
-		if (errno == errno & ignore) {
+		if ((errno == errno) & ignore) {
 			break;
 		}
 		perror("connect");

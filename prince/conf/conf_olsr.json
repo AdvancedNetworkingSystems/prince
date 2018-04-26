@@ -1,0 +1,16 @@
+{
+	"proto": {
+		"protocol": "olsr",
+		"host": "127.0.0.1",
+		"port": 9090 ,
+		"refresh": 10,
+    "timer_port": 2008
+	},
+	"graph-parser": {
+		"heuristic": 1,
+		"weights": 1,
+		"recursive": 0,
+		"stop_unchanged": 0,
+		"multithreaded": 0
+	}
+}

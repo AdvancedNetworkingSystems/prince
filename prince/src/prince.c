@@ -33,8 +33,7 @@ int main(int argc, char *argv[])
 	if (ph->log_file) {
 		log = fopen(ph->log_file, "a+");
 		if (log == NULL) {
-			printf("Could not open log file <%s>; Continuing without\n",
-			       ph->log_file);
+			printf("Could not open log file <%s>; Continuing without\n", ph->log_file);
 			free(ph->log_file);
 			ph->log_file = NULL;
 		} else {
@@ -76,8 +75,7 @@ int main(int argc, char *argv[])
 		clock_t start = clock();
 		graph_parser_calculate_bc(ph->gp);
 		clock_t end = clock();
-		ph->bc_degree_map =
-			(map_id_degree_bc *)malloc(sizeof(map_id_degree_bc));
+		ph->bc_degree_map = (map_id_degree_bc *)malloc(sizeof(map_id_degree_bc));
 		if (ph->bc_degree_map == NULL) {
 			perror("prince");
 			exit(EXIT_FAILURE);
@@ -92,9 +90,8 @@ int main(int argc, char *argv[])
 			log = fopen(ph->log_file, "a+");
 			struct timeval tv;
 			gettimeofday(&tv, NULL);
-			fprintf(log, "%i\t%4.4f\t%4.4f\t%4.4f\t%4.4f\n",
-				tv.tv_sec, ph->opt_t.tc_timer,
-				ph->opt_t.h_timer, ph->opt_t.exec_time,
+			fprintf(log, "%li\t%4.4f\t%4.4f\t%4.4f\t%4.4f\n", tv.tv_sec,
+				ph->opt_t.tc_timer, ph->opt_t.h_timer, ph->opt_t.exec_time,
 				ph->opt_t.centrality);
 			fclose(log);
 		}
@@ -149,8 +146,7 @@ int compute_constants(prince_handler_t ph)
 	ph->c.O_TC = m_degree_bc->size * ph->c.R / t.tc_timer;
 	double sqrt_sum1 = 0, sqrt_sum2 = 0;
 	for (i = 0; i < m_degree_bc->size; i++) {
-		sqrt_sum1 += sqrt(m_degree_bc->map[i].degree
-				  * m_degree_bc->map[i].bc);
+		sqrt_sum1 += sqrt(m_degree_bc->map[i].degree * m_degree_bc->map[i].bc);
 		sqrt_sum2 += sqrt(ph->c.R * m_degree_bc->map[i].bc);
 	}
 	ph->c.sq_lambda_H = sqrt_sum1 / ph->c.O_H;
@@ -180,11 +176,11 @@ int compute_timers(prince_handler_t ph)
 	if (my_index == -1) {
 		return -1;
 	}
-	ph->opt_t.h_timer = sqrt(ph->bc_degree_map->map[my_index].degree
-				 / ph->bc_degree_map->map[my_index].bc)
-			    * ph->c.sq_lambda_H;
-	ph->opt_t.tc_timer = sqrt(ph->c.R / ph->bc_degree_map->map[my_index].bc)
-			     * ph->c.sq_lambda_TC;
+	ph->opt_t.h_timer =
+		sqrt(ph->bc_degree_map->map[my_index].degree / ph->bc_degree_map->map[my_index].bc)
+		* ph->c.sq_lambda_H;
+	ph->opt_t.tc_timer =
+		sqrt(ph->c.R / ph->bc_degree_map->map[my_index].bc) * ph->c.sq_lambda_TC;
 	return 0;
 }
 

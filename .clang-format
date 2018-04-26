@@ -18,3 +18,4 @@ BreakBeforeBinaryOperators: NonAssignment
 BreakStringLiterals: false
 SortIncludes:    false
 ContinuationIndentWidth: 8
+ColumnLimit: 100
