@@ -11,6 +11,7 @@ int load_proto_config(const char *filepath, proto_config_t conf)
 	if (temp == INVALID_PRINCE_HANDLER) {
 		return -1;
 	}
+	conf->host = temp->host;
 	conf->json_type = temp->json_type;
 	conf->port = temp->port;
 	conf->proto = temp->proto;

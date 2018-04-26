@@ -64,7 +64,7 @@ int read_config_file(prince_handler_t ph, const char *filepath)
 *       "protocol":"oonf",
 *       "host":"127.0.0.1",
 *       "port":2009,
-*                "timer_port": 1234,
+*       "timer_port": 1234,
 *       "refresh":1
 *    },
 *    "graph-parser":{

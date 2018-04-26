@@ -12,6 +12,7 @@ typedef struct proto_config *proto_config_t;
 
 struct proto_config {
 	char *proto;
+	char *host;
 	int json_type;
 	int port;
 	int refresh;
