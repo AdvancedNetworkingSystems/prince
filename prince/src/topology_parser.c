@@ -40,12 +40,9 @@ topology_t parse_jsoninfo(char *buffer)
 		if (strcmp(key, "config") == 0) {
 			json_object *config;
 			json_object_object_get_ex(topo, key, &config);
-			json_object_object_foreach(
-				config, key,
-				val) if (strcmp(key, "mainIp") == 0)
+			json_object_object_foreach(config, key, val) if (strcmp(key, "mainIp") == 0)
 			{
-				result->self_id =
-					strdup(json_object_get_string(val));
+				result->self_id = strdup(json_object_get_string(val));
 			}
 		} else if (strcmp(key, "topology") == 0) {
 			int i;
@@ -59,41 +56,27 @@ topology_t parse_jsoninfo(char *buffer)
 				const char *source = 0, *target = 0;
 				double cost = 0;
 				int validity = 0;
-				json_object *elem =
-					json_object_array_get_idx(jarray, i);
+				json_object *elem = json_object_array_get_idx(jarray, i);
 				json_object_object_foreach(elem, key, val)
 				{
 					if (strcmp(key, "lastHopIP") == 0) {
-						source = json_object_get_string(
-							val);
-					} else if (strcmp(key, "destinationIP")
-						   == 0) {
-						target = json_object_get_string(
-							val);
-					} else if (strcmp(key, "tcEdgeCost")
-						   == 0) {
-						cost = json_object_get_double(
-							val);
-					} else if (strcmp(key, "validityTime")
-						   == 0) {
-						validity = json_object_get_int(
-							val);
-					} else if (source && target && cost
-						   && validity) {
-						if (!find_node(result,
-							       source)) {
-							add_node(result,
-								 source);
+						source = json_object_get_string(val);
+					} else if (strcmp(key, "destinationIP") == 0) {
+						target = json_object_get_string(val);
+					} else if (strcmp(key, "tcEdgeCost") == 0) {
+						cost = json_object_get_double(val);
+					} else if (strcmp(key, "validityTime") == 0) {
+						validity = json_object_get_int(val);
+					} else if (source && target && cost && validity) {
+						if (!find_node(result, source)) {
+							add_node(result, source);
 						}
-						if (!find_node(result,
-							       target)) {
-							add_node(result,
-								 target);
+						if (!find_node(result, target)) {
+							add_node(result, target);
 						}
 						// printf("%s\t%s\t%f\n",
 						// source, target, cost);
-						if (add_neigh(result, source,
-							      target, cost,
+						if (add_neigh(result, source, target, cost,
 							      validity)) {
 							printf("error\n");
 							return 0;
@@ -132,8 +115,7 @@ int add_local_address(node_t node, const char *address)
 {
 	struct local_address *la_temp;
 	la_temp = node->addresses;
-	node->addresses =
-		(struct local_address *)malloc(sizeof(struct local_address));
+	node->addresses = (struct local_address *)malloc(sizeof(struct local_address));
 	node->addresses->id = address;
 	node->addresses->next = la_temp;
 	return 1;
@@ -170,43 +152,30 @@ topology_t parse_netjson(char *buffer)
 			arraylen = json_object_array_length(array);
 			for (i = 0; i < arraylen; i++) {
 				const char *node_id;
-				json_object *elem =
-					json_object_array_get_idx(array, i);
+				json_object *elem = json_object_array_get_idx(array, i);
 				json_object_object_foreach(elem, key, val)
 				{
 					if (strcmp(key, "id") == 0) {
-						node_id =
-							json_object_get_string(
-								val);
+						node_id = json_object_get_string(val);
 						add_node(c_topo, node_id);
-					} else if (strcmp(key,
-							  "local_addresses")
-						   == 0) {
+					} else if (strcmp(key, "local_addresses") == 0) {
 						int j, la_len;
 						json_object *la_array;
-						json_object_object_get_ex(
-							elem, key, &la_array);
-						la_len =
-							json_object_array_length(
-								la_array);
+						json_object_object_get_ex(elem, key, &la_array);
+						la_len = json_object_array_length(la_array);
 						for (j = 0; j < la_len; j++) {
 							json_object *la_elem =
-								json_object_array_get_idx(
-									la_array,
-									j);
-							node_t node = find_node(
-								c_topo,
-								node_id);
-							if (node
-							    == INVALID_NODE) {
+								json_object_array_get_idx(la_array,
+											  j);
+							node_t node = find_node(c_topo, node_id);
+							if (node == INVALID_NODE) {
 								fprintf(stderr,
 									"Could not find node %s\n",
 									node_id);
 							}
 							add_local_address(
 								node,
-								json_object_get_string(
-									la_elem));
+								json_object_get_string(la_elem));
 						}
 					}
 				}
@@ -222,28 +191,21 @@ topology_t parse_netjson(char *buffer)
 			for (i = 0; i < arraylen; i++) {
 				const char *source = NULL, *target = NULL;
 				double cost = 0;
-				json_object *elem =
-					json_object_array_get_idx(jarray, i);
+				json_object *elem = json_object_array_get_idx(jarray, i);
 				json_object_object_foreach(elem, key, val)
 				{
 					if (strcmp(key, "source") == 0) {
-						source = json_object_get_string(
-							val);
+						source = json_object_get_string(val);
 					}
 					if (strcmp(key, "target") == 0) {
-						target = json_object_get_string(
-							val);
+						target = json_object_get_string(val);
 					}
 					if (strcmp(key, "cost") == 0) {
-						cost = json_object_get_double(
-							val);
+						cost = json_object_get_double(val);
 					}
 					if (source && target && cost) {
-						if (add_neigh(c_topo, source,
-							      target, cost,
-							      0)) {
-							fprintf(stderr,
-								"error\n");
+						if (add_neigh(c_topo, source, target, cost, 0)) {
+							fprintf(stderr, "error\n");
 							return 0;
 						}
 

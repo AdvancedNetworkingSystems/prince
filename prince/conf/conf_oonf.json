@@ -2,9 +2,9 @@
 	"proto": {
 		"protocol": "oonf",
 		"host": "127.0.0.1",
-		"port": 8081 ,
-		"refresh": 1,
-                "timer_port": 2009
+		"port": 2009 ,
+		"refresh": 10,
+		"timer_port": 2009
 	},
 	"graph-parser": {
 		"heuristic": 1,

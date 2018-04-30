@@ -1,0 +1,295 @@
+{
+  "type": "NetworkGraph",
+  "protocol": "olsrv2",
+  "version": "poprouting custom",
+  "revision": "0.11.3",
+  "metric": "ff_dat_metric",
+  "router_id": "h9_9",
+  "nodes": [
+    {
+      "id": "h4_4"
+    },
+    {
+      "id": "h28_28"
+    },
+    {
+      "id": "h24_24"
+    },
+    {
+      "id": "h25_25"
+    },
+    {
+      "id": "h3_3"
+    },
+    {
+      "id": "h33_33"
+    },
+    {
+      "id": "h30_30"
+    },
+    {
+      "id": "h5_5"
+    },
+    {
+      "id": "h29_29"
+    },
+    {
+      "id": "h0_0"
+    },
+    {
+      "id": "h23_23"
+    },
+    {
+      "id": "h7_7"
+    },
+    {
+      "id": "h14_14"
+    },
+    {
+      "id": "h6_6"
+    },
+    {
+      "id": "h2_2"
+    },
+    {
+      "id": "h1_1"
+    },
+    {
+      "id": "h21_21"
+    },
+    {
+      "id": "h11_11"
+    },
+    {
+      "id": "h34_34"
+    },
+    {
+      "id": "h18_18"
+    },
+    {
+      "id": "h32_32"
+    },
+    {
+      "id": "h31_31"
+    },
+    {
+      "id": "h20_20"
+    },
+    {
+      "id": "h15_15"
+    },
+    {
+      "id": "h16_16"
+    },
+    {
+      "id": "h22_22"
+    },
+    {
+      "id": "h8_8"
+    },
+    {
+      "id": "h12_12"
+    },
+    {
+      "id": "h26_26"
+    },
+    {
+      "id": "h17_17"
+    },
+    {
+      "id": "h9_9"
+    },
+    {
+      "id": "h27_27"
+    },
+    {
+      "id": "h19_19"
+    },
+    {
+      "id": "h10_10"
+    },
+    {
+      "id": "h13_13"
+    },
+    {
+      "id": "h35_35"
+    }
+  ],
+  "links": [
+    {
+      "source": "h4_4",
+      "cost": 1,
+      "target": "h5_5"
+    },
+    {
+      "source": "h4_4",
+      "cost": 1,
+      "target": "h3_3"
+    },
+    {
+      "source": "h28_28",
+      "cost": 1,
+      "target": "h29_29"
+    },
+    {
+      "source": "h28_28",
+      "cost": 1,
+      "target": "h27_27"
+    },
+    {
+      "source": "h24_24",
+      "cost": 1,
+      "target": "h25_25"
+    },
+    {
+      "source": "h24_24",
+      "cost": 1,
+      "target": "h23_23"
+    },
+    {
+      "source": "h25_25",
+      "cost": 1,
+      "target": "h26_26"
+    },
+    {
+      "source": "h3_3",
+      "cost": 1,
+      "target": "h2_2"
+    },
+    {
+      "source": "h33_33",
+      "cost": 1,
+      "target": "h34_34"
+    },
+    {
+      "source": "h33_33",
+      "cost": 1,
+      "target": "h32_32"
+    },
+    {
+      "source": "h30_30",
+      "cost": 1,
+      "target": "h29_29"
+    },
+    {
+      "source": "h30_30",
+      "cost": 1,
+      "target": "h31_31"
+    },
+    {
+      "source": "h5_5",
+      "cost": 1,
+      "target": "h6_6"
+    },
+    {
+      "source": "h0_0",
+      "cost": 1,
+      "target": "h1_1"
+    },
+    {
+      "source": "h23_23",
+      "cost": 1,
+      "target": "h22_22"
+    },
+    {
+      "source": "h7_7",
+      "cost": 1,
+      "target": "h8_8"
+    },
+    {
+      "source": "h7_7",
+      "cost": 1,
+      "target": "h6_6"
+    },
+    {
+      "source": "h14_14",
+      "cost": 1,
+      "target": "h13_13"
+    },
+    {
+      "source": "h14_14",
+      "cost": 1,
+      "target": "h15_15"
+    },
+    {
+      "source": "h2_2",
+      "cost": 1,
+      "target": "h1_1"
+    },
+    {
+      "source": "h21_21",
+      "cost": 1,
+      "target": "h20_20"
+    },
+    {
+      "source": "h21_21",
+      "cost": 1,
+      "target": "h22_22"
+    },
+    {
+      "source": "h11_11",
+      "cost": 1,
+      "target": "h12_12"
+    },
+    {
+      "source": "h11_11",
+      "cost": 1,
+      "target": "h10_10"
+    },
+    {
+      "source": "h34_34",
+      "cost": 1,
+      "target": "h35_35"
+    },
+    {
+      "source": "h18_18",
+      "cost": 1,
+      "target": "h17_17"
+    },
+    {
+      "source": "h18_18",
+      "cost": 1,
+      "target": "h19_19"
+    },
+    {
+      "source": "h32_32",
+      "cost": 1,
+      "target": "h31_31"
+    },
+    {
+      "source": "h20_20",
+      "cost": 1,
+      "target": "h19_19"
+    },
+    {
+      "source": "h15_15",
+      "cost": 1,
+      "target": "h16_16"
+    },
+    {
+      "source": "h16_16",
+      "cost": 1,
+      "target": "h17_17"
+    },
+    {
+      "source": "h8_8",
+      "cost": 1,
+      "target": "h9_9"
+    },
+    {
+      "source": "h12_12",
+      "cost": 1,
+      "target": "h13_13"
+    },
+    {
+      "source": "h26_26",
+      "cost": 1,
+      "target": "h27_27"
+    },
+    {
+      "source": "h9_9",
+      "cost": 1,
+      "target": "h10_10"
+    }
+  ]
+}
