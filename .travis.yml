@@ -1,0 +1,16 @@
+language: c
+
+compiler:
+  - gcc
+  - clang
+
+before_script:
+  - mkdir build
+  - cd build
+  - cmake ..
+
+script: make
+
+before_install:
+  - sudo apt-get -qq update
+  - sudo apt-get install -y libjson-c-dev libcunit1-dev

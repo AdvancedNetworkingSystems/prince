@@ -1,5 +1,7 @@
 # What is Prince:
 
+[![Build Status](https://travis-ci.org/AdvancedNetworkingSystems/prince.svg?branch=master)](https://travis-ci.org/AdvancedNetworkingSystems/prince)
+
 Prince is an open source implementation of the PopRouting Algorithm.
 It has been developed as a Google Summer of Code
 [Project](https://summerofcode.withgoogle.com/archive/2016/projects/5374689325088768/)
