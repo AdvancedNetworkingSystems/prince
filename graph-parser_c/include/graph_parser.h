@@ -30,13 +30,14 @@ typedef void c_graph_parser;
 struct graph_parser {
 	struct graph g;
 	bool heuristic_b;
+	bool cutpoint_pen;
 	double *bc;
 };
 
 
 c_graph_parser *new_graph_parser(int weight, int heuristic);
 void free_graph_parser(c_graph_parser *v);
-
+int set_cutpoint_pen(c_graph_parser *v, int cutpoint_pen);
 void graph_parser_parse_simplegraph(c_graph_parser *v, topology_t topo);
 void graph_parser_calculate_bc(c_graph_parser *v);
 int graph_parser_compose_degree_bc_map(c_graph_parser *v,

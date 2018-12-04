@@ -9,6 +9,7 @@ bool recursive = true;
  * @param weight This boolean parameter is used only for backward compatibility.
  * In the current version, graphs are all considered weighted
  * @param heuristic This boolean parameter tells whether to use heuristic.
+ * @param cutpoint_pen This boolean parameter tells whether to penalize cutpoint or not.
  * @return a struct of type c_graph_parser that is capable of computing
  * Brandes Betweenness centrality
  */
@@ -23,10 +24,20 @@ c_graph_parser *new_graph_parser(int weight, int heuristic)
 
 	gp->heuristic_b = heuristic == 1;
 	gp->bc = 0;
-
+	//The cut point penalization can be used only with the heuristic
+	gp->cutpoint_pen = 0;
 	init_graph(&(gp->g));
 
 	return (c_graph_parser *)gp;
+}
+
+int set_cutpoint_pen(c_graph_parser *v, int cutpoint_pen){
+	struct graph_parser *gp = (struct graph_parser *)malloc(sizeof(struct graph_parser));
+	if(gp->heuristic_b == 0){
+		return 0;
+	}
+	gp->cutpoint_pen = cutpoint_pen;
+	return 1;
 }
 
 /**
@@ -64,10 +75,8 @@ void graph_parser_parse_simplegraph(c_graph_parser *v, struct topology *topo)
 void graph_parser_calculate_bc(c_graph_parser *v)
 {
 	struct graph_parser *gp = (struct graph_parser *)v;
-	// empirical results show that in smaller graphs the
-	// original algorithm is faster
-	if (gp->heuristic_b && (gp->g.nodes.size > 80)) {
-		gp->bc = (double *)betwenness_heuristic(&(gp->g), recursive);
+	if (gp->heuristic_b) {
+		gp->bc = (double *)betwenness_heuristic(&(gp->g), recursive, gp->cutpoint_pen);
 	} else {
 		gp->bc = betweeness_brandes(&(gp->g), true, 0, true);
 	}

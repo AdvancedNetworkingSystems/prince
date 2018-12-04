@@ -761,14 +761,13 @@ void compute_heuristic_wo_scale(struct graph *g,
 				struct list *connected_components,
 				bool *is_articulation_point, double *bc,
 				int *connected_component_index, int cc_node_num,
-				int cc_index)
+				int cc_index, bool cutpoint_pen)
 {
 	int node_num = g->nodes.size;
 	int i;
 
 	node_num = cc_node_num;
-	struct list *tree_edges = connected_components_to_tree(
-		g, connected_components, is_articulation_point);
+	struct list *tree_edges = connected_components_to_tree(g, connected_components, is_articulation_point);
 
 
 	compute_component_tree_weights(g, tree_edges, node_num);
@@ -777,44 +776,30 @@ void compute_heuristic_wo_scale(struct graph *g,
 	struct node_list *graph_iterator;
 
 
-	for (graph_iterator = g->nodes.head; graph_iterator != 0;
-	     graph_iterator = graph_iterator->next) {
-		struct node_graph *n =
-			(struct node_graph *)graph_iterator->content;
-
-
+	for (graph_iterator = g->nodes.head; graph_iterator != 0; graph_iterator = graph_iterator->next) {
+		struct node_graph *n =(struct node_graph *)graph_iterator->content;
 		if (connected_component_index[i] == cc_index) {
 			if (is_articulation_point[i]) {
 				struct node_list *tree_edge_iterator;
-
-
 				double weight_sum = 0; // -1;
-
-				for (tree_edge_iterator = tree_edges->head;
-				     tree_edge_iterator != 0;
-				     tree_edge_iterator =
-					     tree_edge_iterator->next) {
-					struct cc_node_edge *cne =
-						(struct cc_node_edge *)
-							tree_edge_iterator
-								->content;
-
-
+				for (tree_edge_iterator = tree_edges->head; tree_edge_iterator != 0; tree_edge_iterator = tree_edge_iterator->next) {
+					struct cc_node_edge *cne = (struct cc_node_edge *)tree_edge_iterator->content;
 					if (cne->to == n) {
 						// give that DBV)+1+DBV(=|V|,
 						// BC^inter = (|V|-1+DBV( )*DBV(
 						// weight_sum+=tree_weights[cne->index]*(node_num-1-tree_weights[cne->index]);
 						// weight_sum+=(*cne->weight)*(node_num-1-(*cne->weight));
-						weight_sum +=
-							(*cne->weight)
-							* (node_num - 1
-							   - (*cne->weight));
+						weight_sum += (*cne->weight) * (node_num - 1 - (*cne->weight));
 					}
 				}
-				bc[i] -= weight_sum;
+				if(cutpoint_pen==0){
+					bc[i] -= weight_sum;
+				}else{
+					//Cutpoint penalization formula see "Valentino Armani's  BS Thesis"
+					bc[i] -= 2*weight_sum;
+				}
 			}
 		}
-
 		i++;
 	}
 
@@ -938,17 +923,14 @@ void compute_heuristic_wo_scale(struct graph *g,
 
 struct multithread_subgraph_struct {
 	struct graph *g;
-
-
 	struct list *ccs;
-
-
 	bool *art_point;
 	double *bc;
 	int *indexes;
 	int *size;
 	int cc_index;
 	pthread_t t;
+	bool cutpoint_pen;
 };
 
 
@@ -964,13 +946,12 @@ struct multithread_subgraph_struct {
  */
 void *run_subgraph(void *arguments)
 {
-	struct multithread_subgraph_struct *args =
-		(struct multithread_subgraph_struct *)arguments;
+	struct multithread_subgraph_struct *args = (struct multithread_subgraph_struct *)arguments;
 
 
 	compute_heuristic_wo_scale(args->g, args->ccs, args->art_point,
 				   args->bc, args->indexes, (*args->size),
-				   args->cc_index);
+				   args->cc_index, args->cutpoint_pen);
 
 	return 0;
 }
@@ -984,7 +965,7 @@ void *run_subgraph(void *arguments)
  * @param recursive whether we want to use the recursive or iterative approach
  * @return  An array with betwenness centrality for each node
  */
-double *betwenness_heuristic(struct graph *g, bool recursive)
+double *betwenness_heuristic(struct graph *g, bool recursive, bool cutpoint_pen)
 {
 	int node_num = g->nodes.size;
 	bool *is_articulation_point = (bool *)malloc(sizeof(bool) * node_num);
@@ -1003,23 +984,15 @@ double *betwenness_heuristic(struct graph *g, bool recursive)
 
 	if (!g->directed) {
 		if (recursive) {
-			connected_components_subgraphs =
-				tarjan_rec_undir(g, is_articulation_point,
-						 connected_component_indexes);
+			connected_components_subgraphs = tarjan_rec_undir(g, is_articulation_point, connected_component_indexes);
 		} else {
-			connected_components_subgraphs =
-				tarjan_iter_undir(g, is_articulation_point,
-						  connected_component_indexes);
+			connected_components_subgraphs = tarjan_iter_undir(g, is_articulation_point, connected_component_indexes);
 		}
 	} else {
 		if (recursive) {
-			connected_components_subgraphs =
-				tarjan_rec_dir(g, is_articulation_point,
-					       connected_component_indexes);
+			connected_components_subgraphs = tarjan_rec_dir(g, is_articulation_point,  connected_component_indexes);
 		} else {
-			connected_components_subgraphs =
-				tarjan_iter_dir(g, is_articulation_point,
-						connected_component_indexes);
+			connected_components_subgraphs = tarjan_iter_dir(g, is_articulation_point, connected_component_indexes);
 		}
 	}
 
@@ -1121,20 +1094,12 @@ double *betwenness_heuristic(struct graph *g, bool recursive)
 
 	if (multithread && (cc_num > 1)) {
 		i = 0;
-		struct multithread_subgraph_struct *args =
-			(struct multithread_subgraph_struct *)malloc(
-				sizeof(struct multithread_subgraph_struct)
-				* cc_num);
+		struct multithread_subgraph_struct *args = (struct multithread_subgraph_struct *)malloc(sizeof(struct multithread_subgraph_struct)* cc_num);
 
+		struct node_list *subgraph_iterator = connected_components_subgraphs->head;
 
-		struct node_list *subgraph_iterator =
-			connected_components_subgraphs->head;
-
-
-		for (; subgraph_iterator != 0;
-		     subgraph_iterator = subgraph_iterator->next) {
-			struct sub_graph *sg =
-				(struct sub_graph *)subgraph_iterator->content;
+		for (; subgraph_iterator != 0; subgraph_iterator = subgraph_iterator->next) {
+			struct sub_graph *sg = (struct sub_graph *)subgraph_iterator->content;
 			args[i].g = g;
 			args[i].ccs = &sg->connected_components;
 			args[i].art_point = is_articulation_point;
@@ -1142,6 +1107,7 @@ double *betwenness_heuristic(struct graph *g, bool recursive)
 			args[i].indexes = connected_component_indexes;
 			args[i].size = &sg->size;
 			args[i].cc_index = i;
+			args[i].cutpoint_pen = cutpoint_pen;
 			i++;
 		}
 
@@ -1157,28 +1123,22 @@ double *betwenness_heuristic(struct graph *g, bool recursive)
 		free(args);
 
 	} else {
-		int bcc_num =
-			((struct sub_graph *)
-				 connected_components_subgraphs->head->content)
-				->connected_components.size;
-		if (cc_num > 1 || use_heu_on_single_biconnected
-		    || bcc_num > 1) {
-			struct node_list *subgraph_iterator =
-				connected_components_subgraphs->head;
-
-
-			for (; subgraph_iterator != 0;
-			     subgraph_iterator = subgraph_iterator->next) {
-				struct sub_graph *sg =
-					(struct sub_graph *)
-						subgraph_iterator->content;
-
+		int bcc_num = ((struct sub_graph *) connected_components_subgraphs->head->content)->connected_components.size;
+		if (cc_num > 1 || use_heu_on_single_biconnected || bcc_num > 1) {
+			struct node_list *subgraph_iterator = connected_components_subgraphs->head;
+			for (; subgraph_iterator != 0; subgraph_iterator = subgraph_iterator->next) {
+				struct sub_graph *sg = (struct sub_graph *) subgraph_iterator->content;
 
 				compute_heuristic_wo_scale(
-					g, &(sg->connected_components),
-					is_articulation_point, ret_val,
-					connected_component_indexes, sg->size,
-					connected_component_index++);
+																	 g, 
+																	 &(sg->connected_components),
+																	 is_articulation_point, 
+																	 ret_val,
+																	 connected_component_indexes, 
+																	 sg->size,
+																	 connected_component_index++,
+																	 cutpoint_pen
+																  );
 			}
 		} else {
 			clear_list(connected_components_subgraphs);

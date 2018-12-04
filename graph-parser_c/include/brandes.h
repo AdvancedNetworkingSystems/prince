@@ -32,7 +32,7 @@ double *betweeness_brandes(struct graph *g, bool endpoints,
  * to speed up computation.
  * http://algo.uni-konstanz.de/publications/pzedb-hsbcc-12.pdf
  */
-double *betwenness_heuristic(struct graph *g, bool recursive);
+double *betwenness_heuristic(struct graph *g, bool recursive, bool cutpoint_pen);
 
 #ifdef __cplusplus
 }
