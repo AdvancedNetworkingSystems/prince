@@ -256,6 +256,14 @@ int parse_json_config(const char *filepath, prince_handler_t ph)
 								"\"multithreaded\" value not an int\n");
 							exit(EXIT_FAILURE);
 						}
+					} else if (strcmp(key_i, "cutpoint_penalization") == 0) {
+						if (json_object_get_type(val_i) == json_type_int) {
+							ph->cutpoint_pen = json_object_get_int(val_i);
+						} else {
+							fprintf(stderr,
+								"\"cutpoint_penalization\" value not an int\n");
+							exit(EXIT_FAILURE);
+						}
 					} else {
 						fprintf(stderr, "unknowk key \"%s\"\n", key_i);
 					}

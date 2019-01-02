@@ -32,12 +32,13 @@ prince_handler_t new_prince_handler(const char *conf_file)
 	result->port = -1;
 	result->refresh = -1;
 	result->sleep_onfail = 1;
+	result->cutpoint_pen = 0; //Default to 0
 
 	if (read_config_file(result, conf_file)) {
 		return INVALID_PRINCE_HANDLER;
 	}
 
-	result->gp = new_graph_parser(result->weights, result->heuristic);
+	result->gp = new_graph_parser(result->weights, result->heuristic, result->cutpoint_pen);
 	if (result->gp == NULL) {
 		fprintf(stderr, "Could not create graph_parser\n");
 		free_prince_handler(result);

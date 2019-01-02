@@ -11,6 +11,26 @@ project(poprouting LANGUAGES C)
 
 find_package(Threads)
 
+add_executable(test_gp
+        graph-parser_c/src/test.c
+        graph-parser_c/src/biconnected.c
+        graph-parser_c/src/brandes.c
+        graph-parser_c/src/graph/graph.c
+        graph-parser_c/src/graph/list.c
+        graph-parser_c/src/graph_parser.c
+        graph-parser_c/src/network_change.c
+        prince/src/topology_parser.c
+        prince/src/topology.c
+)
+
+target_link_libraries(test_gp
+        ${CMAKE_DL_LIBS}
+        ${CMAKE_THREAD_LIBS_INIT}
+        m
+        json-c
+)
+
+
 add_executable(prince
         graph-parser_c/src/biconnected.c
         graph-parser_c/src/brandes.c

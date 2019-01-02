@@ -13,7 +13,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include "../../prince/src/parser.h"
+#include "../../prince/include/topology_parser.h"
 #include "graph_parser.h"
 
 
@@ -185,7 +185,7 @@ int main(int argc, char **argv)
 	if (argc == 3) {
 		stop_computing_if_unchanged = atoi(argv[2]) == 1;
 	}
-	c_graph_parser *cgp = new_graph_parser(1, heuristic);
+	c_graph_parser *cgp = new_graph_parser(1, heuristic, 0);
 	char *file_content = read_file_content("input.json");
 	struct topology *topo = parse_netjson(file_content);
 	free(file_content);
@@ -208,6 +208,6 @@ int main(int argc, char **argv)
 		printf("\n");
 	}
 	printf("}");
-	delete_graph_parser(cgp);
+	free_graph_parser(cgp);
 	return (EXIT_SUCCESS);
 }

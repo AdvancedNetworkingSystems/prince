@@ -21,7 +21,7 @@ struct constants {
 
 
 struct prince_handler {
-	bool heuristic, weights, recursive, stop_unchanged, multithreaded;
+	bool heuristic, weights, recursive, stop_unchanged, multithreaded, cutpoint_pen;
 	c_graph_parser *gp;
 	char *command, *proto, *log_file;
 	char *self_id, *host;

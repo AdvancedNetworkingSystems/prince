@@ -13,7 +13,7 @@ bool recursive = true;
  * @return a struct of type c_graph_parser that is capable of computing
  * Brandes Betweenness centrality
  */
-c_graph_parser *new_graph_parser(int weight, int heuristic)
+c_graph_parser *new_graph_parser(int weight, int heuristic, bool cutpoint_pen)
 {
 	struct graph_parser *gp =
 		(struct graph_parser *)malloc(sizeof(struct graph_parser));
@@ -21,11 +21,13 @@ c_graph_parser *new_graph_parser(int weight, int heuristic)
 		perror("graph-parser-new");
 		return NULL;
 	}
-
+	//The cut point penalization can be used only with the heuristic
+	if(heuristic == 1){
+		gp->cutpoint_pen = cutpoint_pen;
+	}
+	
 	gp->heuristic_b = heuristic == 1;
 	gp->bc = 0;
-	//The cut point penalization can be used only with the heuristic
-	gp->cutpoint_pen = 0;
 	init_graph(&(gp->g));
 
 	return (c_graph_parser *)gp;
@@ -76,7 +78,7 @@ void graph_parser_calculate_bc(c_graph_parser *v)
 {
 	struct graph_parser *gp = (struct graph_parser *)v;
 	if (gp->heuristic_b) {
-		gp->bc = (double *)betwenness_heuristic(&(gp->g), recursive, gp->cutpoint_pen);
+		gp->bc = (double *)betwenness_heuristic(&(gp->g), recursive, gp->cutpoint_pen, true, true);
 	} else {
 		gp->bc = betweeness_brandes(&(gp->g), true, 0, true);
 	}

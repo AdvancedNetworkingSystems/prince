@@ -810,13 +810,13 @@ void compute_heuristic_wo_scale(struct graph *g,
 	if (multithread && (bcc_num > 1)) {
 		struct list meaningful_CC;
 		init_list(&meaningful_CC);
-
+	
 		for (ccs_iterator = connected_components->head;
 		     ccs_iterator != 0; ccs_iterator = ccs_iterator->next) {
 			struct connected_component *cc =
 				(struct connected_component *)
 					ccs_iterator->content;
-
+	
 			if (cc->g.nodes.size > 2) {
 				struct heuristic_cc_args_struct *args =
 					(struct heuristic_cc_args_struct *)malloc(
@@ -833,85 +833,56 @@ void compute_heuristic_wo_scale(struct graph *g,
 				enqueue_list(&meaningful_CC, (void *)args);
 			}
 		}
-
+	
 		struct node_list *great_cc_iterator = meaningful_CC.head;
-
-		for (; great_cc_iterator != 0;
-		     great_cc_iterator = great_cc_iterator->next) {
-			struct heuristic_cc_args_struct *args =
-				(struct heuristic_cc_args_struct *)
-					great_cc_iterator->content;
-			pthread_create(&(args->t), NULL, &run_brandes_heu,
-				       (void *)(args + i));
+	
+		for (; great_cc_iterator != 0; great_cc_iterator = great_cc_iterator->next) {
+			struct heuristic_cc_args_struct *args = (struct heuristic_cc_args_struct *) great_cc_iterator->content;
+			pthread_create(&(args->t), NULL, &run_brandes_heu, (void *)(args + i));
 		}
-
-		for (ccs_iterator = connected_components->head;
-		     ccs_iterator != 0; ccs_iterator = ccs_iterator->next) {
-			struct connected_component *cc =
-				(struct connected_component *)
-					ccs_iterator->content;
+		for (ccs_iterator = connected_components->head; ccs_iterator != 0; ccs_iterator = ccs_iterator->next) {
+			struct connected_component *cc = (struct connected_component *) ccs_iterator->content;
 			if (cc->g.nodes.size <= 2) {
-				double *ret_val =
-					compute_traffic_matrix_and_centrality(
-						cc, node_num,
-						is_articulation_point);
+				double *ret_val = compute_traffic_matrix_and_centrality(cc, node_num, is_articulation_point);
 				int j;
-
 				for (j = 0; j < cc->g.nodes.size; j++) {
 					bc[cc->mapping[j]] += ret_val[j];
 				}
-
 				free(ret_val);
 			}
 		}
-
 		while (!is_empty_list(&meaningful_CC)) {
 			struct heuristic_cc_args_struct *args =
 				(struct heuristic_cc_args_struct *)pop_list(
 					&meaningful_CC);
 			pthread_join(args->t, NULL);
 			int j;
-
 			for (j = 0; j < args->cc->g.nodes.size; j++) {
 				bc[args->cc->mapping[j]] += args->ret_val[j];
 			}
-
 			free(args->ret_val);
 		}
 	} else {
-		for (ccs_iterator = connected_components->head;
-		     ccs_iterator != 0; ccs_iterator = ccs_iterator->next) {
-			struct connected_component *cc =
-				(struct connected_component *)
-					ccs_iterator->content;
-
-			double *partial = compute_traffic_matrix_and_centrality(
-				cc, node_num, is_articulation_point);
+		for (ccs_iterator = connected_components->head;ccs_iterator != 0; ccs_iterator = ccs_iterator->next) {
+			struct connected_component *cc = (struct connected_component *) ccs_iterator->content;
+			double *partial = compute_traffic_matrix_and_centrality(cc, node_num, is_articulation_point);
 			int i;
 			for (i = 0; i < cc->g.nodes.size; i++) {
 				bc[cc->mapping[i]] += partial[i];
 			}
-
 			free(partial);
 		}
 	}
 
 	while (!is_empty_list(tree_edges)) {
-		struct cc_node_edge *cne =
-			(struct cc_node_edge *)dequeue_list(tree_edges);
-
-
+		struct cc_node_edge *cne = (struct cc_node_edge *)dequeue_list(tree_edges);
 		free(cne);
 	}
 
 	free(tree_edges);
 
 	while (!is_empty_list(connected_components)) {
-		struct connected_component *cc =
-			(struct connected_component *)dequeue_list(
-				connected_components);
-
-
+		struct connected_component *cc = (struct connected_component *)dequeue_list(connected_components);
 		free_graph(&(cc->g));
 		free(cc->mapping);
 		free(cc->weights);
@@ -965,7 +936,7 @@ void *run_subgraph(void *arguments)
  * @param recursive whether we want to use the recursive or iterative approach
  * @return  An array with betwenness centrality for each node
  */
-double *betwenness_heuristic(struct graph *g, bool recursive, bool cutpoint_pen)
+double *betwenness_heuristic(struct graph *g, bool recursive, bool cutpoint_pen, bool endpoints, bool normalized)
 {
 	int node_num = g->nodes.size;
 	bool *is_articulation_point = (bool *)malloc(sizeof(bool) * node_num);
@@ -1002,31 +973,31 @@ double *betwenness_heuristic(struct graph *g, bool recursive, bool cutpoint_pen)
 
 	if (stop_computing_if_unchanged) {
 		int edge_num = 0;
-
+	
 		struct node_list *nl = g->nodes.head;
-
-
+	
+	
 		for (; nl != 0; nl = nl->next) {
 			struct node_graph *ng =
 				(struct node_graph *)nl->content;
-
-
+	
+	
 			struct node_list *nl2 = ng->neighbours.head;
-
-
+	
+	
 			for (; nl2 != 0; nl2 = nl2->next) {
 				struct edge_graph *eg =
 					(struct edge_graph *)nl2->content;
-
-
+	
+	
 				standard_deviation_edge += eg->value;
-
+	
 				edge_num++;
 			}
 		}
-
+	
 		standard_deviation_edge /= edge_num;
-
+	
 		// if we rely on old values when network
 		// is not changed
 		char **old_names = 0;
@@ -1034,57 +1005,57 @@ double *betwenness_heuristic(struct graph *g, bool recursive, bool cutpoint_pen)
 			connected_components_subgraphs, g->nodes.size,
 			&biconnected_component_num, &standard_deviation_bic,
 			&standard_deviation_edge, &result_size, &old_names);
-
+	
 		if (old_ret_val != 0) {
 			// free everything is behind
 			while (!is_empty_list(connected_components_subgraphs)) {
 				struct list *tmp = (struct list *)dequeue_list(
 					connected_components_subgraphs);
-
-
+	
+	
 				while (!is_empty_list(tmp)) {
 					struct connected_component *cc =
 						(struct connected_component *)
 							dequeue_list(tmp);
-
-
+	
+	
 					free_graph(&cc->g);
 					free(cc->mapping);
 					free(cc->weights);
 					free(cc);
 				}
-
+	
 				free(tmp);
 			}
-
+	
 			clear_list(connected_components_subgraphs);
 			free(connected_components_subgraphs);
 			free(is_articulation_point);
 			free(connected_component_indexes);
-
+	
 			if (node_num == result_size) {
 				copy_old_values(old_ret_val, ret_val, old_names,
 						result_size, &g->nodes);
 			}
-
+	
 			free(old_ret_val);
-
+	
 			if (old_names != 0) {
 				for (i = 0; i < result_size; i++) {
 					free(old_names[i]);
 				}
-
+	
 				free(old_names);
 			}
-
+	
 			return ret_val;
 		}
-
+	
 		if (old_names != 0) {
 			for (i = 0; i < result_size; i++) {
 				free(old_names[i]);
 			}
-
+	
 			free(old_names);
 		}
 	}
@@ -1095,9 +1066,9 @@ double *betwenness_heuristic(struct graph *g, bool recursive, bool cutpoint_pen)
 	if (multithread && (cc_num > 1)) {
 		i = 0;
 		struct multithread_subgraph_struct *args = (struct multithread_subgraph_struct *)malloc(sizeof(struct multithread_subgraph_struct)* cc_num);
-
+	
 		struct node_list *subgraph_iterator = connected_components_subgraphs->head;
-
+	
 		for (; subgraph_iterator != 0; subgraph_iterator = subgraph_iterator->next) {
 			struct sub_graph *sg = (struct sub_graph *)subgraph_iterator->content;
 			args[i].g = g;
@@ -1110,19 +1081,19 @@ double *betwenness_heuristic(struct graph *g, bool recursive, bool cutpoint_pen)
 			args[i].cutpoint_pen = cutpoint_pen;
 			i++;
 		}
-
+	
 		for (i = 0; i < cc_num; i++) {
 			pthread_create(&args[i].t, NULL, &run_subgraph,
 				       (void *)(args + i));
 		}
-
+	
 		for (i = 0; i < cc_num; i++) {
 			pthread_join(args[i].t, NULL);
 		}
-
+	
 		free(args);
-
-	} else {
+	
+	}else {
 		int bcc_num = ((struct sub_graph *) connected_components_subgraphs->head->content)->connected_components.size;
 		if (cc_num > 1 || use_heu_on_single_biconnected || bcc_num > 1) {
 			struct node_list *subgraph_iterator = connected_components_subgraphs->head;
@@ -1151,14 +1122,22 @@ double *betwenness_heuristic(struct graph *g, bool recursive, bool cutpoint_pen)
 		}
 	}
 
+	if ((normalized == true) && (endpoints == true))
+		scale = 1
+			/ (((double)(node_num - 1)) * ((double)(node_num - 2)));
+
+	else if ((normalized == true) && (endpoints == false))
+		scale = 1 / (((double)(node_num)) * ((double)(node_num - 1)));
+
+	else
+		scale = 0.5;
+	
 	if (node_num > 2) {
 		// double scale = 1 / (((double) (node_num - 1)) * ((double)
 		// (node_num - 2)));
 
 		for (i = 0; i < node_num; i++) {
 			ret_val[i] *= scale;
-
-			// ret_val[i]=round_decimal(ret_val[i]);
 		}
 	}
 
