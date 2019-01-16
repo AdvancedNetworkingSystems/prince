@@ -23,7 +23,7 @@ routing_plugin *new_plugin(char *host, int port, int json_type, int timer_port)
 	return o;
 }
 int get_initial_timers(routing_plugin *o, struct timers *t)
-{
+{	
 	t->h_timer = parse_initial_timer(o, HELLO_TIMER_MESSAGE);
 	t->tc_timer = parse_initial_timer(o, TC_TIMER_MESSAGE);
 	if (t->h_timer == -1) {
@@ -148,11 +148,11 @@ int push_timers(routing_plugin *o, struct timers t)
 {
 	o->sd = _create_socket(o->host, o->timer_port, 0);
 	char cmd[25];
-	sprintf(cmd, "/HelloTimer=%4.4f", t.h_timer);
+	sprintf(cmd, "/helloTimer=%4.4f", t.h_timer);
 	write(o->sd, cmd, strlen(cmd));
 	close(o->sd);
 	o->sd = _create_socket(o->host, o->timer_port, 0);
-	sprintf(cmd, "/TcTimer=%4.4f", t.tc_timer);
+	sprintf(cmd, "/tcTimer=%4.4f", t.tc_timer);
 	write(o->sd, cmd, strlen(cmd));
 	printf("%4.4f\t%4.4f\t%4.4f\t%4.4f\n", t.tc_timer, t.h_timer,
 	       t.exec_time, t.centrality);

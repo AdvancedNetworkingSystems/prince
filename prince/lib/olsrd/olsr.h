@@ -9,8 +9,8 @@
 
 float parse_initial_timer(routing_plugin *o, char *cmd);
 
-#define HELLO_TIMER_MESSAGE "/HelloTimer\n"
-#define TC_TIMER_MESSAGE "/TcTimer\n"
+#define HELLO_TIMER_MESSAGE "/helloTimer\n"
+#define TC_TIMER_MESSAGE "/tcTimer\n"
 #define RESPONSE_SIZE (sizeof(char) * 24)
 
 #endif /* SRC_OLSR_H_ */
