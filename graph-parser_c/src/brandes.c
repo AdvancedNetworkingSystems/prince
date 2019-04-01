@@ -334,11 +334,11 @@ double *betweeness_brandes(struct graph *g, bool endpoints,
 	free(delta);
 	struct node_list *nl = g->nodes.head;
 
-	if ((normalized == true) && (endpoints == true))
+	if ((normalized == true) && (endpoints == false))
 		scale = 1
 			/ (((double)(node_num - 1)) * ((double)(node_num - 2)));
 
-	else if ((normalized == true) && (endpoints == false))
+	else if ((normalized == true) && (endpoints == true))
 		scale = 1 / (((double)(node_num)) * ((double)(node_num - 1)));
 
 	else
@@ -1123,11 +1123,11 @@ double *betwenness_heuristic(struct graph *g, bool recursive, bool cutpoint_pen,
 	}
 
 	if ((normalized == true) && (endpoints == true))
-		scale = 1
+		scale = 0.5
 			/ (((double)(node_num - 1)) * ((double)(node_num - 2)));
 
 	else if ((normalized == true) && (endpoints == false))
-		scale = 1 / (((double)(node_num)) * ((double)(node_num - 1)));
+		scale = 0.5 / (((double)(node_num)) * ((double)(node_num - 1)));
 
 	else
 		scale = 0.5;
